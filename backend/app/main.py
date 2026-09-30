@@ -1,5 +1,7 @@
 from fastapi import FastAPI
+
 from app.core.database import test_connection
+from app.routers import notes, tasks, auth
 
 app = FastAPI(
     title="Zenith API",
@@ -7,6 +9,9 @@ app = FastAPI(
     version="0.1.0",
 )
 
+app.include_router(auth.router)
+app.include_router(notes.router)
+app.include_router(tasks.router)
 
 @app.get("/health")
 def health_check():

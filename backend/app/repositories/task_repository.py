@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from app.models.task import Task
@@ -9,14 +9,47 @@ from app.models.task import Task
 def get_tasks_by_user(
     db: Session,
     user_id: UUID,
-) -> list[Task]:
-    result = db.scalars(
-        select(Task)
-        .where(Task.user_id == user_id)
-        .order_by(Task.created_at.desc())
+    limit: int,
+    offset: int,
+    status: str | None = None,
+    search: str | None = None,
+) -> tuple[list[Task], int]:
+
+    query = select(Task).where(
+        Task.user_id == user_id,
     )
 
-    return list(result.all())
+    count_query = (
+        select(func.count())
+        .select_from(Task)
+        .where(Task.user_id == user_id)
+    )
+
+    if status is not None:
+        query = query.where(Task.status == status)
+        count_query = count_query.where(Task.status == status)
+
+    if search is not None:
+        search_pattern = f"%{search}%"
+
+        search_filter = or_(
+            Task.title.ilike(search_pattern),
+            Task.description.ilike(search_pattern),
+        )
+
+        query = query.where(search_filter)
+        count_query = count_query.where(search_filter)
+
+    tasks = db.scalars(
+        query
+        .order_by(Task.created_at.desc())
+        .limit(limit)
+        .offset(offset)
+    ).all()
+
+    total = db.scalar(count_query)
+
+    return list(tasks), total or 0
 
 
 def get_task_by_id(

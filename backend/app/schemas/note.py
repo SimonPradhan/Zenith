@@ -1,17 +1,24 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class NoteCreate(BaseModel):
-    title: str
-    content: str
+    title: str = Field(min_length=1, max_length=255)
+    content: str = Field(min_length=1)
 
 
 class NoteUpdate(BaseModel):
-    title: str | None = None
-    content: str | None = None
+    title: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=255,
+    )
+    content: str | None = Field(
+        default=None,
+        min_length=1,
+    )
 
 
 class NoteResponse(BaseModel):
@@ -23,3 +30,9 @@ class NoteResponse(BaseModel):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+class NoteListResponse(BaseModel):
+    items: list[NoteResponse]
+    total: int
+    limit: int
+    offset: int
