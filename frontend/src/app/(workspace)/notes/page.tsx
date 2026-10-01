@@ -6,7 +6,7 @@ import {
   Plus,
   Search,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import {
   createNote,
@@ -31,10 +31,14 @@ const PAGE_SIZE = 10;
 export default function NotesPage() {
   const router = useRouter();
 
-  const [data, setData] =
-    useState<NoteListResponse | null>(null);
 
-  const [search, setSearch] = useState("");
+  const searchParams = useSearchParams();
+
+  const [data, setData] = useState<NoteListResponse | null>(null);
+
+  const [search, setSearch] = useState(() => {
+    return searchParams.get("search") ?? "";
+  });
   const [debouncedSearch, setDebouncedSearch] =
     useState("");
 

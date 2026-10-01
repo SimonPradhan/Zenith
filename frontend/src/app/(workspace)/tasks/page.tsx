@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Plus, Search, SlidersHorizontal } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import {
   createTask,
@@ -27,12 +27,15 @@ const PAGE_SIZE = 10;
 
 export default function TasksPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [data, setData] = useState<TaskListResponse | null>(
     null,
   );
 
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(() => {
+    return searchParams.get("search") ?? "";
+  });
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [status, setStatus] = useState<TaskStatus | "all">(
     "all",
@@ -54,6 +57,7 @@ export default function TasksPage() {
   );
 
   const [deleting, setDeleting] = useState(false);
+
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -89,7 +93,12 @@ export default function TasksPage() {
       setError("");
 
       try {
-        const result = await loadTasks(token);
+        const result = await getTasks(token, {
+          limit: PAGE_SIZE,
+          offset: page * PAGE_SIZE,
+          search: debouncedSearch.trim() || undefined,
+          status: status === "all" ? undefined : status,
+        });
 
         if (!cancelled) {
           setData(result);

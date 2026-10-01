@@ -12,11 +12,11 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
-  Search,
   Settings,
   X,
 } from "lucide-react";
 import { useUser } from "@/app/context/user-context";
+import GlobalSearch from "./global-search";
 
 
 const navigation = [
@@ -317,16 +317,7 @@ export function DashboardShell({
           {/* Search */}
           <div className="hidden max-w-md flex-1 sm:block">
             <div className="relative">
-              <Search
-                size={17}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"
-              />
-
-              <input
-                type="search"
-                placeholder="Search..."
-                className="h-9 w-full rounded-lg border border-border bg-surface pl-10 pr-4 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-primary/60 focus:ring-2 focus:ring-primary/10"
-              />
+              <GlobalSearch />
 
               <kbd className="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded border border-border bg-surface-elevated px-1.5 py-0.5 text-[10px] text-text-muted md:block">
                 ⌘ K
