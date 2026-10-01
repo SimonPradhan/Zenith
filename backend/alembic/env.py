@@ -3,13 +3,9 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
+from app.core.config import settings
 from app.core.database import Base
 from app.models import User, Note, Task
-from dotenv import load_dotenv
-import os
-
-
-load_dotenv()
 
 
 config = context.config
@@ -19,13 +15,10 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-if not DATABASE_URL:
-    raise RuntimeError("DATABASE_URL is not set")
-
-
-config.set_main_option("sqlalchemy.url", DATABASE_URL)
+config.set_main_option(
+    "sqlalchemy.url",
+    settings.database_url,
+)
 
 
 target_metadata = Base.metadata

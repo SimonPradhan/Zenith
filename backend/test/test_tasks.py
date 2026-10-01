@@ -1,7 +1,14 @@
 from uuid import UUID
+from sqlalchemy import select
 
+from app.models.user import User
 
-def register_and_login(client, email, name="Other User"):
+def register_and_login(
+    client,
+    db,
+    email,
+    name="Other User",
+):
     password = "TestPassword123!"
 
     response = client.post(
@@ -15,6 +22,17 @@ def register_and_login(client, email, name="Other User"):
 
     assert response.status_code == 201
 
+    user = db.scalar(
+        select(User).where(
+            User.email == email
+        )
+    )
+
+    assert user is not None
+
+    user.is_email_verified = True
+    db.commit()
+
     response = client.post(
         "/auth/login",
         json={
@@ -25,10 +43,8 @@ def register_and_login(client, email, name="Other User"):
 
     assert response.status_code == 200
 
-    token = response.json()["access_token"]
-
     return {
-        "Authorization": f"Bearer {token}",
+        "Authorization": f"Bearer {response.json()['access_token']}",
     }
 
 
@@ -289,6 +305,7 @@ def test_delete_task(client, auth_headers):
 
 def test_user_cannot_read_another_users_task(
     client,
+    db,
     auth_headers,
 ):
     task_response = client.post(
@@ -304,7 +321,8 @@ def test_user_cannot_read_another_users_task(
 
     headers_b = register_and_login(
         client,
-        "other-task-read@zenith.dev",
+        db,
+        "other-notes-read@zenith.dev",
     )
 
     response = client.get(
@@ -317,6 +335,7 @@ def test_user_cannot_read_another_users_task(
 
 def test_user_cannot_update_another_users_task(
     client,
+    db,
     auth_headers,
 ):
     task_response = client.post(
@@ -332,7 +351,8 @@ def test_user_cannot_update_another_users_task(
 
     headers_b = register_and_login(
         client,
-        "other-task-update@zenith.dev",
+        db,
+        "other-notes-read@zenith.dev",
     )
 
     response = client.patch(
@@ -349,6 +369,7 @@ def test_user_cannot_update_another_users_task(
 
 def test_user_cannot_delete_another_users_task(
     client,
+    db,
     auth_headers,
 ):
     task_response = client.post(
@@ -364,7 +385,8 @@ def test_user_cannot_delete_another_users_task(
 
     headers_b = register_and_login(
         client,
-        "other-task-delete@zenith.dev",
+        db,
+        "other-notes-read@zenith.dev",
     )
 
     response = client.delete(

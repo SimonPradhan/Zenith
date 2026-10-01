@@ -1,12 +1,14 @@
 import os
 
 os.environ["ENV_FILE"] = ".env.test"
+os.environ["ENVIRONMENT"] = "test"
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, select, text
 from sqlalchemy.orm import sessionmaker
 
+from app.models.user import User
 from app.core.config import settings
 from app.core.database import Base, get_db
 from app.main import app
@@ -26,11 +28,7 @@ TestingSessionLocal = sessionmaker(
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_database():
-    Base.metadata.create_all(bind=test_engine)
-
     yield
-
-    Base.metadata.drop_all(bind=test_engine)
 
 
 @pytest.fixture
@@ -56,8 +54,9 @@ def client(db):
 
     app.dependency_overrides.clear()
 
+
 @pytest.fixture
-def test_user(client):
+def test_user(client, db):
     response = client.post(
         "/auth/register",
         json={
@@ -68,6 +67,17 @@ def test_user(client):
     )
 
     assert response.status_code == 201
+
+    user = db.scalar(
+        select(User).where(
+            User.email == "test-user@zenith.dev"
+        )
+    )
+
+    assert user is not None
+
+    user.is_email_verified = True
+    db.commit()
 
     return response.json()
 
@@ -90,11 +100,15 @@ def auth_headers(client, test_user):
         "Authorization": f"Bearer {token}",
     }
 
+
 @pytest.fixture(autouse=True)
 def clean_database():
     yield
 
     with test_engine.begin() as connection:
         connection.execute(
-            text("TRUNCATE TABLE tasks, notes, users RESTART IDENTITY CASCADE")
+            text(
+                "TRUNCATE TABLE tasks, notes, users "
+                "RESTART IDENTITY CASCADE"
+            )
         )
