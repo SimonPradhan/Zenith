@@ -16,7 +16,7 @@ def send_verification_email(
 
     resend.Emails.send(
         {
-            "from": "Zenith <onboarding@resend.dev>",
+            "from": "Zenith <no-reply@zenith.simonpradhan.com.np>",
             "to": [recipient_email],
             "subject": "Verify your Zenith account",
             "html": f"""
@@ -41,6 +41,7 @@ def send_verification_email(
         }
     )
 
+
 def send_password_reset_email(
     recipient_email: str,
     recipient_name: str,
@@ -51,7 +52,7 @@ def send_password_reset_email(
 
     resend.Emails.send(
         {
-            "from": "Zenith <onboarding@resend.dev>",
+            "from": "Zenith <no-reply@zenith.simonpradhan.com.np>",
             "to": [recipient_email],
             "subject": "Reset your Zenith password",
             "html": f"""
