@@ -3,6 +3,7 @@ import {
   FileText,
   Plus,
 } from "lucide-react";
+
 import type { Note } from "@/types/note";
 
 type RecentNotesProps = {

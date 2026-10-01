@@ -1,9 +1,16 @@
-import { DashboardShell } from "../components/layout/dashboard-shell";
+import { DashboardShell } from "@/app/components/layout/dashboard-shell";
+import { UserProvider } from "../context/user-context";
 
-export default function DashboardLayout({
+export default function WorkspaceLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
-  return <DashboardShell>{children}</DashboardShell>;
+}) {
+  return (
+    <UserProvider>
+      <DashboardShell>
+        {children}
+      </DashboardShell>
+    </UserProvider>
+  );
 }

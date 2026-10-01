@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 import {
   Bell,
@@ -16,13 +16,8 @@ import {
   Settings,
   X,
 } from "lucide-react";
+import { useUser } from "@/app/context/user-context";
 
-import { getMe } from "@/lib/api/auth";
-import {
-  getToken,
-  removeToken,
-} from "@/lib/auth";
-import type { User } from "@/types/auth";
 
 const navigation = [
   {
@@ -56,50 +51,19 @@ export function DashboardShell({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
+
+  const {
+    user,
+    loading,
+    logout,
+  } = useUser();
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function loadUser() {
-      const token = getToken();
-
-      if (!token) {
-        router.replace("/login");
-        return;
-      }
-
-      try {
-        const currentUser = await getMe(token);
-
-        if (!cancelled) {
-          setUser(currentUser);
-        }
-      } catch {
-        if (!cancelled) {
-          removeToken();
-          router.replace("/login");
-        }
-      }
-    }
-
-    loadUser();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [router]);
-
-  function handleLogout() {
-    removeToken();
-    router.replace("/login");
-  }
-
-  const sidebarWidth = collapsed ? "w-[76px]" : "w-[250px]";
+  const sidebarWidth = collapsed
+    ? "w-[76px]"
+    : "w-[250px]";
 
   return (
     <div className="min-h-screen bg-background text-text-primary">
@@ -198,7 +162,9 @@ export function DashboardShell({
                     }
                   />
 
-                  {!collapsed && <span>{item.label}</span>}
+                  {!collapsed && (
+                    <span>{item.label}</span>
+                  )}
 
                   {active && !collapsed && (
                     <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" />
@@ -224,6 +190,10 @@ export function DashboardShell({
             {workspaceNavigation.map((item) => {
               const Icon = item.icon;
 
+              const active =
+                pathname === item.href ||
+                pathname.startsWith(`${item.href}/`);
+
               return (
                 <Link
                   key={item.href}
@@ -232,17 +202,31 @@ export function DashboardShell({
                   title={collapsed ? item.label : undefined}
                   className={`
                     group flex items-center gap-3 rounded-xl px-3 py-2.5
-                    text-sm font-medium text-text-secondary
-                    transition hover:bg-surface-elevated hover:text-text-primary
+                    text-sm font-medium transition
+                    ${
+                      active
+                        ? "bg-primary/10 text-primary"
+                        : "text-text-secondary hover:bg-surface-elevated hover:text-text-primary"
+                    }
                     ${collapsed ? "justify-center" : ""}
                   `}
                 >
                   <Icon
                     size={18}
-                    className="text-text-muted group-hover:text-text-primary"
+                    className={
+                      active
+                        ? "text-primary"
+                        : "text-text-muted group-hover:text-text-primary"
+                    }
                   />
 
-                  {!collapsed && <span>{item.label}</span>}
+                  {!collapsed && (
+                    <span>{item.label}</span>
+                  )}
+
+                  {active && !collapsed && (
+                    <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" />
+                  )}
                 </Link>
               );
             })}
@@ -262,9 +246,11 @@ export function DashboardShell({
             </div>
 
             {!collapsed && (
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-text-primary">
-                  {user?.name ?? "Loading..."}
+                  {loading
+                    ? "Loading..."
+                    : user?.name ?? "User"}
                 </p>
 
                 <p className="truncate text-xs text-text-muted">
@@ -275,7 +261,8 @@ export function DashboardShell({
 
             {!collapsed && (
               <button
-                onClick={handleLogout}
+                type="button"
+                onClick={logout}
                 title="Logout"
                 className="rounded-lg p-2 text-text-muted transition hover:bg-error/10 hover:text-error"
               >
@@ -287,13 +274,20 @@ export function DashboardShell({
 
         {/* Collapse */}
         <button
+          type="button"
           onClick={() => setCollapsed((value) => !value)}
           className="absolute -right-3 top-[72px] hidden h-6 w-6 items-center justify-center rounded-full border border-border bg-background text-text-muted shadow-lg hover:text-text-primary lg:flex"
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label={
+            collapsed
+              ? "Expand sidebar"
+              : "Collapse sidebar"
+          }
         >
           <ChevronLeft
             size={14}
-            className={collapsed ? "rotate-180" : ""}
+            className={
+              collapsed ? "rotate-180" : ""
+            }
           />
         </button>
       </aside>
@@ -302,12 +296,17 @@ export function DashboardShell({
       <div
         className={`
           min-h-screen transition-[padding] duration-300
-          ${collapsed ? "lg:pl-[76px]" : "lg:pl-[250px]"}
+          ${
+            collapsed
+              ? "lg:pl-[76px]"
+              : "lg:pl-[250px]"
+          }
         `}
       >
         {/* Topbar */}
         <header className="sticky top-0 z-30 flex h-16 items-center border-b border-border bg-background/80 px-4 backdrop-blur-xl sm:px-6">
           <button
+            type="button"
             onClick={() => setMobileOpen(true)}
             className="mr-3 rounded-lg p-2 text-text-secondary hover:bg-surface-elevated hover:text-text-primary lg:hidden"
             aria-label="Open navigation"
@@ -337,6 +336,7 @@ export function DashboardShell({
 
           <div className="ml-auto flex items-center gap-2">
             <button
+              type="button"
               className="relative rounded-lg p-2 text-text-secondary transition hover:bg-surface-elevated hover:text-text-primary"
               aria-label="Notifications"
             >
@@ -353,7 +353,9 @@ export function DashboardShell({
               </div>
 
               <span className="hidden max-w-[120px] truncate text-sm font-medium sm:block">
-                {user?.name ?? "Loading..."}
+                {loading
+                  ? "Loading..."
+                  : user?.name ?? "User"}
               </span>
             </div>
           </div>

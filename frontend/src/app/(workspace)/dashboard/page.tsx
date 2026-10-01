@@ -11,18 +11,18 @@ import RecentTasks from "@/app/components/dashboard/recent-tasks";
 import RecentNotes from "@/app/components/dashboard/recent-notes";
 import DashboardSkeleton from "@/app/components/dashboard/dashboard-skeleton";
 
-import { getMe } from "@/lib/api/auth";
 import { getTasks } from "@/lib/api/tasks";
 import { getNotes } from "@/lib/api/notes";
 
-import type { User } from "@/types/auth";
 import type { Task } from "@/types/task";
 import type { Note } from "@/types/note";
+import { getToken } from "@/lib/auth";
+import { useUser } from "@/app/context/user-context";
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { user, loading: userLoading } = useUser();
 
-  const [user, setUser] = useState<User | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
 
@@ -34,44 +34,39 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (userLoading || !user) {
+      return;
+    }
+
     async function loadDashboard() {
+      const token = getToken();
+
+      if (!token) {
+        return;
+      }
+
       try {
-        const token = localStorage.getItem("access_token");
-
-        if (!token) {
-          router.replace("/login");
-          return;
-        }
-
-        const [
-          currentUser,
-          allTasks,
-          pendingTasks,
-          completedTasks,
-          recentNotes,
-        ] = await Promise.all([
-          getMe(token),
-          getTasks(token, {
-            limit: 5,
-            offset: 0,
-          }),
-          getTasks(token, {
-            limit: 1,
-            offset: 0,
-            status: "pending",
-          }),
-          getTasks(token, {
-            limit: 1,
-            offset: 0,
-            status: "completed",
-          }),
-          getNotes(token, {
-            limit: 5,
-            offset: 0,
-          }),
-        ]);
-
-        setUser(currentUser);
+        const [allTasks, pendingTasks, completedTasks, recentNotes] =
+          await Promise.all([
+            getTasks(token, {
+              limit: 5,
+              offset: 0,
+            }),
+            getTasks(token, {
+              limit: 1,
+              offset: 0,
+              status: "pending",
+            }),
+            getTasks(token, {
+              limit: 1,
+              offset: 0,
+              status: "completed",
+            }),
+            getNotes(token, {
+              limit: 5,
+              offset: 0,
+            }),
+          ]);
 
         setTasks(allTasks.items);
         setNotes(recentNotes.items);
@@ -82,27 +77,20 @@ export default function DashboardPage() {
         setTotalNotes(recentNotes.total);
       } catch (error) {
         console.error("Failed to load dashboard:", error);
-
-        localStorage.removeItem("access_token");
-        router.replace("/login");
       } finally {
         setLoading(false);
       }
     }
 
     loadDashboard();
-  }, [router]);
+  }, [user, userLoading]);
 
-  if (loading) {
+  if (userLoading || loading) {
     return <DashboardSkeleton />;
   }
 
   const completionRate =
-    totalTasks === 0
-      ? 0
-      : Math.round(
-          (completedCount / totalTasks) * 100,
-        );
+    totalTasks === 0 ? 0 : Math.round((completedCount / totalTasks) * 100);
 
   function handleCreateTask() {
     router.push("/tasks?create=true");
@@ -122,10 +110,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <DashboardHeader
-        user={user}
-        onCreateTask={handleCreateTask}
-      />
+      <DashboardHeader user={user} onCreateTask={handleCreateTask} />
 
       <DashboardStats
         totalTasks={totalTasks}
