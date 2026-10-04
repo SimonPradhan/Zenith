@@ -1,14 +1,19 @@
+from datetime import datetime
 from uuid import UUID
-
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.core.security import get_current_user
 from app.models.user import User
-from app.schemas.task import TaskCreate, TaskListResponse, TaskResponse, TaskStatus, TaskUpdate
+from app.schemas.task import (
+    TaskCreate,
+    TaskListResponse,
+    TaskResponse,
+    TaskStatus,
+    TaskUpdate,
+)
 from app.services import task_service
-
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy.orm import Session
 
 router = APIRouter(
     prefix="/tasks",
@@ -37,8 +42,17 @@ def get_tasks(
         default=None,
         min_length=1,
     ),
+    due_from: datetime | None = Query(
+        default=None,
+    ),
+    due_to: datetime | None = Query(
+        default=None,
+    ),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
+    order_by_due_date: bool = Query(
+        default=False,
+    ),
 ):
     tasks, total = task_service.get_tasks(
         db,
@@ -47,6 +61,9 @@ def get_tasks(
         offset,
         status.value if status is not None else None,
         search,
+        due_from,
+        due_to,
+        order_by_due_date,
     )
 
     return {

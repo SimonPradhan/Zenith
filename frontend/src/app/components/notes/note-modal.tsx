@@ -1,9 +1,13 @@
 "use client";
 
-import { Loader2, X } from "lucide-react";
+import { Loader2, Palette, X } from "lucide-react";
 import { useState } from "react";
 
-import type { Note, NoteCreate } from "@/types/note";
+import type {
+  Note,
+  NoteColor,
+  NoteCreate,
+} from "@/types/note";
 
 interface NoteModalProps {
   open: boolean;
@@ -33,6 +37,38 @@ export function NoteModal({
   );
 }
 
+const noteColors: {
+  value: NoteColor;
+  label: string;
+  className: string;
+}[] = [
+  {
+    value: "yellow",
+    label: "Yellow",
+    className: "bg-[#f4edc8]",
+  },
+  {
+    value: "purple",
+    label: "Lavender",
+    className: "bg-[#e8e1f5]",
+  },
+  {
+    value: "blue",
+    label: "Blue",
+    className: "bg-[#dcecf2]",
+  },
+  {
+    value: "green",
+    label: "Green",
+    className: "bg-[#e2eddc]",
+  },
+  {
+    value: "pink",
+    label: "Pink",
+    className: "bg-[#f3dfe3]",
+  },
+  ];
+
 function NoteModalForm({
   note,
   loading,
@@ -46,6 +82,9 @@ function NoteModalForm({
 }) {
   const [title, setTitle] = useState(note?.title ?? "");
   const [content, setContent] = useState(note?.content ?? "");
+  const [color, setColor] = useState<NoteColor>(
+    note?.color ?? "yellow",
+  );
   const [error, setError] = useState("");
 
   const editing = Boolean(note);
@@ -79,6 +118,7 @@ function NoteModalForm({
       await onSubmit({
         title: trimmedTitle,
         content: trimmedContent,
+        color,
       });
     } catch (error) {
       setError(
@@ -187,6 +227,58 @@ function NoteModalForm({
               disabled={loading}
               className="w-full resize-y rounded-xl border border-border bg-surface-elevated px-3.5 py-3 text-sm leading-6 text-text-primary outline-none placeholder:text-text-muted focus:border-primary/60 focus:ring-2 focus:ring-primary/10 disabled:opacity-50"
             />
+          </div>
+
+          {/* Color */}
+          <div>
+            <div className="mb-3 flex items-center gap-2">
+              <Palette
+                size={15}
+                className="text-text-muted"
+              />
+
+              <label className="text-sm font-medium text-text-primary">
+                Note color
+              </label>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              {noteColors.map((noteColor) => {
+                const selected = color === noteColor.value;
+
+                return (
+                  <button
+                    key={noteColor.value}
+                    type="button"
+                    onClick={() => setColor(noteColor.value)}
+                    disabled={loading}
+                    aria-label={`Use ${noteColor.label} note color`}
+                    aria-pressed={selected}
+                    className={`
+                      relative h-10 w-10 rounded-lg
+                      border
+                      ${noteColor.className}
+                      transition-all duration-150
+                      hover:-translate-y-0.5
+                      hover:shadow-md
+                      disabled:cursor-not-allowed
+                      disabled:opacity-50
+                      ${
+                        selected
+                          ? "border-primary ring-2 ring-primary/30 ring-offset-2 ring-offset-surface"
+                          : "border-black/10"
+                      }
+                    `}
+                  >
+                    {selected && (
+                      <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-zinc-700">
+                        ✓
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Actions */}

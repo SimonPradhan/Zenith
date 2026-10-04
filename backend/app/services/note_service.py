@@ -44,8 +44,8 @@ def create_note(
         user_id=user_id,
         title=data.title,
         content=data.content,
+        color=data.color,
     )
-
     return note_repository.create_note(
         db,
         note,
@@ -62,6 +62,9 @@ def update_note(
 
     if data.content is not None:
         note.content = data.content
+
+    if data.color is not None:
+        note.color = data.color
 
     return note_repository.update_note(
         db,

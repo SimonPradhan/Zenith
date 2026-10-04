@@ -42,18 +42,43 @@ export function NoteList({
       )}
 
       <div
-        className={`grid grid-cols-1 gap-4 transition-opacity duration-200 sm:grid-cols-2 ${
-          loading ? "opacity-60" : "opacity-100"
-        }`}
+        className={`
+          relative overflow-hidden rounded-3xl
+          border border-border
+          bg-surface-elevated/40
+          p-5 sm:p-7
+          transition-opacity duration-200
+          ${loading ? "opacity-60" : "opacity-100"}
+        `}
       >
-        {notes.map((note) => (
-          <NoteCard
-            key={note.id}
-            note={note}
-            onEdit={onEdit}
-            onDelete={onDelete}
-          />
-        ))}
+        {/* Subtle board texture */}
+        <div
+          className="
+            pointer-events-none absolute inset-0
+            opacity-[0.025]
+            [background-image:radial-gradient(circle_at_1px_1px,currentColor_1px,transparent_0)]
+            [background-size:18px_18px]
+          "
+        />
+
+        <div
+          className="
+            relative
+            grid grid-cols-1 gap-8
+            sm:grid-cols-2
+            lg:grid-cols-3
+            xl:grid-cols-4
+          "
+        >
+          {notes.map((note) => (
+            <NoteCard
+              key={note.id}
+              note={note}
+              onEdit={onEdit}
+              onDelete={onDelete}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

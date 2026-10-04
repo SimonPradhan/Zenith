@@ -3,6 +3,7 @@ import type {
   Task,
   TaskCreate,
   TaskListResponse,
+  TaskPriority,
   TaskStatus,
   TaskUpdate,
 } from "@/types/task";
@@ -13,7 +14,11 @@ export function getTasks(
     limit?: number;
     offset?: number;
     status?: TaskStatus;
+    priority?: TaskPriority;
     search?: string;
+    due_from?: string;
+    due_to?: string;
+    order_by_due_date?: boolean;
   },
 ) {
   const searchParams = new URLSearchParams();
@@ -30,8 +35,27 @@ export function getTasks(
     searchParams.set("status", params.status);
   }
 
+  if (params?.priority) {
+    searchParams.set("priority", params.priority);
+  }
+
   if (params?.search) {
     searchParams.set("search", params.search);
+  }
+
+  if (params?.due_from) {
+    searchParams.set("due_from", params.due_from);
+  }
+
+  if (params?.due_to) {
+    searchParams.set("due_to", params.due_to);
+  }
+
+  if (params?.order_by_due_date !== undefined) {
+    searchParams.set(
+      "order_by_due_date",
+      String(params.order_by_due_date),
+    );
   }
 
   const query = searchParams.toString();

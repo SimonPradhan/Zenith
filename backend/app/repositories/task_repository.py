@@ -1,3 +1,4 @@
+from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import func, or_, select
@@ -13,6 +14,9 @@ def get_tasks_by_user(
     offset: int,
     status: str | None = None,
     search: str | None = None,
+    due_from: datetime | None = None,
+    due_to: datetime | None = None,
+    order_by_due_date: bool = False,
 ) -> tuple[list[Task], int]:
 
     query = select(Task).where(
@@ -40,9 +44,26 @@ def get_tasks_by_user(
         query = query.where(search_filter)
         count_query = count_query.where(search_filter)
 
+    if due_from is not None:
+        query = query.where(Task.due_date >= due_from)
+        count_query = count_query.where(Task.due_date >= due_from)
+
+    if due_to is not None:
+        query = query.where(Task.due_date <= due_to)
+        count_query = count_query.where(Task.due_date <= due_to)
+
+    if order_by_due_date:
+        query = query.order_by(
+            Task.due_date.asc(),
+            Task.created_at.desc(),
+        )
+    else:
+        query = query.order_by(
+            Task.created_at.desc(),
+        )
+
     tasks = db.scalars(
         query
-        .order_by(Task.created_at.desc())
         .limit(limit)
         .offset(offset)
     ).all()

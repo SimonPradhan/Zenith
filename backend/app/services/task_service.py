@@ -1,4 +1,5 @@
 from uuid import UUID
+from datetime import datetime
 
 from sqlalchemy.orm import Session
 
@@ -14,6 +15,9 @@ def get_tasks(
     offset: int,
     status: str | None = None,
     search: str | None = None,
+    due_from: datetime | None = None,
+    due_to: datetime | None = None,
+    order_by_due_date: bool = False,
 ) -> tuple[list[Task], int]:
     return task_repository.get_tasks_by_user(
         db,
@@ -22,6 +26,9 @@ def get_tasks(
         offset,
         status,
         search,
+        due_from,
+        due_to,
+        order_by_due_date,
     )
 
 def get_task(
@@ -45,7 +52,11 @@ def create_task(
         user_id=user_id,
         title=data.title,
         description=data.description,
+        status=data.status.value,
+        priority=data.priority.value,
+        start_date=data.start_date,
         due_date=data.due_date,
+        estimated_minutes=data.estimated_minutes,
     )
 
     return task_repository.create_task(
@@ -68,8 +79,17 @@ def update_task(
     if data.status is not None:
         task.status = data.status.value
 
+    if data.priority is not None:
+        task.priority = data.priority.value
+
+    if data.start_date is not None:
+        task.start_date = data.start_date
+
     if data.due_date is not None:
         task.due_date = data.due_date
+
+    if data.estimated_minutes is not None:
+        task.estimated_minutes = data.estimated_minutes
 
     return task_repository.update_task(
         db,

@@ -7,8 +7,9 @@ import DashboardHeader from "@/app/components/dashboard/dashboard-header";
 import DashboardStats from "@/app/components/dashboard/dashboard-stats";
 import TaskProgressCard from "@/app/components/dashboard/task-progress-card";
 import QuickActions from "@/app/components/dashboard/quick-actions";
-import RecentTasks from "@/app/components/dashboard/recent-tasks";
 import RecentNotes from "@/app/components/dashboard/recent-notes";
+import TodayTasks from "@/app/components/dashboard/today-tasks";
+import OverdueTasks from "@/app/components/dashboard/overdue-tasks";
 import DashboardSkeleton from "@/app/components/dashboard/dashboard-skeleton";
 
 import { getTasks } from "@/lib/api/tasks";
@@ -23,7 +24,8 @@ export default function DashboardPage() {
   const router = useRouter();
   const { user, loading: userLoading } = useUser();
 
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [todayTasks, setTodayTasks] = useState<Task[]>([]);
+  const [overdueTasks, setOverdueTasks] = useState<Task[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
 
   const [totalTasks, setTotalTasks] = useState(0);
@@ -46,29 +48,56 @@ export default function DashboardPage() {
       }
 
       try {
-        const [allTasks, pendingTasks, completedTasks, recentNotes] =
-          await Promise.all([
-            getTasks(token, {
-              limit: 5,
-              offset: 0,
-            }),
-            getTasks(token, {
-              limit: 1,
-              offset: 0,
-              status: "pending",
-            }),
-            getTasks(token, {
-              limit: 1,
-              offset: 0,
-              status: "completed",
-            }),
-            getNotes(token, {
-              limit: 5,
-              offset: 0,
-            }),
-          ]);
+        const [
+          allTasks,
+          pendingTasks,
+          completedTasks,
+          recentNotes,
+          todaysTasks,
+          overdueTasks,
+        ] = await Promise.all([
+          getTasks(token, {
+            limit: 5,
+            offset: 0,
+          }),
 
-        setTasks(allTasks.items);
+          getTasks(token, {
+            limit: 1,
+            offset: 0,
+            status: "pending",
+          }),
+
+          getTasks(token, {
+            limit: 1,
+            offset: 0,
+            status: "completed",
+          }),
+
+          getNotes(token, {
+            limit: 5,
+            offset: 0,
+          }),
+
+          // Today and future tasks.
+          getTasks(token, {
+            limit: 10,
+            offset: 0,
+            due_from: getStartOfToday(),
+            order_by_due_date: true,
+          }),
+
+          // Pending tasks that were due before today.
+          getTasks(token, {
+            limit: 10,
+            offset: 0,
+            due_to: getEndOfYesterday(),
+            status: "pending",
+            order_by_due_date: true,
+          }),
+        ]);
+
+        setTodayTasks(todaysTasks.items);
+        setOverdueTasks(overdueTasks.items);
         setNotes(recentNotes.items);
 
         setTotalTasks(allTasks.total);
@@ -90,7 +119,9 @@ export default function DashboardPage() {
   }
 
   const completionRate =
-    totalTasks === 0 ? 0 : Math.round((completedCount / totalTasks) * 100);
+    totalTasks === 0
+      ? 0
+      : Math.round((completedCount / totalTasks) * 100);
 
   function handleCreateTask() {
     router.push("/tasks?create=true");
@@ -108,9 +139,16 @@ export default function DashboardPage() {
     router.push("/notes");
   }
 
+  function handleTaskClick(task: Task) {
+    router.push(`/tasks?task=${encodeURIComponent(task.id)}`);
+  }
+
   return (
     <div className="space-y-6">
-      <DashboardHeader user={user} onCreateTask={handleCreateTask} />
+      <DashboardHeader
+        user={user}
+        onCreateTask={handleCreateTask}
+      />
 
       <DashboardStats
         totalTasks={totalTasks}
@@ -119,6 +157,31 @@ export default function DashboardPage() {
         totalNotes={totalNotes}
       />
 
+      {/* Overdue tasks */}
+      {overdueTasks.length > 0 && (
+        <OverdueTasks
+          tasks={overdueTasks}
+          onViewAll={handleViewTasks}
+          onTaskClick={handleTaskClick}
+        />
+      )}
+
+      {/* Today's work */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <TodayTasks
+          tasks={todayTasks}
+          onViewAll={handleViewTasks}
+          onTaskClick={handleTaskClick}
+        />
+
+        <RecentNotes
+          notes={notes}
+          onViewAll={handleViewNotes}
+          onCreateNote={handleCreateNote}
+        />
+      </div>
+
+      {/* Progress + actions */}
       <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
         <TaskProgressCard
           totalTasks={totalTasks}
@@ -133,19 +196,23 @@ export default function DashboardPage() {
           onCreateNote={handleCreateNote}
         />
       </div>
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <RecentTasks
-          tasks={tasks}
-          onViewAll={handleViewTasks}
-        />
-
-        <RecentNotes
-          notes={notes}
-          onViewAll={handleViewNotes}
-          onCreateNote={handleCreateNote}
-        />
-      </div>
     </div>
   );
+}
+
+function getStartOfToday(): string {
+  const date = new Date();
+
+  date.setHours(0, 0, 0, 0);
+
+  return date.toISOString();
+}
+
+function getEndOfYesterday(): string {
+  const date = new Date();
+
+  date.setHours(0, 0, 0, 0);
+  date.setMilliseconds(date.getMilliseconds() - 1);
+
+  return date.toISOString();
 }

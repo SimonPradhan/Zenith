@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, ForeignKey, String, Text, func
+from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -44,8 +44,24 @@ class Task(Base):
         default="pending",
     )
 
+    priority: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+        default="medium",
+    )
+
+    start_date: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+
     due_date: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
+        nullable=True,
+    )
+
+    estimated_minutes: Mapped[int | None] = mapped_column(
+        Integer,
         nullable=True,
     )
 
