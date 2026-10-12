@@ -5,7 +5,6 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
-import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
 data class WidgetTask(
@@ -84,6 +83,32 @@ object ZenithApi {
         }
     }
 
+    fun exchangeWidgetLinkCode(code: String): String {
+        val body = JSONObject().put("code", code)
+        val connection = (URL(BuildConfig.ZENITH_API_BASE_URL.trimEnd('/') + "/auth/widget-link-exchange")
+            .openConnection() as HttpURLConnection).apply {
+            requestMethod = "POST"
+            connectTimeout = 10000
+            readTimeout = 10000
+            doOutput = true
+            setRequestProperty("Content-Type", "application/json")
+            setRequestProperty("Accept", "application/json")
+        }
+
+        try {
+            connection.outputStream.use {
+                it.write(body.toString().toByteArray(StandardCharsets.UTF_8))
+            }
+            val responseCode = connection.responseCode
+            val stream = if (responseCode in 200..299) connection.inputStream else connection.errorStream
+            val response = stream?.use { BufferedReader(InputStreamReader(it)).readText() }.orEmpty()
+            if (responseCode !in 200..299) throw ApiException(responseCode, response)
+            return JSONObject(response).getString("access_token")
+        } finally {
+            connection.disconnect()
+        }
+    }
+
     fun getUpcomingTasks(token: String): List<WidgetTask> {
         val query = "?limit=20&offset=0&order_by_due_date=true"
         val json = request("/tasks/$query", token)
@@ -110,8 +135,7 @@ object ZenithApi {
             .put("title", title)
             .put("content", content)
             .put("color", "purple")
-        val encodedPath = "/notes/"
-        request(encodedPath, token, "POST", body)
+        request("/notes/", token, "POST", body)
         return "Note saved to Zenith"
     }
 }
