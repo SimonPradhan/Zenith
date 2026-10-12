@@ -5,7 +5,8 @@ export default function manifest(): MetadataRoute.Manifest {
     id: "/",
     name: "Zenith — Notes & Tasks",
     short_name: "Zenith",
-    description: "A focused workspace for managing tasks, scheduling work, and capturing notes.",
+    description:
+      "A focused workspace for managing tasks, scheduling work, and capturing notes.",
     start_url: "/dashboard",
     scope: "/",
     display: "standalone",
@@ -15,15 +16,21 @@ export default function manifest(): MetadataRoute.Manifest {
     categories: ["productivity", "utilities"],
     icons: [
       {
-        src: "/zenith-icon.svg",
-        sizes: "any",
-        type: "image/svg+xml",
+        src: "/zenith-icon-192.png",
+        sizes: "192x192",
+        type: "image/png",
         purpose: "any",
       },
       {
-        src: "/zenith-icon.svg",
-        sizes: "any",
-        type: "image/svg+xml",
+        src: "/zenith-icon-512.png",
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "any",
+      },
+      {
+        src: "/zenith-icon-512.png",
+        sizes: "512x512",
+        type: "image/png",
         purpose: "maskable",
       },
     ],
