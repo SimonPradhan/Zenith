@@ -29,6 +29,17 @@ export function getMe(token: string) {
   });
 }
 
+export function createWidgetLinkCode(token: string) {
+  return apiClient<{
+    code: string;
+    expires_in: number;
+    open_url: string;
+  }>("/auth/widget-link-code", {
+    method: "POST",
+    token,
+  });
+}
+
 export function resendVerification(email: string) {
   return apiClient<{ message: string }>(
     "/auth/resend-verification",

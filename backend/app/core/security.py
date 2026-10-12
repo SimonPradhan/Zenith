@@ -38,8 +38,9 @@ def verify_password(
 
 def create_access_token(
     user_id: str,
+    expires_minutes: int = JWT_EXPIRE_MINUTES,
 ) -> str:
-    expires_at = datetime.now(timezone.utc) + timedelta(minutes=JWT_EXPIRE_MINUTES)
+    expires_at = datetime.now(timezone.utc) + timedelta(minutes=expires_minutes)
 
     payload = {
         "sub": user_id,

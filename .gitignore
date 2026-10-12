@@ -238,4 +238,16 @@ sketch
 pyvenv.cfg
 pip-selfcheck.json
 
+# Gradle caches and generated files
+.gradle/
+**/.gradle/
+**/build/
+**/.kotlin/
+**/local.properties
+
+# Android signing credentials
+*.jks
+*.keystore
+keystore.properties
+
 # End of https://www.toptal.com/developers/gitignore/api/python,nextjs,react,venv
