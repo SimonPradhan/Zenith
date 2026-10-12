@@ -12,13 +12,13 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import java.util.concurrent.Executors
 
 class MainActivity : Activity() {
     private val executor = Executors.newSingleThreadExecutor()
     private lateinit var emailInput: EditText
     private lateinit var passwordInput: EditText
+    private lateinit var linkCodeInput: EditText
     private lateinit var statusText: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,23 +31,53 @@ class MainActivity : Activity() {
         }
 
         root.addView(TextView(this).apply {
-            text = "Zenith Widgets"
-            textSize = 26f
+            text = "Zenith"
+            textSize = 28f
             setTextColor(Color.rgb(167, 139, 250))
         }, matchWidth())
 
         root.addView(TextView(this).apply {
-            text = "Sign in with your existing Zenith account to connect your home-screen widget."
+            text = "Connect this widget to the Zenith account already signed in on your phone."
             textSize = 15f
             setTextColor(Color.LTGRAY)
         }, margins(top = 10))
+
+        root.addView(TextView(this).apply {
+            text = "Recommended: open Zenith PWA → Settings → Connect Android widget. Your account will link without entering your password again."
+            textSize = 14f
+            setTextColor(Color.rgb(196, 181, 253))
+        }, margins(top = 18))
+
+        linkCodeInput = EditText(this).apply {
+            hint = "One-time link code"
+            setSingleLine(true)
+            inputType = 1
+        }
+        root.addView(linkCodeInput, margins(top = 12))
+
+        root.addView(Button(this).apply {
+            text = "Connect with code"
+            setOnClickListener { redeemLinkCode(linkCodeInput.text.toString().trim()) }
+        }, margins(top = 8))
+
+        statusText = TextView(this).apply {
+            setTextColor(Color.LTGRAY)
+            textSize = 13f
+        }
+        root.addView(statusText, margins(top = 10))
+
+        root.addView(TextView(this).apply {
+            text = "Or sign in directly"
+            textSize = 14f
+            setTextColor(Color.LTGRAY)
+        }, margins(top = 24))
 
         emailInput = EditText(this).apply {
             hint = "Email address"
             setSingleLine(true)
             inputType = 33
         }
-        root.addView(emailInput, margins(top = 20))
+        root.addView(emailInput, margins(top = 8))
 
         passwordInput = EditText(this).apply {
             hint = "Password"
@@ -56,29 +86,60 @@ class MainActivity : Activity() {
         }
         root.addView(passwordInput, margins(top = 8))
 
-        statusText = TextView(this).apply {
-            setTextColor(Color.LTGRAY)
-            textSize = 13f
-        }
-        root.addView(statusText, margins(top = 8))
-
         root.addView(Button(this).apply {
-            text = "Sign in"
+            text = "Sign in with password"
             setOnClickListener { signIn() }
-        }, margins(top = 14))
-
-        root.addView(Button(this).apply {
-            text = "Create a quick note"
-            setOnClickListener {
-                if (WidgetPreferences.getToken(this@MainActivity) == null) {
-                    Toast.makeText(this@MainActivity, "Sign in first.", Toast.LENGTH_SHORT).show()
-                } else {
-                    startActivity(Intent(this@MainActivity, QuickNoteActivity::class.java))
-                }
-            }
         }, margins(top = 8))
 
         setContentView(root)
+        handleWidgetLinkIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleWidgetLinkIntent(intent)
+    }
+
+    private fun handleWidgetLinkIntent(intent: Intent?) {
+        val code = intent?.data?.takeIf {
+            it.scheme == "zenithwidget" && it.host == "link"
+        }?.getQueryParameter("code") ?: return
+
+        // Remove the code from the Activity's retained intent after reading it.
+        setIntent(Intent(this, MainActivity::class.java))
+        redeemLinkCode(code)
+    }
+
+    private fun redeemLinkCode(code: String) {
+        if (code.isBlank()) {
+            statusText.text = "Generate a connection code in Zenith Settings first."
+            return
+        }
+
+        statusText.text = "Connecting your Zenith account…"
+        executor.execute {
+            try {
+                val token = ZenithApi.exchangeWidgetLinkCode(code)
+                WidgetPreferences.saveToken(this, token)
+                runOnUiThread {
+                    linkCodeInput.text.clear()
+                    statusText.text = "Connected! Your home-screen widget is now linked to Zenith."
+                    refreshWidgets(this)
+                }
+            } catch (error: Exception) {
+                runOnUiThread {
+                    statusText.text = when (error) {
+                        is ApiException -> if (error.code == 400) {
+                            "That code expired or was already used. Generate a new one in Zenith Settings."
+                        } else {
+                            "Connection failed (HTTP ${error.code}). Try again."
+                        }
+                        else -> "Couldn't connect. Check your internet and try again."
+                    }
+                }
+            }
+        }
     }
 
     private fun signIn() {
@@ -96,7 +157,7 @@ class MainActivity : Activity() {
                 WidgetPreferences.saveToken(this, token)
                 runOnUiThread {
                     passwordInput.text.clear()
-                    statusText.text = "Connected. Add the Zenith Tasks widget from your home-screen widget picker."
+                    statusText.text = "Connected to Zenith."
                     refreshWidgets(this)
                 }
             } catch (error: Exception) {
