@@ -1,4 +1,10 @@
+import hashlib
+import secrets
+from datetime import datetime, timedelta, timezone
+
 from fastapi import APIRouter, Depends, HTTPException, Request, status
+from pydantic import BaseModel, Field
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
@@ -9,6 +15,7 @@ from app.core.security import (
     get_current_user,
 )
 from app.models.user import User
+from app.models.widget_link_code import WidgetLinkCode
 from app.schemas.user import ForgotPasswordRequest, LoginRequest, ResetPasswordRequest, UserCreate, UserResponse, ResendVerificationRequest
 from app.services import auth_service, email_service
 
@@ -17,6 +24,10 @@ router = APIRouter(
     prefix="/auth",
     tags=["Authentication"],
 )
+
+
+class WidgetLinkExchangeRequest(BaseModel):
+    code: str = Field(min_length=20, max_length=200)
 
 
 @router.post(
@@ -59,6 +70,7 @@ def register(
 
     return user
 
+
 @router.get("/verify-email")
 def verify_email(
     token: str,
@@ -75,9 +87,8 @@ def verify_email(
             detail="Invalid or expired verification token",
         )
 
-    return {
-        "message": "Email verified successfully",
-    }
+    return {"message": "Email verified successfully"}
+
 
 @router.post("/login")
 @limiter.limit("10/minute")
@@ -98,13 +109,89 @@ def login(
             detail="Invalid email or password",
         )
 
-    access_token = create_access_token(
-        str(user.id),
-    )
+    access_token = create_access_token(str(user.id))
 
     return {
         "access_token": access_token,
         "token_type": "bearer",
+    }
+
+
+@router.post("/widget-link-code")
+@limiter.limit("10/minute")
+def create_widget_link_code(
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Create a short-lived, single-use code to link this signed-in PWA to Android."""
+    now = datetime.now(timezone.utc)
+    db.execute(delete(WidgetLinkCode).where(WidgetLinkCode.expires_at < now))
+
+    code = secrets.token_urlsafe(32)
+    code_hash = hashlib.sha256(code.encode("utf-8")).hexdigest()
+
+    db.add(
+        WidgetLinkCode(
+            token_hash=code_hash,
+            user_id=current_user.id,
+            expires_at=now + timedelta(minutes=2),
+        )
+    )
+    db.commit()
+
+    return {
+        "code": code,
+        "expires_in": 120,
+        "open_url": f"zenithwidget://link?code={code}",
+    }
+
+
+@router.post("/widget-link-exchange")
+@limiter.limit("10/minute")
+def exchange_widget_link_code(
+    request: Request,
+    data: WidgetLinkExchangeRequest,
+    db: Session = Depends(get_db),
+):
+    """Redeem a one-time PWA-issued code and return a device-stored widget token."""
+    code_hash = hashlib.sha256(data.code.encode("utf-8")).hexdigest()
+    now = datetime.now(timezone.utc)
+
+    record = db.scalar(
+        select(WidgetLinkCode)
+        .where(
+            WidgetLinkCode.token_hash == code_hash,
+            WidgetLinkCode.expires_at > now,
+        )
+        .with_for_update()
+    )
+
+    if record is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This linking code is invalid or expired. Generate a new code from Zenith Settings.",
+        )
+
+    user = db.scalar(select(User).where(User.id == record.user_id))
+    if user is None:
+        db.delete(record)
+        db.commit()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="The account for this linking code no longer exists.",
+        )
+
+    db.delete(record)
+    db.commit()
+
+    # Widget tokens last 14 days; the short-lived code itself is single-use.
+    access_token = create_access_token(str(user.id), expires_minutes=14 * 24 * 60)
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "expires_in": 14 * 24 * 60 * 60,
     }
 
 
@@ -116,6 +203,7 @@ def get_me(
     current_user: User = Depends(get_current_user),
 ):
     return current_user
+
 
 @router.post("/resend-verification")
 @limiter.limit("3/minute")
@@ -133,9 +221,7 @@ def resend_verification(
         )
 
     if user.is_email_verified:
-        return {
-            "message": "Your email is already verified.",
-        }
+        return {"message": "Your email is already verified."}
 
     verification_token = auth_service.create_email_verification_token(
         db,
@@ -153,9 +239,8 @@ def resend_verification(
         verification_url=verification_url,
     )
 
-    return {
-        "message": "A new verification email has been sent.",
-    }
+    return {"message": "A new verification email has been sent."}
+
 
 @router.post("/forgot-password")
 @limiter.limit("3/minute")
@@ -169,8 +254,7 @@ def forgot_password(
         data.email,
     )
 
-    # Always return the same response.
-    # This prevents revealing whether an email is registered.
+    # Always return the same response to avoid revealing registered emails.
     if user is None:
         return {
             "message": "If an account exists with that email, a password reset link has been sent.",
@@ -196,6 +280,7 @@ def forgot_password(
         "message": "If an account exists with that email, a password reset link has been sent.",
     }
 
+
 @router.post("/reset-password")
 def reset_password(
     data: ResetPasswordRequest,
@@ -213,6 +298,4 @@ def reset_password(
             detail="Invalid or expired password reset token.",
         )
 
-    return {
-        "message": "Your password has been reset successfully.",
-    }
+    return {"message": "Your password has been reset successfully."}
