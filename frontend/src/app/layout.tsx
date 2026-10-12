@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -14,7 +14,24 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Zenith",
-  description: "The Task and Note management place",
+  description:
+    "A focused workspace for managing tasks, scheduling work, and capturing notes.",
+  applicationName: "Zenith",
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: "/zenith-icon.svg",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Zenith",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#8b5cf6",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
