@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="zenith_background_start">#211A35</color>
+    <color name="zenith_background_end">#111114</color>
+    <color name="zenith_surface">#211D2B</color>
+    <color name="zenith_surface_stroke">#3A304E</color>
+    <color name="zenith_accent">#8B5CF6</color>
+    <color name="zenith_accent_soft">#C4B5FD</color>
+    <color name="zenith_text_primary">#FAFAFA</color>
+    <color name="zenith_text_secondary">#B4B0C2</color>
+    <color name="zenith_text_muted">#858094</color>
+</resources>

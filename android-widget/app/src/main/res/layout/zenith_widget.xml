@@ -3,8 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="14dp"
-    android:background="#18181B">
+    android:padding="16dp"
+    android:background="@drawable/widget_background">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,57 +13,100 @@
         android:orientation="horizontal">
 
         <TextView
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:background="@drawable/widget_brand_mark_background"
+            android:gravity="center"
+            android:text="Z"
+            android:textColor="@color/zenith_text_primary"
+            android:textSize="19sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
             android:layout_weight="1"
-            android:text="ZENITH"
-            android:textColor="#A78BFA"
-            android:textSize="12sp"
-            android:textStyle="bold" />
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:letterSpacing="0.08"
+                android:text="ZENITH"
+                android:textColor="@color/zenith_accent_soft"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:text="Your personal workspace"
+                android:textColor="@color/zenith_text_muted"
+                android:textSize="10sp" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/refresh_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="6dp"
+            android:background="@drawable/widget_refresh_background"
+            android:gravity="center"
+            android:minHeight="34dp"
+            android:paddingStart="11dp"
+            android:paddingEnd="11dp"
             android:text="Refresh"
-            android:textColor="#C4B5FD"
-            android:textSize="12sp" />
+            android:textColor="@color/zenith_accent_soft"
+            android:textSize="11sp"
+            android:textStyle="bold" />
     </LinearLayout>
 
     <TextView
         android:id="@+id/widget_heading"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:text="Your upcoming tasks"
-        android:textColor="#FAFAFA"
-        android:textSize="17sp"
+        android:layout_marginTop="18dp"
+        android:text="Upcoming tasks"
+        android:textColor="@color/zenith_text_primary"
+        android:textSize="19sp"
+        android:fontFamily="sans"
         android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:text="A little progress every day."
+        android:textColor="@color/zenith_text_secondary"
+        android:textSize="11sp" />
 
     <TextView
         android:id="@+id/widget_tasks"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="7dp"
+        android:layout_marginTop="12dp"
         android:ellipsize="end"
         android:gravity="top"
+        android:lineSpacingExtra="5dp"
         android:maxLines="5"
         android:text="Open Zenith to sign in and load tasks."
-        android:textColor="#D4D4D8"
+        android:textColor="@color/zenith_text_primary"
         android:textSize="12sp" />
 
     <TextView
         android:id="@+id/quick_note_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:background="#8B5CF6"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/widget_quick_note_background"
         android:gravity="center"
-        android:padding="10dp"
-        android:text="+ Quick note"
-        android:textColor="#FFFFFF"
+        android:minHeight="44dp"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:text="+   Create a quick note"
+        android:textColor="@color/zenith_text_primary"
         android:textSize="13sp"
         android:textStyle="bold" />
 </LinearLayout>
