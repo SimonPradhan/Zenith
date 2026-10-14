@@ -7,7 +7,6 @@ import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.Gravity
-import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Button
@@ -34,14 +33,14 @@ class TaskCreateActivity : Activity() {
     private val ink = Color.rgb(250, 250, 252)
     private val muted = Color.rgb(173, 168, 190)
     private val accent = Color.rgb(139, 92, 246)
-    private val background = Color.rgb(17, 16, 22)
+    private val screenBackground = Color.rgb(17, 16, 22)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(22), dp(24), dp(22), dp(22))
-            background = rounded(background, 0)
+            setBackground(rounded(screenBackground, 0))
         }
         val scroll = ScrollView(this).apply { addView(root) }
 
