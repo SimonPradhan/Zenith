@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Responsive, useContainerWidth } from "react-grid-layout";
 import { GripVertical, Plus, RotateCcw, X } from "lucide-react";
 
@@ -40,7 +40,68 @@ type GridItem = {
   maxH?: number;
 };
 
+
 type GridLayouts = Record<Breakpoint, GridItem[]>;
+
+const DASHBOARD_LAYOUT_STORAGE_KEY = "zenith:dashboard-layout:v1";
+const BREAKPOINT_KEYS: Breakpoint[] = ["lg", "md", "sm", "xs", "xxs"];
+
+function isGridItem(value: unknown): value is GridItem {
+  if (!value || typeof value !== "object") return false;
+
+  const item = value as Partial<GridItem>;
+  return (
+    typeof item.i === "string" &&
+    DASHBOARD_WIDGETS.some((widget) => widget.id === item.i) &&
+    Number.isFinite(item.x) &&
+    Number.isFinite(item.y) &&
+    Number.isFinite(item.w) &&
+    Number.isFinite(item.h) &&
+    (item.x ?? -1) >= 0 &&
+    (item.y ?? -1) >= 0 &&
+    (item.w ?? 0) > 0 &&
+    (item.h ?? 0) > 0
+  );
+}
+
+function readSavedLayouts(): GridLayouts | null {
+  try {
+    const raw = window.localStorage.getItem(DASHBOARD_LAYOUT_STORAGE_KEY);
+    if (!raw) return null;
+
+    const parsed: unknown = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return null;
+
+    const candidate = parsed as Partial<Record<Breakpoint, unknown[]>>;
+    const defaults = createDefaultLayouts();
+    const restored = {} as GridLayouts;
+
+    for (const breakpoint of BREAKPOINT_KEYS) {
+      const entries = candidate[breakpoint];
+      if (!Array.isArray(entries) || !entries.every(isGridItem)) {
+        return null;
+      }
+
+      const seen = new Set<string>();
+      restored[breakpoint] = entries
+        .filter((item) => {
+          if (seen.has(item.i)) return false;
+          seen.add(item.i);
+          return true;
+        })
+        .map((item) => ({
+          ...item,
+          minW: item.minW ?? defaults[breakpoint].find((base) => base.i === item.i)?.minW ?? 2,
+          minH: item.minH ?? defaults[breakpoint].find((base) => base.i === item.i)?.minH ?? 2,
+        }));
+    }
+
+    return restored;
+  } catch {
+    // Storage may be unavailable or contain malformed JSON; use safe defaults.
+    return null;
+  }
+}
 
 type CustomizableDashboardProps = {
   todayTasks: Task[];
@@ -141,6 +202,28 @@ export default function CustomizableDashboard({
 
   const [layouts, setLayouts] = useState<GridLayouts>(createDefaultLayouts);
   const [editing, setEditing] = useState(false);
+  const [preferencesLoaded, setPreferencesLoaded] = useState(false);
+
+  useEffect(() => {
+    const savedLayouts = readSavedLayouts();
+    if (savedLayouts) {
+      setLayouts(savedLayouts);
+    }
+    setPreferencesLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (!preferencesLoaded) return;
+
+    try {
+      window.localStorage.setItem(
+        DASHBOARD_LAYOUT_STORAGE_KEY,
+        JSON.stringify(layouts),
+      );
+    } catch {
+      // Keep the dashboard usable if storage is blocked or quota is exceeded.
+    }
+  }, [layouts, preferencesLoaded]);
 
   const visibleIds = useMemo(
     () => new Set(layouts.lg.map((item) => item.i)),
