@@ -19,6 +19,7 @@ import type { Task } from "@/types/task";
 import type { Note } from "@/types/note";
 import { getToken } from "@/lib/auth";
 import { useUser } from "@/app/context/user-context";
+import CustomizableDashboard from "@/app/components/dashboard/customizable-dashboard";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -150,52 +151,21 @@ export default function DashboardPage() {
         onCreateTask={handleCreateTask}
       />
 
-      <DashboardStats
+      <CustomizableDashboard
+        todayTasks={todayTasks}
+        overdueTasks={overdueTasks}
+        notes={notes}
         totalTasks={totalTasks}
         pendingCount={pendingCount}
         completedCount={completedCount}
         totalNotes={totalNotes}
+        completionRate={completionRate}
+        onCreateTask={handleCreateTask}
+        onCreateNote={handleCreateNote}
+        onViewTasks={handleViewTasks}
+        onViewNotes={handleViewNotes}
+        onTaskClick={handleTaskClick}
       />
-
-      {/* Overdue tasks */}
-      {overdueTasks.length > 0 && (
-        <OverdueTasks
-          tasks={overdueTasks}
-          onViewAll={handleViewTasks}
-          onTaskClick={handleTaskClick}
-        />
-      )}
-
-      {/* Today's work */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <TodayTasks
-          tasks={todayTasks}
-          onViewAll={handleViewTasks}
-          onTaskClick={handleTaskClick}
-        />
-
-        <RecentNotes
-          notes={notes}
-          onViewAll={handleViewNotes}
-          onCreateNote={handleCreateNote}
-        />
-      </div>
-
-      {/* Progress + actions */}
-      <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
-        <TaskProgressCard
-          totalTasks={totalTasks}
-          pendingCount={pendingCount}
-          completedCount={completedCount}
-          completionRate={completionRate}
-          onViewTasks={handleViewTasks}
-        />
-
-        <QuickActions
-          onCreateTask={handleCreateTask}
-          onCreateNote={handleCreateNote}
-        />
-      </div>
     </div>
   );
 }
