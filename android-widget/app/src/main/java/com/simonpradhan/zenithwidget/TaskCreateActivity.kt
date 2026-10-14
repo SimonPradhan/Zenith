@@ -49,10 +49,7 @@ class TaskCreateActivity : Activity() {
         val scroll = ScrollView(this).apply {
             isFillViewport = true
             setBackgroundColor(screenBackground)
-            addView(root, ScrollView.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            ))
+            addView(root)
         }
 
         root.addView(TextView(this).apply {
