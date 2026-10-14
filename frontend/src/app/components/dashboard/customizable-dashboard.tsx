@@ -287,7 +287,7 @@ export default function CustomizableDashboard({
   }
 
   return (
-    <section className="space-y-4">
+    <section className={`dashboard-customizable space-y-4 ${editing ? "is-editing" : ""}`}>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold text-text-primary">
@@ -348,8 +348,7 @@ export default function CustomizableDashboard({
           )}
 
           <p className="text-xs text-text-muted">
-            Drag widgets using their grip handle. Use the resize handle in a
-            widget`&apos;`s bottom-right corner. Remove widgets using the × button.
+            Drag widgets using the grip. Resize with the always-visible bottom-right corner. Widget actions are paused until you finish customizing.
           </p>
         </div>
       )}
@@ -367,7 +366,7 @@ export default function CustomizableDashboard({
             dragConfig={{
               enabled: editing,
               handle: ".dashboard-widget-handle",
-              cancel: "button",
+              cancel: "button, a, input, textarea, select, [contenteditable='true'], .dashboard-widget-content",
             }}
             resizeConfig={{
               enabled: editing,
@@ -390,7 +389,7 @@ export default function CustomizableDashboard({
                   <div className="flex h-full min-h-0 flex-col">
                     {editing && (
                       <div className="mb-2 flex shrink-0 items-center justify-between rounded-lg border border-dashed border-border bg-surface px-3 py-2">
-                        <div className="dashboard-widget-handle flex cursor-grab items-center gap-2 text-xs font-medium text-text-secondary active:cursor-grabbing">
+                        <div className="dashboard-widget-handle flex min-h-8 touch-none select-none cursor-grab items-center gap-2 rounded-md px-1 text-xs font-medium text-text-secondary transition-colors hover:text-text-primary active:cursor-grabbing">
                           <GripVertical size={15} />
                           {definition.title}
                         </div>
@@ -408,7 +407,11 @@ export default function CustomizableDashboard({
                       </div>
                     )}
 
-                    <div className="min-w-0 flex-1">
+                    <div
+                      className="dashboard-widget-content min-w-0 flex-1"
+                      inert={editing}
+                      aria-label={editing ? `${definition.title} preview; interactions disabled while customizing` : undefined}
+                    >
                       {renderWidget(id)}
                     </div>
                   </div>
