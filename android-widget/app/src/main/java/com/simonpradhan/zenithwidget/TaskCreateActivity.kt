@@ -37,12 +37,23 @@ class TaskCreateActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.statusBarColor = screenBackground
+        window.navigationBarColor = screenBackground
+        window.decorView.setBackgroundColor(screenBackground)
+
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(22), dp(24), dp(22), dp(22))
-            setBackground(rounded(screenBackground, 0))
+            setBackgroundColor(screenBackground)
         }
-        val scroll = ScrollView(this).apply { addView(root) }
+        val scroll = ScrollView(this).apply {
+            isFillViewport = true
+            setBackgroundColor(screenBackground)
+            addView(root, ScrollView.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            ))
+        }
 
         root.addView(TextView(this).apply {
             text = "NEW TASK"
@@ -82,13 +93,32 @@ class TaskCreateActivity : Activity() {
             typeface = Typeface.DEFAULT_BOLD
         }, margins(18))
 
+        val priorities = listOf("Medium", "Low", "High", "Urgent")
+        val priorityAdapter = object : ArrayAdapter<String>(
+            this, android.R.layout.simple_spinner_item, priorities
+        ) {
+            override fun getView(position: Int, convertView: android.view.View?, parent: ViewGroup): android.view.View {
+                return (super.getView(position, convertView, parent) as TextView).apply {
+                    setTextColor(ink)
+                    textSize = 15f
+                    setPadding(dp(10), dp(10), dp(10), dp(10))
+                }
+            }
+            override fun getDropDownView(position: Int, convertView: android.view.View?, parent: ViewGroup): android.view.View {
+                return (super.getDropDownView(position, convertView, parent) as TextView).apply {
+                    setTextColor(ink)
+                    setBackgroundColor(Color.rgb(34, 30, 43))
+                    setPadding(dp(14), dp(12), dp(14), dp(12))
+                }
+            }
+        }.apply { setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
+
         prioritySpinner = Spinner(this).apply {
-            adapter = ArrayAdapter(
-                this@TaskCreateActivity,
-                android.R.layout.simple_spinner_dropdown_item,
-                listOf("Medium", "Low", "High", "Urgent")
-            )
+            adapter = priorityAdapter
             setPadding(dp(10), dp(8), dp(10), dp(8))
+            background = rounded(Color.rgb(34, 30, 43), 14).apply {
+                setStroke(dp(1), Color.rgb(61, 52, 78))
+            }
         }
         root.addView(prioritySpinner, margins(7))
 
