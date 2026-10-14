@@ -4,12 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import DashboardHeader from "@/app/components/dashboard/dashboard-header";
-import DashboardStats from "@/app/components/dashboard/dashboard-stats";
-import TaskProgressCard from "@/app/components/dashboard/task-progress-card";
-import QuickActions from "@/app/components/dashboard/quick-actions";
-import RecentNotes from "@/app/components/dashboard/recent-notes";
-import TodayTasks from "@/app/components/dashboard/today-tasks";
-import OverdueTasks from "@/app/components/dashboard/overdue-tasks";
 import DashboardSkeleton from "@/app/components/dashboard/dashboard-skeleton";
 
 import { getTasks } from "@/lib/api/tasks";
@@ -24,7 +18,7 @@ import CustomizableDashboard from "@/app/components/dashboard/customizable-dashb
 export default function DashboardPage() {
   const router = useRouter();
   const { user, loading: userLoading } = useUser();
-
+  const [accessToken, setAccessToken] = useState<string>("");
   const [todayTasks, setTodayTasks] = useState<Task[]>([]);
   const [overdueTasks, setOverdueTasks] = useState<Task[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
@@ -45,8 +39,11 @@ export default function DashboardPage() {
       const token = getToken();
 
       if (!token) {
+        setLoading(false);
         return;
       }
+
+      setAccessToken(token);
 
       try {
         const [
@@ -120,9 +117,7 @@ export default function DashboardPage() {
   }
 
   const completionRate =
-    totalTasks === 0
-      ? 0
-      : Math.round((completedCount / totalTasks) * 100);
+    totalTasks === 0 ? 0 : Math.round((completedCount / totalTasks) * 100);
 
   function handleCreateTask() {
     router.push("/tasks?create=true");
@@ -146,12 +141,9 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <DashboardHeader
-        user={user}
-        onCreateTask={handleCreateTask}
-      />
-
+      <DashboardHeader user={user} onCreateTask={handleCreateTask} />
       <CustomizableDashboard
+        token={accessToken}
         todayTasks={todayTasks}
         overdueTasks={overdueTasks}
         notes={notes}

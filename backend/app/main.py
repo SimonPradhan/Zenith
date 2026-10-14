@@ -6,7 +6,7 @@ from slowapi.errors import RateLimitExceeded
 from app.core.config import settings
 from app.core.rate_limit import limiter
 from app.core.database import test_connection
-from app.routers import notes, tasks, auth
+from app.routers import notes, tasks, auth, dashboard_preferences
 
 app = FastAPI(
     title="Zenith API",
@@ -35,6 +35,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(notes.router)
 app.include_router(tasks.router)
+app.include_router(dashboard_preferences.router)
 
 @app.get("/health")
 def health_check():

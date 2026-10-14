@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { Responsive, useContainerWidth } from "react-grid-layout";
 import { GripVertical, Plus, RotateCcw, X } from "lucide-react";
 
@@ -14,6 +14,7 @@ import QuickActions from "@/app/components/dashboard/quick-actions";
 import type { Task } from "@/types/task";
 import type { Note } from "@/types/note";
 import type {
+  DashboardPreferences,
   DashboardWidgetId,
   DashboardWidgetLayout,
 } from "@/types/dashboard";
@@ -25,6 +26,7 @@ import {
 
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
+import { getDashboardPreferences, saveDashboardPreferences } from "@/lib/api/dashboard-preferences";
 
 type Breakpoint = "lg" | "md" | "sm" | "xs" | "xxs";
 
@@ -40,84 +42,13 @@ type GridItem = {
   maxH?: number;
 };
 
-
 type GridLayouts = Record<Breakpoint, GridItem[]>;
 
-const DASHBOARD_LAYOUT_STORAGE_KEY = "zenith:dashboard-layout:v1";
+type SaveStatus = "saved" | "saving" | "error" | null;
+
+const DASHBOARD_LAYOUT_STORAGE_KEY = "zenith_dashboard_layouts_v1";
+
 const BREAKPOINT_KEYS: Breakpoint[] = ["lg", "md", "sm", "xs", "xxs"];
-
-function isGridItem(value: unknown): value is GridItem {
-  if (!value || typeof value !== "object") return false;
-
-  const item = value as Partial<GridItem>;
-  return (
-    typeof item.i === "string" &&
-    DASHBOARD_WIDGETS.some((widget) => widget.id === item.i) &&
-    Number.isFinite(item.x) &&
-    Number.isFinite(item.y) &&
-    Number.isFinite(item.w) &&
-    Number.isFinite(item.h) &&
-    (item.x ?? -1) >= 0 &&
-    (item.y ?? -1) >= 0 &&
-    (item.w ?? 0) > 0 &&
-    (item.h ?? 0) > 0
-  );
-}
-
-function readSavedLayouts(): GridLayouts | null {
-  try {
-    const raw = window.localStorage.getItem(DASHBOARD_LAYOUT_STORAGE_KEY);
-    if (!raw) return null;
-
-    const parsed: unknown = JSON.parse(raw);
-    if (!parsed || typeof parsed !== "object") return null;
-
-    const candidate = parsed as Partial<Record<Breakpoint, unknown[]>>;
-    const defaults = createDefaultLayouts();
-    const restored = {} as GridLayouts;
-
-    for (const breakpoint of BREAKPOINT_KEYS) {
-      const entries = candidate[breakpoint];
-      if (!Array.isArray(entries) || !entries.every(isGridItem)) {
-        return null;
-      }
-
-      const seen = new Set<string>();
-      restored[breakpoint] = entries
-        .filter((item) => {
-          if (seen.has(item.i)) return false;
-          seen.add(item.i);
-          return true;
-        })
-        .map((item) => ({
-          ...item,
-          minW: item.minW ?? defaults[breakpoint].find((base) => base.i === item.i)?.minW ?? 2,
-          minH: item.minH ?? defaults[breakpoint].find((base) => base.i === item.i)?.minH ?? 2,
-        }));
-    }
-
-    return restored;
-  } catch {
-    // Storage may be unavailable or contain malformed JSON; use safe defaults.
-    return null;
-  }
-}
-
-type CustomizableDashboardProps = {
-  todayTasks: Task[];
-  overdueTasks: Task[];
-  notes: Note[];
-  totalTasks: number;
-  pendingCount: number;
-  completedCount: number;
-  totalNotes: number;
-  completionRate: number;
-  onCreateTask: () => void;
-  onCreateNote: () => void;
-  onViewTasks: () => void;
-  onViewNotes: () => void;
-  onTaskClick: (task: Task) => void;
-};
 
 const BREAKPOINTS = {
   lg: 1200,
@@ -135,15 +66,43 @@ const COLUMNS: Record<Breakpoint, number> = {
   xxs: 2,
 };
 
+function isGridItem(value: unknown): value is GridItem {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  const item = value as Record<string, unknown>;
+
+  return (
+    typeof item.i === "string" &&
+    DASHBOARD_WIDGETS.some((widget) => widget.id === item.i) &&
+    typeof item.x === "number" &&
+    Number.isFinite(item.x) &&
+    typeof item.y === "number" &&
+    Number.isFinite(item.y) &&
+    typeof item.w === "number" &&
+    Number.isFinite(item.w) &&
+    item.w > 0 &&
+    typeof item.h === "number" &&
+    Number.isFinite(item.h) &&
+    item.h > 0 &&
+    item.x >= 0 &&
+    item.y >= 0
+  );
+}
+
+
 function toGridItem(item: DashboardWidgetLayout): GridItem {
+  const definition = DASHBOARD_WIDGETS.find((widget) => widget.id === item.id);
+
   return {
     i: item.id,
     x: item.x,
     y: item.y,
     w: item.w,
     h: item.h,
-    minW: item.minW ?? 2,
-    minH: item.minH ?? 2,
+    minW: definition?.minW ?? 2,
+    minH: definition?.minH ?? 2,
   };
 }
 
@@ -156,6 +115,9 @@ function createDefaultLayouts(): GridLayouts {
     let y = 0;
 
     return defaults.map((item) => {
+      const definition = DASHBOARD_WIDGETS.find(
+        (widget) => widget.id === item.id,
+      );
       const h = item.h;
       const gridItem: GridItem = {
         i: item.id,
@@ -163,8 +125,8 @@ function createDefaultLayouts(): GridLayouts {
         y,
         w: columns,
         h,
-        minW: Math.min(2, columns),
-        minH: 2,
+        minW: Math.min(definition?.minW ?? 2, columns),
+        minH: definition?.minH ?? 2,
       };
 
       y += h;
@@ -181,7 +143,111 @@ function createDefaultLayouts(): GridLayouts {
   };
 }
 
+
+
+function parseLayouts(raw: unknown): GridLayouts | null {
+  if (typeof raw !== "object" || raw === null) return null;
+
+  const candidate = raw as Record<string, unknown>;
+  const restored = {} as GridLayouts;
+  const defaults = createDefaultLayouts();
+
+  for (const breakpoint of BREAKPOINT_KEYS) {
+    const items = candidate[breakpoint];
+
+    if (!Array.isArray(items)) return null;
+
+    const seen = new Set<string>();
+    const entries: GridItem[] = [];
+    const columns = COLUMNS[breakpoint];
+
+    for (const value of items) {
+      if (!isGridItem(value) || seen.has(value.i)) continue;
+
+      const definition = DASHBOARD_WIDGETS.find(
+        (widget) => widget.id === value.i,
+      );
+
+      if (!definition) continue;
+
+      seen.add(value.i);
+
+      const defaultItem = defaults[breakpoint].find(
+        (item) => item.i === value.i,
+      );
+
+      const minW = Math.min(
+        definition.minW,
+        columns,
+      );
+
+      entries.push({
+        i: value.i,
+        x: Math.max(0, Math.min(value.x, columns - 1)),
+        y: Math.max(0, value.y),
+        w: Math.max(
+          minW,
+          Math.min(value.w, columns),
+        ),
+        h: Math.max(
+          definition.minH,
+          value.h,
+        ),
+        minW,
+        minH: definition.minH,
+      });
+    }
+
+    restored[breakpoint] =
+      entries.length > 0 ? entries : [...defaults[breakpoint]];
+  }
+
+  return restored;
+}
+
+
+
+function readSavedLayouts(): GridLayouts | null {
+  try {
+    const raw = localStorage.getItem(DASHBOARD_LAYOUT_STORAGE_KEY);
+
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw);
+
+    return parseLayouts(parsed);
+  } catch {
+    return null;
+  }
+}
+
+function saveLayoutsLocally(layouts: GridLayouts): void {
+  try {
+    localStorage.setItem(DASHBOARD_LAYOUT_STORAGE_KEY, JSON.stringify(layouts));
+  } catch {
+    // ignore quota errors
+  }
+}
+
+type CustomizableDashboardProps = {
+  token: string;
+  todayTasks: Task[];
+  overdueTasks: Task[];
+  notes: Note[];
+  totalTasks: number;
+  pendingCount: number;
+  completedCount: number;
+  totalNotes: number;
+  completionRate: number;
+  onCreateTask: () => void;
+  onCreateNote: () => void;
+  onViewTasks: () => void;
+  onViewNotes: () => void;
+  onTaskClick: (task: Task) => void;
+};
+
 export default function CustomizableDashboard({
+  token,
   todayTasks,
   overdueTasks,
   notes,
@@ -203,33 +269,93 @@ export default function CustomizableDashboard({
   const [layouts, setLayouts] = useState<GridLayouts>(createDefaultLayouts);
   const [editing, setEditing] = useState(false);
   const [preferencesLoaded, setPreferencesLoaded] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>(null);
+
+  const layoutsRef = useRef<GridLayouts>(layouts);
+  const hasUserChangedLayout = useRef(false);
 
   useEffect(() => {
-    // Restore browser-only preferences after the initial hydration pass.
-    // Deferring to the next frame avoids a synchronous cascading render in the effect.
-    const frame = window.requestAnimationFrame(() => {
-      const savedLayouts = readSavedLayouts();
-      if (savedLayouts) {
-        setLayouts(savedLayouts);
+    layoutsRef.current = layouts;
+  }, [layouts]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadPreferences() {
+      setPreferencesLoaded(false);
+
+      try {
+        const response = await getDashboardPreferences(token);
+
+        console.log("Backend saved layout:", response.preferences.layouts);
+        console.log("Local saved layout:", readSavedLayouts());
+
+        if (cancelled) return;
+
+        const parsed = parseLayouts(response.preferences.layouts);
+        const initialLayouts = parsed ?? readSavedLayouts() ?? createDefaultLayouts();
+
+        layoutsRef.current = initialLayouts;
+        hasUserChangedLayout.current = false;
+        setLayouts(initialLayouts);
+        saveLayoutsLocally(initialLayouts);
+      } catch (error) {
+        if (cancelled) return;
+
+        console.error("Failed to load dashboard preferences:", error);
+
+        const fallback = readSavedLayouts() ?? createDefaultLayouts();
+
+        layoutsRef.current = fallback;
+        hasUserChangedLayout.current = false;
+        setLayouts(fallback);
+      } finally {
+        if (!cancelled) {
+          setPreferencesLoaded(true);
+        }
       }
-      setPreferencesLoaded(true);
-    });
+    }
 
-    return () => window.cancelAnimationFrame(frame);
-  }, []);
+    void loadPreferences();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
 
   useEffect(() => {
-    if (!preferencesLoaded) return;
-
-    try {
-      window.localStorage.setItem(
-        DASHBOARD_LAYOUT_STORAGE_KEY,
-        JSON.stringify(layouts),
-      );
-    } catch {
-      // Keep the dashboard usable if storage is blocked or quota is exceeded.
+    if (!preferencesLoaded || !hasUserChangedLayout.current) {
+      return;
     }
-  }, [layouts, preferencesLoaded]);
+
+    setSaveStatus("saving");
+
+    const timeoutId = window.setTimeout(async () => {
+      const layoutsToSave = layoutsRef.current;
+
+      console.log("Saving dashboard layout:", layoutsToSave);
+      console.log(
+        "Visible widgets:",
+        layoutsToSave.lg.map((item) => item.i),
+      );
+
+      saveLayoutsLocally(layoutsToSave);
+
+      try {
+        await saveDashboardPreferences(token, {
+          layouts: layoutsToSave,
+        } as DashboardPreferences);
+
+        hasUserChangedLayout.current = false;
+        setSaveStatus("saved");
+      } catch (error) {
+        console.error("Failed to save dashboard preferences:", error);
+        setSaveStatus("error");
+      }
+    }, 800);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [layouts, preferencesLoaded, token]);
 
   const visibleIds = useMemo(
     () => new Set(layouts.lg.map((item) => item.i)),
@@ -240,68 +366,143 @@ export default function CustomizableDashboard({
     (widget) => !visibleIds.has(widget.id),
   );
 
+  function commitLayouts(next: GridLayouts) {
+    layoutsRef.current = next;
+    hasUserChangedLayout.current = true;
+    saveLayoutsLocally(next);
+    setLayouts(next);
+  }
+
   function updateLayouts(nextLayouts: GridLayouts) {
-    setLayouts(nextLayouts);
+    const previousLayouts = layoutsRef.current;
+    const next = {} as GridLayouts;
+
+    for (const breakpoint of BREAKPOINT_KEYS) {
+      const previous = previousLayouts[breakpoint] ?? [];
+      const incoming = nextLayouts[breakpoint] ?? [];
+
+      const incomingById = new Map<string, GridItem>();
+
+      for (const item of incoming) {
+        if (isGridItem(item)) {
+          incomingById.set(item.i, item);
+        }
+      }
+
+      // Apply updated coordinates and dimensions.
+      // Preserve existing widgets if the callback omits them.
+      const merged = previous.map((oldItem) => {
+        const updated = incomingById.get(oldItem.i);
+
+        if (!updated) {
+          return oldItem;
+        }
+
+        return {
+          ...oldItem,
+          x: updated.x,
+          y: updated.y,
+          w: updated.w,
+          h: updated.h,
+        };
+      });
+
+      // Include newly reported widgets if any exist.
+      for (const item of incoming) {
+        if (
+          isGridItem(item) &&
+          !merged.some((existing) => existing.i === item.i)
+        ) {
+          merged.push(item);
+        }
+      }
+
+      next[breakpoint] = merged;
+    }
+
+    const hasChanged = BREAKPOINT_KEYS.some((breakpoint) => {
+      const previous = previousLayouts[breakpoint] ?? [];
+      const current = next[breakpoint] ?? [];
+
+      if (previous.length !== current.length) return true;
+
+      return previous.some((oldItem) => {
+        const newItem = current.find((item) => item.i === oldItem.i);
+
+        return (
+          !newItem ||
+          oldItem.x !== newItem.x ||
+          oldItem.y !== newItem.y ||
+          oldItem.w !== newItem.w ||
+          oldItem.h !== newItem.h
+        );
+      });
+    });
+
+    if (hasChanged) {
+      commitLayouts(next);
+    }
   }
 
   function removeWidget(id: DashboardWidgetId) {
-    setLayouts((current) => {
-      const next = { ...current };
+    const current = layoutsRef.current;
+    const next = {} as GridLayouts;
 
-      for (const breakpoint of Object.keys(next) as Breakpoint[]) {
-        next[breakpoint] = next[breakpoint].filter((item) => item.i !== id);
-      }
+    for (const breakpoint of BREAKPOINT_KEYS) {
+      next[breakpoint] = current[breakpoint].filter(
+        (item) => item.i !== id,
+      );
+    }
 
-      return next;
-    });
+    commitLayouts(next);
   }
 
   function addWidget(id: DashboardWidgetId) {
-    const definition = DASHBOARD_WIDGETS.find((widget) => widget.id === id);
+    const definition = DASHBOARD_WIDGETS.find(
+      (widget) => widget.id === id,
+    );
 
     if (!definition) return;
 
-    setLayouts((current) => {
-      const next = { ...current };
+    const current = layoutsRef.current;
+    const next = {} as GridLayouts;
 
-      for (const breakpoint of Object.keys(next) as Breakpoint[]) {
-        const items = next[breakpoint];
+    for (const breakpoint of BREAKPOINT_KEYS) {
+      const items = current[breakpoint];
 
-        if (items.some((item) => item.i === id)) continue;
-
-        const columns = COLUMNS[breakpoint];
-        const isDesktop = breakpoint === "lg";
-
-        const newItem: GridItem = isDesktop
-          ? toGridItem(definition.defaultLayout)
-          : {
-              i: id,
-              x: 0,
-              y: items.reduce((max, item) => Math.max(max, item.y + item.h), 0),
-              w: columns,
-              h: definition.defaultLayout.h,
-              minW: Math.min(definition.minW, columns),
-              minH: definition.minH,
-            };
-
-        const maxY = items.reduce(
-          (max, item) => Math.max(max, item.y + item.h),
-          0,
-        );
-
-        if (isDesktop) {
-          newItem.y = maxY;
-        }
-
-        next[breakpoint] = [...items, newItem];
+      if (items.some((item) => item.i === id)) {
+        next[breakpoint] = [...items];
+        continue;
       }
 
-      return next;
-    });
+      const columns = COLUMNS[breakpoint];
+      const isDesktop = breakpoint === "lg";
+
+      const maxY = items.reduce(
+        (max, item) => Math.max(max, item.y + item.h),
+        0,
+      );
+
+      const newItem: GridItem = isDesktop
+        ? toGridItem(definition.defaultLayout)
+        : {
+            i: id,
+            x: 0,
+            y: maxY,
+            w: columns,
+            h: definition.defaultLayout.h,
+            minW: Math.min(definition.minW, columns),
+            minH: definition.minH,
+          };
+
+      next[breakpoint] = [...items, newItem];
+    }
+
+    commitLayouts(next);
   }
 
   function resetLayout() {
-    setLayouts(createDefaultLayouts());
+    commitLayouts(createDefaultLayouts());
   }
 
   function renderWidget(id: DashboardWidgetId) {
@@ -325,7 +526,7 @@ export default function CustomizableDashboard({
           />
         ) : (
           <div className="flex h-full min-h-24 items-center justify-center rounded-2xl border border-border bg-surface p-6 text-sm text-text-muted">
-            No overdue tasks. You`&apos;`re all caught up!
+            No overdue tasks. You&apos;re all caught up!
           </div>
         );
 
@@ -399,6 +600,20 @@ export default function CustomizableDashboard({
           >
             {editing ? "Done editing" : "Customize"}
           </button>
+          {saveStatus && (
+            <p
+              className={`text-xs ${
+                saveStatus === "error"
+                  ? "text-error"
+                  : "text-text-muted"
+              }`}
+              role="status"
+            >
+              {saveStatus === "saving" && "Saving layout..."}
+              {saveStatus === "saved" && "Layout saved"}
+              {saveStatus === "error" && "Failed to save layout"}
+            </p>
+          )}
         </div>
       </div>
 
