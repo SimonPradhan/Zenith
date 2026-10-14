@@ -26,7 +26,11 @@ import {
 
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
-import { getDashboardPreferences, saveDashboardPreferences } from "@/lib/api/dashboard-preferences";
+
+import {
+  getDashboardPreferences,
+  saveDashboardPreferences,
+} from "@/lib/api/dashboard-preferences";
 
 type Breakpoint = "lg" | "md" | "sm" | "xs" | "xxs";
 
@@ -91,7 +95,6 @@ function isGridItem(value: unknown): value is GridItem {
   );
 }
 
-
 function toGridItem(item: DashboardWidgetLayout): GridItem {
   const definition = DASHBOARD_WIDGETS.find((widget) => widget.id === item.id);
 
@@ -108,7 +111,6 @@ function toGridItem(item: DashboardWidgetLayout): GridItem {
 
 function createDefaultLayouts(): GridLayouts {
   const defaults = getDefaultDashboardLayout();
-
   const desktop = defaults.map(toGridItem);
 
   function stackItems(columns: number): GridItem[] {
@@ -118,7 +120,9 @@ function createDefaultLayouts(): GridLayouts {
       const definition = DASHBOARD_WIDGETS.find(
         (widget) => widget.id === item.id,
       );
+
       const h = item.h;
+
       const gridItem: GridItem = {
         i: item.id,
         x: 0,
@@ -143,10 +147,10 @@ function createDefaultLayouts(): GridLayouts {
   };
 }
 
-
-
 function parseLayouts(raw: unknown): GridLayouts | null {
-  if (typeof raw !== "object" || raw === null) return null;
+  if (typeof raw !== "object" || raw === null) {
+    return null;
+  }
 
   const candidate = raw as Record<string, unknown>;
   const restored = {} as GridLayouts;
@@ -155,44 +159,39 @@ function parseLayouts(raw: unknown): GridLayouts | null {
   for (const breakpoint of BREAKPOINT_KEYS) {
     const items = candidate[breakpoint];
 
-    if (!Array.isArray(items)) return null;
+    if (!Array.isArray(items)) {
+      return null;
+    }
 
     const seen = new Set<string>();
     const entries: GridItem[] = [];
     const columns = COLUMNS[breakpoint];
 
     for (const value of items) {
-      if (!isGridItem(value) || seen.has(value.i)) continue;
+      if (!isGridItem(value) || seen.has(value.i)) {
+        continue;
+      }
 
       const definition = DASHBOARD_WIDGETS.find(
         (widget) => widget.id === value.i,
       );
 
-      if (!definition) continue;
+      if (!definition) {
+        continue;
+      }
 
       seen.add(value.i);
 
-      const defaultItem = defaults[breakpoint].find(
-        (item) => item.i === value.i,
-      );
-
-      const minW = Math.min(
-        definition.minW,
-        columns,
-      );
+      const minW = Math.min(definition.minW, columns);
+      const w = Math.max(minW, Math.min(value.w, columns));
+      const h = Math.max(definition.minH, value.h);
 
       entries.push({
         i: value.i,
-        x: Math.max(0, Math.min(value.x, columns - 1)),
+        x: Math.max(0, Math.min(value.x, columns - w)),
         y: Math.max(0, value.y),
-        w: Math.max(
-          minW,
-          Math.min(value.w, columns),
-        ),
-        h: Math.max(
-          definition.minH,
-          value.h,
-        ),
+        w,
+        h,
         minW,
         minH: definition.minH,
       });
@@ -205,17 +204,15 @@ function parseLayouts(raw: unknown): GridLayouts | null {
   return restored;
 }
 
-
-
 function readSavedLayouts(): GridLayouts | null {
   try {
     const raw = localStorage.getItem(DASHBOARD_LAYOUT_STORAGE_KEY);
 
-    if (!raw) return null;
+    if (!raw) {
+      return null;
+    }
 
-    const parsed = JSON.parse(raw);
-
-    return parseLayouts(parsed);
+    return parseLayouts(JSON.parse(raw));
   } catch {
     return null;
   }
@@ -225,7 +222,7 @@ function saveLayoutsLocally(layouts: GridLayouts): void {
   try {
     localStorage.setItem(DASHBOARD_LAYOUT_STORAGE_KEY, JSON.stringify(layouts));
   } catch {
-    // ignore quota errors
+    // Ignore local storage quota or availability errors.
   }
 }
 
@@ -287,20 +284,26 @@ export default function CustomizableDashboard({
       try {
         const response = await getDashboardPreferences(token);
 
-        console.log("Backend saved layout:", response.preferences.layouts);
-        console.log("Local saved layout:", readSavedLayouts());
+        if (cancelled) {
+          return;
+        }
 
-        if (cancelled) return;
+        const backendLayouts = parseLayouts(response.preferences.layouts);
 
-        const parsed = parseLayouts(response.preferences.layouts);
-        const initialLayouts = parsed ?? readSavedLayouts() ?? createDefaultLayouts();
+        const localLayouts = readSavedLayouts();
+
+        const initialLayouts =
+          backendLayouts ?? localLayouts ?? createDefaultLayouts();
 
         layoutsRef.current = initialLayouts;
         hasUserChangedLayout.current = false;
+
         setLayouts(initialLayouts);
         saveLayoutsLocally(initialLayouts);
       } catch (error) {
-        if (cancelled) return;
+        if (cancelled) {
+          return;
+        }
 
         console.error("Failed to load dashboard preferences:", error);
 
@@ -308,6 +311,7 @@ export default function CustomizableDashboard({
 
         layoutsRef.current = fallback;
         hasUserChangedLayout.current = false;
+
         setLayouts(fallback);
       } finally {
         if (!cancelled) {
@@ -333,12 +337,6 @@ export default function CustomizableDashboard({
     const timeoutId = window.setTimeout(async () => {
       const layoutsToSave = layoutsRef.current;
 
-      console.log("Saving dashboard layout:", layoutsToSave);
-      console.log(
-        "Visible widgets:",
-        layoutsToSave.lg.map((item) => item.i),
-      );
-
       saveLayoutsLocally(layoutsToSave);
 
       try {
@@ -350,6 +348,7 @@ export default function CustomizableDashboard({
         setSaveStatus("saved");
       } catch (error) {
         console.error("Failed to save dashboard preferences:", error);
+
         setSaveStatus("error");
       }
     }, 800);
@@ -369,8 +368,35 @@ export default function CustomizableDashboard({
   function commitLayouts(next: GridLayouts) {
     layoutsRef.current = next;
     hasUserChangedLayout.current = true;
+
     saveLayoutsLocally(next);
     setLayouts(next);
+  }
+
+  async function finishEditing() {
+    setEditing(false);
+
+    if (!preferencesLoaded) {
+      return;
+    }
+
+    const latestLayouts = layoutsRef.current;
+
+    setSaveStatus("saving");
+    saveLayoutsLocally(latestLayouts);
+
+    try {
+      const response = await saveDashboardPreferences(token, {
+        layouts: latestLayouts,
+      } as DashboardPreferences);
+
+      hasUserChangedLayout.current = false;
+      setSaveStatus("saved");
+    } catch (error) {
+      console.error("Failed to save dashboard layout:", error);
+
+      setSaveStatus("error");
+    }
   }
 
   function updateLayouts(nextLayouts: GridLayouts) {
@@ -389,8 +415,6 @@ export default function CustomizableDashboard({
         }
       }
 
-      // Apply updated coordinates and dimensions.
-      // Preserve existing widgets if the callback omits them.
       const merged = previous.map((oldItem) => {
         const updated = incomingById.get(oldItem.i);
 
@@ -407,7 +431,6 @@ export default function CustomizableDashboard({
         };
       });
 
-      // Include newly reported widgets if any exist.
       for (const item of incoming) {
         if (
           isGridItem(item) &&
@@ -424,7 +447,9 @@ export default function CustomizableDashboard({
       const previous = previousLayouts[breakpoint] ?? [];
       const current = next[breakpoint] ?? [];
 
-      if (previous.length !== current.length) return true;
+      if (previous.length !== current.length) {
+        return true;
+      }
 
       return previous.some((oldItem) => {
         const newItem = current.find((item) => item.i === oldItem.i);
@@ -449,20 +474,18 @@ export default function CustomizableDashboard({
     const next = {} as GridLayouts;
 
     for (const breakpoint of BREAKPOINT_KEYS) {
-      next[breakpoint] = current[breakpoint].filter(
-        (item) => item.i !== id,
-      );
+      next[breakpoint] = current[breakpoint].filter((item) => item.i !== id);
     }
 
     commitLayouts(next);
   }
 
   function addWidget(id: DashboardWidgetId) {
-    const definition = DASHBOARD_WIDGETS.find(
-      (widget) => widget.id === id,
-    );
+    const definition = DASHBOARD_WIDGETS.find((widget) => widget.id === id);
 
-    if (!definition) return;
+    if (!definition) {
+      return;
+    }
 
     const current = layoutsRef.current;
     const next = {} as GridLayouts;
@@ -566,18 +589,24 @@ export default function CustomizableDashboard({
             onCreateNote={onCreateNote}
           />
         );
+
+      default:
+        return null;
     }
   }
 
   return (
     <section
-      className={`dashboard-customizable space-y-4 ${editing ? "is-editing" : ""}`}
+      className={`dashboard-customizable space-y-4 ${
+        editing ? "is-editing" : ""
+      }`}
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold text-text-primary">
             Your dashboard
           </h2>
+
           <p className="mt-1 text-sm text-text-muted">
             Arrange your workspace the way you like.
           </p>
@@ -595,17 +624,23 @@ export default function CustomizableDashboard({
 
           <button
             type="button"
-            onClick={() => setEditing((value) => !value)}
-            className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-hover"
+            disabled={!preferencesLoaded}
+            onClick={() => {
+              if (editing) {
+                void finishEditing();
+              } else {
+                setEditing(true);
+              }
+            }}
+            className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
             {editing ? "Done editing" : "Customize"}
           </button>
+
           {saveStatus && (
             <p
               className={`text-xs ${
-                saveStatus === "error"
-                  ? "text-error"
-                  : "text-text-muted"
+                saveStatus === "error" ? "text-error" : "text-text-muted"
               }`}
               role="status"
             >
@@ -621,6 +656,7 @@ export default function CustomizableDashboard({
         <div className="space-y-3 rounded-2xl border border-border bg-surface p-4">
           <div className="flex items-center gap-2">
             <Plus size={16} className="text-primary" />
+
             <h3 className="text-sm font-semibold text-text-primary">
               Add a widget
             </h3>
@@ -647,15 +683,14 @@ export default function CustomizableDashboard({
           )}
 
           <p className="text-xs text-text-muted">
-            Drag widgets using the grip. Resize with the always-visible
-            bottom-right corner. Widget actions are paused until you finish
-            customizing.
+            Drag widgets using the grip. Resize with the bottom-right corner.
+            Widget actions are paused while customizing.
           </p>
         </div>
       )}
 
       <div ref={containerRef} className="min-w-0">
-        {mounted && (
+        {mounted && preferencesLoaded ? (
           <Responsive
             width={width}
             layouts={layouts}
@@ -675,16 +710,20 @@ export default function CustomizableDashboard({
               handles: ["se"],
             }}
             onLayoutChange={(_layout, allLayouts) => {
+              if (!editing) return;
               updateLayouts(allLayouts as GridLayouts);
             }}
           >
             {layouts.lg.map((item) => {
               const id = item.i as DashboardWidgetId;
+
               const definition = DASHBOARD_WIDGETS.find(
                 (widget) => widget.id === id,
               );
 
-              if (!definition) return null;
+              if (!definition) {
+                return null;
+              }
 
               return (
                 <div key={id} className="min-w-0 overflow-hidden">
@@ -725,6 +764,12 @@ export default function CustomizableDashboard({
               );
             })}
           </Responsive>
+        ) : (
+          <div
+            className="min-h-96 animate-pulse rounded-2xl border border-border bg-surface"
+            aria-busy="true"
+            aria-label="Loading dashboard"
+          />
         )}
       </div>
     </section>
