@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useMemo, useState } from "react";
@@ -82,8 +81,8 @@ function toGridItem(item: DashboardWidgetLayout): GridItem {
     y: item.y,
     w: item.w,
     h: item.h,
-    minW: 2,
-    minH: 2,
+    minW: item.minW ?? 2,
+    minH: item.minH ?? 2,
   };
 }
 
@@ -140,9 +139,7 @@ export default function CustomizableDashboard({
     initialWidth: 1200,
   });
 
-  const [layouts, setLayouts] = useState<GridLayouts>(
-    createDefaultLayouts,
-  );
+  const [layouts, setLayouts] = useState<GridLayouts>(createDefaultLayouts);
   const [editing, setEditing] = useState(false);
 
   const visibleIds = useMemo(
@@ -163,9 +160,7 @@ export default function CustomizableDashboard({
       const next = { ...current };
 
       for (const breakpoint of Object.keys(next) as Breakpoint[]) {
-        next[breakpoint] = next[breakpoint].filter(
-          (item) => item.i !== id,
-        );
+        next[breakpoint] = next[breakpoint].filter((item) => item.i !== id);
       }
 
       return next;
@@ -173,9 +168,7 @@ export default function CustomizableDashboard({
   }
 
   function addWidget(id: DashboardWidgetId) {
-    const definition = DASHBOARD_WIDGETS.find(
-      (widget) => widget.id === id,
-    );
+    const definition = DASHBOARD_WIDGETS.find((widget) => widget.id === id);
 
     if (!definition) return;
 
@@ -287,7 +280,9 @@ export default function CustomizableDashboard({
   }
 
   return (
-    <section className={`dashboard-customizable space-y-4 ${editing ? "is-editing" : ""}`}>
+    <section
+      className={`dashboard-customizable space-y-4 ${editing ? "is-editing" : ""}`}
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold text-text-primary">
@@ -348,7 +343,9 @@ export default function CustomizableDashboard({
           )}
 
           <p className="text-xs text-text-muted">
-            Drag widgets using the grip. Resize with the always-visible bottom-right corner. Widget actions are paused until you finish customizing.
+            Drag widgets using the grip. Resize with the always-visible
+            bottom-right corner. Widget actions are paused until you finish
+            customizing.
           </p>
         </div>
       )}
@@ -366,7 +363,8 @@ export default function CustomizableDashboard({
             dragConfig={{
               enabled: editing,
               handle: ".dashboard-widget-handle",
-              cancel: "button, a, input, textarea, select, [contenteditable='true'], .dashboard-widget-content",
+              cancel:
+                "button, a, input, textarea, select, [contenteditable='true'], .dashboard-widget-content",
             }}
             resizeConfig={{
               enabled: editing,
@@ -385,7 +383,7 @@ export default function CustomizableDashboard({
               if (!definition) return null;
 
               return (
-                <div key={id} className="min-w-0">
+                <div key={id} className="min-w-0 overflow-hidden">
                   <div className="flex h-full min-h-0 flex-col">
                     {editing && (
                       <div className="mb-2 flex shrink-0 items-center justify-between rounded-lg border border-dashed border-border bg-surface px-3 py-2">
@@ -408,9 +406,13 @@ export default function CustomizableDashboard({
                     )}
 
                     <div
-                      className="dashboard-widget-content min-w-0 flex-1"
+                      className="dashboard-widget-content min-h-0 min-w-0 flex-1 overflow-y-auto"
                       inert={editing}
-                      aria-label={editing ? `${definition.title} preview; interactions disabled while customizing` : undefined}
+                      aria-label={
+                        editing
+                          ? `${definition.title} preview; interactions disabled while customizing`
+                          : undefined
+                      }
                     >
                       {renderWidget(id)}
                     </div>
