@@ -205,11 +205,17 @@ export default function CustomizableDashboard({
   const [preferencesLoaded, setPreferencesLoaded] = useState(false);
 
   useEffect(() => {
-    const savedLayouts = readSavedLayouts();
-    if (savedLayouts) {
-      setLayouts(savedLayouts);
-    }
-    setPreferencesLoaded(true);
+    // Restore browser-only preferences after the initial hydration pass.
+    // Deferring to the next frame avoids a synchronous cascading render in the effect.
+    const frame = window.requestAnimationFrame(() => {
+      const savedLayouts = readSavedLayouts();
+      if (savedLayouts) {
+        setLayouts(savedLayouts);
+      }
+      setPreferencesLoaded(true);
+    });
+
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   useEffect(() => {
