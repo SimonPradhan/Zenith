@@ -4,12 +4,17 @@
 
     <application
         android:allowBackup="false"
-        android:label="Zenith Widgets"
+        android:label="@string/app_name"
         android:theme="@android:style/Theme.Material.Light.NoActionBar"
         android:usesCleartextTraffic="false">
 
         <activity
             android:name=".QuickNoteActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".TaskCreateActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
@@ -37,9 +42,18 @@
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="com.simonpradhan.zenithwidget.REFRESH" />
             </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/zenith_widget_info" />
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/zenith_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name=".NotesWidgetProvider"
+            android:exported="true"
+            android:label="Zenith Sticky Note">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.simonpradhan.zenithwidget.NOTES_REFRESH" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/zenith_notes_widget_info" />
         </receiver>
     </application>
 </manifest>
