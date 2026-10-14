@@ -6,6 +6,7 @@ from sqlalchemy import engine_from_config, pool
 from app.core.config import settings
 from app.core.database import Base
 from app.models import User, Note, Task
+from app.models.dashboard_preference import DashboardPreference
 
 
 config = context.config

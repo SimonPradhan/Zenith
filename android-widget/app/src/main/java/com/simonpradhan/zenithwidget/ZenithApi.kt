@@ -13,6 +13,14 @@ data class WidgetTask(
     val dueDate: String?
 )
 
+data class WidgetNote(
+    val id: String,
+    val title: String,
+    val content: String,
+    val color: String,
+    val updatedAt: String?
+)
+
 object ZenithApi {
     private fun request(
         path: String,
@@ -46,9 +54,7 @@ object ZenithApi {
                 BufferedReader(InputStreamReader(input)).readText()
             }.orEmpty()
 
-            if (code !in 200..299) {
-                throw ApiException(code, response)
-            }
+            if (code !in 200..299) throw ApiException(code, response)
             return if (response.isBlank()) JSONObject() else JSONObject(response)
         } finally {
             connection.disconnect()
@@ -56,9 +62,7 @@ object ZenithApi {
     }
 
     fun login(email: String, password: String): String {
-        val body = JSONObject()
-            .put("email", email)
-            .put("password", password)
+        val body = JSONObject().put("email", email).put("password", password)
         val connection = (URL(BuildConfig.ZENITH_API_BASE_URL.trimEnd('/') + "/auth/login")
             .openConnection() as HttpURLConnection).apply {
             requestMethod = "POST"
@@ -110,16 +114,13 @@ object ZenithApi {
     }
 
     fun getUpcomingTasks(token: String): List<WidgetTask> {
-        val query = "?limit=20&offset=0&order_by_due_date=true"
-        val json = request("/tasks/$query", token)
+        val json = request("/tasks/?limit=20&offset=0&order_by_due_date=true", token)
         val items = json.optJSONArray("items") ?: return emptyList()
         val tasks = mutableListOf<WidgetTask>()
-
         for (index in 0 until items.length()) {
             val item = items.optJSONObject(index) ?: continue
             val status = item.optString("status", "pending")
             if (status == "completed" || status == "cancelled") continue
-
             tasks += WidgetTask(
                 title = item.optString("title", "Untitled task"),
                 status = status,
@@ -130,13 +131,34 @@ object ZenithApi {
         return tasks
     }
 
-    fun createNote(token: String, title: String, content: String): String {
+    fun getRecentNotes(token: String): List<WidgetNote> {
+        val json = request("/notes/?limit=8&offset=0", token)
+        val items = json.optJSONArray("items") ?: return emptyList()
+        return (0 until items.length()).mapNotNull { index ->
+            val item = items.optJSONObject(index) ?: return@mapNotNull null
+            WidgetNote(
+                id = item.optString("id"),
+                title = item.optString("title", "Untitled note"),
+                content = item.optString("content"),
+                color = item.optString("color", "green"),
+                updatedAt = item.optString("updated_at").takeIf { it.isNotBlank() && it != "null" }
+            )
+        }
+    }
+
+    fun createNote(token: String, title: String, content: String, color: String = "green") {
+        val body = JSONObject().put("title", title).put("content", content).put("color", color)
+        request("/notes/", token, "POST", body)
+    }
+
+    fun createTask(token: String, title: String, description: String?, dueDate: String?, priority: String) {
         val body = JSONObject()
             .put("title", title)
-            .put("content", content)
-            .put("color", "purple")
-        request("/notes/", token, "POST", body)
-        return "Note saved to Zenith"
+            .put("priority", priority)
+            .put("status", "pending")
+        if (!description.isNullOrBlank()) body.put("description", description)
+        if (!dueDate.isNullOrBlank()) body.put("due_date", dueDate)
+        request("/tasks/", token, "POST", body)
     }
 }
 

@@ -4,12 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import DashboardHeader from "@/app/components/dashboard/dashboard-header";
-import DashboardStats from "@/app/components/dashboard/dashboard-stats";
-import TaskProgressCard from "@/app/components/dashboard/task-progress-card";
-import QuickActions from "@/app/components/dashboard/quick-actions";
-import RecentNotes from "@/app/components/dashboard/recent-notes";
-import TodayTasks from "@/app/components/dashboard/today-tasks";
-import OverdueTasks from "@/app/components/dashboard/overdue-tasks";
 import DashboardSkeleton from "@/app/components/dashboard/dashboard-skeleton";
 
 import { getTasks } from "@/lib/api/tasks";
@@ -19,11 +13,12 @@ import type { Task } from "@/types/task";
 import type { Note } from "@/types/note";
 import { getToken } from "@/lib/auth";
 import { useUser } from "@/app/context/user-context";
+import CustomizableDashboard from "@/app/components/dashboard/customizable-dashboard";
 
 export default function DashboardPage() {
   const router = useRouter();
   const { user, loading: userLoading } = useUser();
-
+  const [accessToken, setAccessToken] = useState<string>("");
   const [todayTasks, setTodayTasks] = useState<Task[]>([]);
   const [overdueTasks, setOverdueTasks] = useState<Task[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
@@ -44,8 +39,11 @@ export default function DashboardPage() {
       const token = getToken();
 
       if (!token) {
+        setLoading(false);
         return;
       }
+
+      setAccessToken(token);
 
       try {
         const [
@@ -119,9 +117,7 @@ export default function DashboardPage() {
   }
 
   const completionRate =
-    totalTasks === 0
-      ? 0
-      : Math.round((completedCount / totalTasks) * 100);
+    totalTasks === 0 ? 0 : Math.round((completedCount / totalTasks) * 100);
 
   function handleCreateTask() {
     router.push("/tasks?create=true");
@@ -145,57 +141,23 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <DashboardHeader
-        user={user}
-        onCreateTask={handleCreateTask}
-      />
-
-      <DashboardStats
+      <DashboardHeader user={user} onCreateTask={handleCreateTask} />
+      <CustomizableDashboard
+        token={accessToken}
+        todayTasks={todayTasks}
+        overdueTasks={overdueTasks}
+        notes={notes}
         totalTasks={totalTasks}
         pendingCount={pendingCount}
         completedCount={completedCount}
         totalNotes={totalNotes}
+        completionRate={completionRate}
+        onCreateTask={handleCreateTask}
+        onCreateNote={handleCreateNote}
+        onViewTasks={handleViewTasks}
+        onViewNotes={handleViewNotes}
+        onTaskClick={handleTaskClick}
       />
-
-      {/* Overdue tasks */}
-      {overdueTasks.length > 0 && (
-        <OverdueTasks
-          tasks={overdueTasks}
-          onViewAll={handleViewTasks}
-          onTaskClick={handleTaskClick}
-        />
-      )}
-
-      {/* Today's work */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <TodayTasks
-          tasks={todayTasks}
-          onViewAll={handleViewTasks}
-          onTaskClick={handleTaskClick}
-        />
-
-        <RecentNotes
-          notes={notes}
-          onViewAll={handleViewNotes}
-          onCreateNote={handleCreateNote}
-        />
-      </div>
-
-      {/* Progress + actions */}
-      <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
-        <TaskProgressCard
-          totalTasks={totalTasks}
-          pendingCount={pendingCount}
-          completedCount={completedCount}
-          completionRate={completionRate}
-          onViewTasks={handleViewTasks}
-        />
-
-        <QuickActions
-          onCreateTask={handleCreateTask}
-          onCreateNote={handleCreateNote}
-        />
-      </div>
     </div>
   );
 }

@@ -54,3 +54,76 @@ body {
   color: var(--text-primary);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Dashboard layout editor */
+.dashboard-customizable .react-grid-item {
+  overflow: visible;
+  transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.dashboard-customizable .react-grid-item.react-draggable-dragging,
+.dashboard-customizable .react-grid-item.resizing {
+  z-index: 30;
+  transition: none;
+  will-change: transform, width, height;
+}
+
+.dashboard-customizable .dashboard-widget-handle {
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.dashboard-customizable .dashboard-widget-content {
+  min-width: 0;
+  min-height: 0;
+}
+
+.dashboard-customizable.is-editing .dashboard-widget-content {
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+  opacity: 0.78;
+}
+
+/* The resize target is deliberately larger than its visual glyph. */
+.dashboard-customizable.is-editing .react-resizable-handle-se {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  width: 28px;
+  height: 28px;
+  display: block;
+  cursor: nwse-resize;
+  touch-action: none;
+  opacity: 1;
+  border-radius: 0 0 12px 0;
+  background: linear-gradient(135deg, transparent 50%, rgb(139 92 246 / 10%) 50%);
+}
+
+.dashboard-customizable.is-editing .react-resizable-handle-se::after {
+  content: "";
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid var(--primary);
+  border-bottom: 2px solid var(--primary);
+}
+
+.dashboard-customizable.is-editing .react-resizable-handle-se:hover {
+  background: rgb(139 92 246 / 16%);
+}
+
+.dashboard-customizable.is-editing .react-grid-item:focus-within {
+  outline: 1px solid rgb(139 92 246 / 45%);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-customizable .react-grid-item {
+    transition: none;
+  }
+}

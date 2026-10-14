@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Zenith Widgets</string>
-    <string name="widget_description">Your upcoming Zenith tasks and quick note action.</string>
+    <string name="widget_description">Your upcoming Zenith tasks and quick task action.</string>
+    <string name="notes_widget_description">A pinned sticky note from your Zenith workspace.</string>
 </resources>

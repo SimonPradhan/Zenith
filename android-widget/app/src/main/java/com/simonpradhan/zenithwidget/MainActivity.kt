@@ -49,9 +49,12 @@ class MainActivity : Activity() {
         }, margins(top = 18))
 
         linkCodeInput = EditText(this).apply {
-            hint = "One-time link code"
+            hint = "Paste one-time connection code"
             setSingleLine(true)
-            inputType = 1
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or
+                android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+            setTextColor(Color.WHITE)
+            setHintTextColor(Color.GRAY)
         }
         root.addView(linkCodeInput, margins(top = 12))
 
@@ -130,12 +133,27 @@ class MainActivity : Activity() {
             } catch (error: Exception) {
                 runOnUiThread {
                     statusText.text = when (error) {
-                        is ApiException -> if (error.code == 400) {
-                            "That code expired or was already used. Generate a new one in Zenith Settings."
-                        } else {
-                            "Connection failed (HTTP ${error.code}). Try again."
+                        is ApiException -> {
+                            val detail = try {
+                                org.json.JSONObject(error.message.orEmpty())
+                                    .optString("detail")
+                            } catch (_: Exception) {
+                                ""
+                            }
+
+                            when {
+                                error.code == 400 ->
+                                    detail.ifBlank {
+                                        "Code expired or already used. Generate a new code."
+                                    }
+                                else ->
+                                    detail.ifBlank {
+                                        "Connection failed (HTTP ${error.code})."
+                                    }
+                            }
                         }
-                        else -> "Couldn't connect. Check your internet and try again."
+                        else ->
+                            "Connection failed: ${error.message ?: "Check your internet and try again."}"
                     }
                 }
             }
