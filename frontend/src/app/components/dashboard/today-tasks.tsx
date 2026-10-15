@@ -27,7 +27,7 @@ export default function TodayTasks({
   const groups = groupTasksByDate(tasks);
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-border bg-surface">
+    <section className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-border bg-surface">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-border px-5 py-4 sm:px-6">
         <div>
@@ -65,7 +65,7 @@ export default function TodayTasks({
 
       {/* Content */}
       {groups.length === 0 ? (
-        <div className="px-5 py-10 text-center sm:px-6">
+        <div className="flex flex-1 flex-col items-center justify-center px-5 py-6 text-center sm:px-6">
           <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
             <CalendarClock size={18} />
           </div>
@@ -79,7 +79,7 @@ export default function TodayTasks({
           </p>
         </div>
       ) : (
-        <div className="divide-y divide-border">
+        <div className="flex-1 divide-y divide-border">
           {groups.map((group) => (
             <div key={group.label}>
               {/* Group label */}
