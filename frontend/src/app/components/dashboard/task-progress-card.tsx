@@ -22,7 +22,7 @@ export default function TaskProgressCard({
   onViewTasks,
 }: TaskProgressCardProps) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-5 sm:p-6">
+    <div className="relative h-full min-h-0 overflow-hidden rounded-2xl border border-border bg-surface p-5 sm:p-6">
       {/* Decorative glow */}
       <div className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-primary/5 blur-3xl" />
 
