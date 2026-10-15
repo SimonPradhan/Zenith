@@ -96,8 +96,11 @@ function isGridItem(value: unknown): value is GridItem {
   );
 }
 
+
 function toGridItem(item: DashboardWidgetLayout): GridItem {
-  const definition = DASHBOARD_WIDGETS.find((widget) => widget.id === item.id);
+  const definition = DASHBOARD_WIDGETS.find(
+    (widget) => widget.id === item.id,
+  );
 
   return {
     i: item.id,
@@ -107,12 +110,40 @@ function toGridItem(item: DashboardWidgetLayout): GridItem {
     h: item.h,
     minW: definition?.minW ?? 2,
     minH: definition?.minH ?? 2,
+    maxW: definition?.maxW,
+    maxH: definition?.maxH,
   };
 }
 
 function createDefaultLayouts(): GridLayouts {
   const defaults = getDefaultDashboardLayout();
   const desktop = defaults.map(toGridItem);
+  const tablet = defaults.map((item) => {
+    const definition = DASHBOARD_WIDGETS.find(
+      (widget) => widget.id === item.id,
+    );
+
+    const minW = Math.min(definition?.minW ?? 2, COLUMNS.md);
+    const maxW = Math.min(
+      definition?.maxW ?? COLUMNS.md,
+      COLUMNS.md,
+    );
+    const w = Math.max(
+      minW,
+      Math.min(maxW, Math.round((item.w / COLUMNS.lg) * COLUMNS.md)),
+    );
+
+    return {
+      ...toGridItem(item),
+      x: Math.min(
+        COLUMNS.md - w,
+        Math.round((item.x / COLUMNS.lg) * COLUMNS.md),
+      ),
+      w,
+      minW,
+      maxW,
+    };
+  });
 
   function stackItems(columns: number): GridItem[] {
     let y = 0;
@@ -121,7 +152,6 @@ function createDefaultLayouts(): GridLayouts {
       const definition = DASHBOARD_WIDGETS.find(
         (widget) => widget.id === item.id,
       );
-
       const h = item.h;
 
       const gridItem: GridItem = {
@@ -132,6 +162,8 @@ function createDefaultLayouts(): GridLayouts {
         h,
         minW: Math.min(definition?.minW ?? 2, columns),
         minH: definition?.minH ?? 2,
+        maxW: columns,
+        maxH: definition?.maxH,
       };
 
       y += h;
@@ -141,12 +173,13 @@ function createDefaultLayouts(): GridLayouts {
 
   return {
     lg: desktop,
-    md: stackItems(COLUMNS.md),
+    md: tablet,
     sm: stackItems(COLUMNS.sm),
     xs: stackItems(COLUMNS.xs),
     xxs: stackItems(COLUMNS.xxs),
   };
 }
+
 
 function parseLayouts(raw: unknown): GridLayouts | null {
   if (typeof raw !== "object" || raw === null) {
@@ -183,8 +216,13 @@ function parseLayouts(raw: unknown): GridLayouts | null {
 
       seen.add(value.i);
 
+
       const minW = Math.min(definition.minW, columns);
-      const w = Math.max(minW, Math.min(value.w, columns));
+      const maxW = Math.min(definition.maxW ?? columns, columns);
+      const w = Math.max(
+        minW,
+        Math.min(maxW, value.w),
+      );
       const h = Math.max(definition.minH, value.h);
 
       entries.push({
@@ -195,6 +233,8 @@ function parseLayouts(raw: unknown): GridLayouts | null {
         h,
         minW,
         minH: definition.minH,
+        maxW,
+        maxH: definition.maxH,
       });
     }
 
@@ -271,6 +311,7 @@ export default function CustomizableDashboard({
 
   const layoutsRef = useRef<GridLayouts>(layouts);
   const hasUserChangedLayout = useRef(false);
+  const isInteractingWithGrid = useRef(false);
 
   useEffect(() => {
     layoutsRef.current = layouts;
@@ -711,6 +752,18 @@ export default function CustomizableDashboard({
             rowHeight={64}
             margin={[12, 12]}
             containerPadding={[0, 0]}
+            onDragStart={() => {
+              isInteractingWithGrid.current = true;
+            }}
+            onDragStop={() => {
+              isInteractingWithGrid.current = false;
+            }}
+            onResizeStart={() => {
+              isInteractingWithGrid.current = true;
+            }}
+            onResizeStop={() => {
+              isInteractingWithGrid.current = false;
+            }}
             dragConfig={{
               enabled: editing,
               handle: ".dashboard-widget-handle",
@@ -722,7 +775,8 @@ export default function CustomizableDashboard({
               handles: ["se"],
             }}
             onLayoutChange={(_layout, allLayouts) => {
-              if (!editing) return;
+              if (!editing || !isInteractingWithGrid.current) return;
+
               updateLayouts(allLayouts as GridLayouts);
             }}
           >

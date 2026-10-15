@@ -180,7 +180,9 @@ export default function CalendarWidget({
     getTasks(token, {
       limit: 100,
       due_from: visibleMonth.start.toISOString(),
-      due_to: visibleMonth.end.toISOString(),
+      due_to: new Date(
+        visibleMonth.end.getTime() - 1,
+      ).toISOString(),
       order_by_due_date: true,
     })
       .then((response) => {
