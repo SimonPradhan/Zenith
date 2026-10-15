@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
-@theme {
+/* "static" makes Tailwind always emit these variables, so the
+   aliases below never point at a missing variable. */
+@theme static {
   --color-background: #09090b;
   --color-surface: #111113;
   --color-surface-elevated: #18181b;
@@ -20,26 +22,48 @@
 }
 
 :root {
-  --background: #09090b;
-  --foreground: #fafafa;
+  color-scheme: dark;
 
-  --surface: #111113;
-  --surface-elevated: #18181b;
+  --background: var(--color-background);
+  --foreground: var(--color-text-primary);
 
-  --border: #27272a;
+  --surface: var(--color-surface);
+  --surface-elevated: var(--color-surface-elevated);
 
-  --primary: #8b5cf6;
-  --primary-hover: #a78bfa;
+  --border: var(--color-border);
 
-  --text-primary: #fafafa;
-  --text-secondary: #a1a1aa;
-  --text-muted: #71717a;
+  --primary: var(--color-primary);
+  --primary-hover: var(--color-primary-hover);
 
-  --success: #34d399;
-  --warning: #fbbf24;
-  --error: #f87171;
+  --text-primary: var(--color-text-primary);
+  --text-secondary: var(--color-text-secondary);
+  --text-muted: var(--color-text-muted);
+
+  --success: var(--color-success);
+  --warning: var(--color-warning);
+  --error: var(--color-error);
 }
 
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --color-background: #fafafa;
+  --color-surface: #ffffff;
+  --color-surface-elevated: #f4f4f5;
+
+  --color-border: #e4e4e7;
+
+  --color-primary: #7c3aed;
+  --color-primary-hover: #6d28d9;
+
+  --color-text-primary: #18181b;
+  --color-text-secondary: #52525b;
+  --color-text-muted: #71717a;
+
+  --color-success: #059669;
+  --color-warning: #d97706;
+  --color-error: #dc2626;
+}
 * {
   box-sizing: border-box;
 }
