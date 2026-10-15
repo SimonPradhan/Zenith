@@ -14,7 +14,7 @@ export default function QuickActions({
   onCreateNote,
 }: QuickActionsProps) {
   return (
-    <div className="rounded-2xl border border-border bg-surface p-5 sm:p-6">
+    <div className="h-full min-h-0 rounded-2xl border border-border bg-surface p-5 sm:p-6">
       <div>
         <h2 className="font-semibold text-text-primary">
           Quick actions
