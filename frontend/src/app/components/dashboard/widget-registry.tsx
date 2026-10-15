@@ -105,6 +105,23 @@ export const DASHBOARD_WIDGETS: DashboardWidgetDefinition[] = [
     removable: true,
   },
   {
+    id: "calendar",
+    title: "Calendar",
+    description: "Switch between English and Nepali Bikram Sambat dates.",
+    defaultLayout: {
+      id: "calendar",
+      x: 8,
+      y: 14,
+      w: 4,
+      h: 5,
+      removable: true,
+    },
+    minW: 3,
+    minH: 4,
+    maxW: 8,
+    removable: true,
+  },
+  {
     id: "quick-actions",
     title: "Quick actions",
     description: "Shortcuts for creating tasks and notes.",
