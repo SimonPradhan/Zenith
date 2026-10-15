@@ -584,7 +584,14 @@ export default function CustomizableDashboard({
         );
 
       case "calendar":
-        return <CalendarWidget />;
+        return (
+          <CalendarWidget
+            token={token}
+            notes={notes}
+            onCreateTask={onCreateTask}
+            onTaskClick={onTaskClick}
+          />
+        );
 
       case "quick-actions":
         return (
