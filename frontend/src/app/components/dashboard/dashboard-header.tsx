@@ -21,13 +21,11 @@ export default function DashboardHeader({
       </p>
       <div className="relative flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <div className="max-w-3xl">
-          <h1 className="max-w-3xl text-4xl font-black leading-[0.98] tracking-[-0.06em] text-text-primary sm:text-6xl lg:text-7xl">
-            Make room for
-            <br />
-            what matters<span className="text-primary">.</span>
+          <h1 className="max-w-3xl text-3xl font-black leading-[0.98] tracking-[-0.06em] text-text-primary md:text-5xl lg:text-6xl">
+            {getGreeting()}, {user?.name?.split(" ")[0] ?? "there"}.
           </h1>
-          <p className="mt-4 max-w-lg text-sm leading-6 text-text-secondary sm:text-base">
-            {getGreeting()}, {user?.name?.split(" ")[0] ?? "there"}. Small steps today, big results tomorrow.
+          <p className="mt-4 max-w-lg text-sm leading-6 text-text-secondary md:text-lg">
+            Small steps today, big results tomorrow.
           </p>
         </div>
         <button
