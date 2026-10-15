@@ -185,7 +185,7 @@ export default function CalendarWidget() {
         })}
       </div>
 
-      <footer className="mt-auto flex items-center justify-between gap-2 border-t border-border pt-3">
+      <footer className="flex items-center justify-between gap-2 border-t border-border pt-3 pb-2">
         <div className="min-w-0">
           <p className="text-xs text-text-muted">Selected date</p>
           <p className="truncate text-sm font-semibold">
