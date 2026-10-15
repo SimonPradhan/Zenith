@@ -1,8 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CalendarDays, ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
 import NepaliDate from "nepali-date-converter";
+import { CheckCircle2, Circle, FileText, Plus, LoaderCircle } from "lucide-react";
+
+import { getTasks } from "@/lib/api/tasks";
+import type { Task } from "@/types/task";
+import type { Note } from "@/types/note";
 
 type CalendarMode = "en" | "np";
 
@@ -31,7 +36,14 @@ function getDaysInNepaliMonth(year: number, month: number) {
   return Math.round((localDate(next).getTime() - localDate(first).getTime()) / 86400000);
 }
 
-export default function CalendarWidget() {
+type CalendarWidgetProps = {
+  token: string;
+  notes: Note[];
+  onCreateTask: () => void;
+  onTaskClick: (task: Task) => void;
+};
+
+export default function CalendarWidget({ token, notes, onCreateTask, onTaskClick }: CalendarWidgetProps) {
   const [mode, setMode] = useState<CalendarMode>("en");
   const [today] = useState(() => localDate(new Date()));
   const [selectedDate, setSelectedDate] = useState(() => localDate(new Date()));
@@ -43,9 +55,66 @@ export default function CalendarWidget() {
     const now = new NepaliDate(new Date());
     return { year: now.getYear(), month: now.getMonth() };
   });
+  const [monthTasks, setMonthTasks] = useState<Task[]>([]);
+  const [loadingTasks, setLoadingTasks] = useState(false);
+  const [taskError, setTaskError] = useState<string | null>(null);
 
   const todayNepali = useMemo(() => new NepaliDate(today), [today]);
   const selectedNepali = useMemo(() => new NepaliDate(selectedDate), [selectedDate]);
+  const visibleMonth = useMemo(() => {
+    if (mode === "en") {
+      return {
+        start: new Date(englishView.getFullYear(), englishView.getMonth(), 1),
+        end: new Date(englishView.getFullYear(), englishView.getMonth() + 1, 1),
+      };
+    }
+    return {
+      start: new NepaliDate(nepaliView.year, nepaliView.month, 1).toJsDate(),
+      end: new NepaliDate(nepaliView.year, nepaliView.month + 1, 1).toJsDate(),
+    };
+  }, [mode, englishView, nepaliView]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoadingTasks(true);
+    setTaskError(null);
+    getTasks(token, {
+      limit: 100,
+      due_from: visibleMonth.start.toISOString(),
+      due_to: visibleMonth.end.toISOString(),
+      order_by_due_date: true,
+    })
+      .then((response) => {
+        if (!cancelled) setMonthTasks(response.items);
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) setTaskError(error instanceof Error ? error.message : "Could not load tasks.");
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingTasks(false);
+      });
+    return () => { cancelled = true; };
+  }, [token, visibleMonth]);
+
+  const selectedTasks = useMemo(
+    () => monthTasks.filter((task) =>
+      task.due_date && dateKey(new Date(task.due_date)) === dateKey(selectedDate)
+    ),
+    [monthTasks, selectedDate],
+  );
+  const selectedNotes = useMemo(
+    () => notes.filter((note) => dateKey(new Date(note.created_at)) === dateKey(selectedDate)),
+    [notes, selectedDate],
+  );
+  const taskDates = useMemo(
+    () => new Set(monthTasks.filter((task) => task.due_date).map((task) => dateKey(new Date(task.due_date!)))),
+    [monthTasks],
+  );
+  const noteDates = useMemo(
+    () => new Set(notes.map((note) => dateKey(new Date(note.created_at)))),
+    [notes],
+  );
+
 
   const days = useMemo(() => {
     if (mode === "en") {
@@ -180,20 +249,61 @@ export default function CalendarWidget() {
               <span className={`text-[8px] leading-3 ${isSelected ? "text-white/80" : "text-text-muted"}`}>
                 {mode === "en" ? secondaryDay.toLocaleString("ne-NP") : secondaryDay}
               </span>
+              {(taskDates.has(dateKey(item.date)) || noteDates.has(dateKey(item.date))) && (
+                <span className="absolute bottom-0.5 flex items-center gap-0.5" aria-label="Has agenda items">
+                  {taskDates.has(dateKey(item.date)) && <span className={`h-1 w-1 rounded-full ${isSelected ? "bg-white" : "bg-primary"}`} />}
+                  {noteDates.has(dateKey(item.date)) && <span className={`h-1 w-1 rounded-full ${isSelected ? "bg-white/70" : "bg-amber-500"}`} />}
+                </span>
+              )}
             </button>
           );
         })}
       </div>
 
-      <footer className="mt-auto flex items-center justify-between gap-2 border-t border-border pt-3">
-        <div className="min-w-0">
-          <p className="text-xs text-text-muted">Selected date</p>
-          <p className="truncate text-sm font-semibold">
-            {mode === "en"
-              ? selectedDate.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
-              : selectedNepali.format("DD MMMM YYYY", "np")}
-          </p>
+      <section className="mt-3 flex min-h-0 flex-1 flex-col border-t border-border pt-3" aria-label="Selected date agenda">
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <p className="text-xs text-text-muted">Agenda</p>
+            <p className="truncate text-sm font-semibold">
+              {mode === "en"
+                ? selectedDate.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })
+                : selectedNepali.format("DD MMMM YYYY", "np")}
+            </p>
+          </div>
+          <button type="button" onClick={onCreateTask} className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-primary px-2.5 py-2 text-xs font-medium text-white transition hover:bg-primary-hover" aria-label="Create a task">
+            <Plus size={13} /> Task
+          </button>
         </div>
+        <div className="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain pr-1">
+          {loadingTasks ? (
+            <p className="flex items-center gap-2 py-2 text-xs text-text-muted"><LoaderCircle size={14} className="animate-spin" /> Loading agenda…</p>
+          ) : taskError ? (
+            <p role="status" className="py-2 text-xs text-error">{taskError}</p>
+          ) : selectedTasks.length === 0 && selectedNotes.length === 0 ? (
+            <p className="py-2 text-xs text-text-muted">Nothing planned for this date yet.</p>
+          ) : (
+            <>
+              {selectedTasks.map((task) => (
+                <button key={task.id} type="button" onClick={() => onTaskClick(task)} className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left transition hover:bg-surface-elevated">
+                  {task.status === "completed" ? <CheckCircle2 size={15} className="shrink-0 text-success" /> : <Circle size={15} className="shrink-0 text-primary" />}
+                  <span className={`min-w-0 flex-1 truncate text-xs ${task.status === "completed" ? "text-text-muted line-through" : "text-text-primary"}`}>{task.title}</span>
+                  <span className="shrink-0 text-[10px] text-text-muted">{task.priority}</span>
+                </button>
+              ))}
+              {selectedNotes.map((note) => (
+                <div key={note.id} className="flex items-center gap-2 rounded-lg px-2 py-2">
+                  <FileText size={14} className="shrink-0 text-amber-600" />
+                  <span className="min-w-0 flex-1 truncate text-xs text-text-secondary">{note.title || "Untitled note"}</span>
+                  <span className="shrink-0 text-[10px] text-text-muted">Note</span>
+                </div>
+              ))}
+            </>
+          )}
+        </div>
+      </section>
+
+      <footer className="mt-3 flex items-center justify-between gap-2 border-t border-border pt-3">
+        <p className="text-xs text-text-muted">{selectedTasks.length} task{selectedTasks.length === 1 ? "" : "s"} · {selectedNotes.length} note{selectedNotes.length === 1 ? "" : "s"}</p>
         <button
           type="button"
           onClick={goToToday}
