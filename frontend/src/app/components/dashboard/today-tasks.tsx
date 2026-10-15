@@ -79,7 +79,7 @@ export default function TodayTasks({
           </p>
         </div>
       ) : (
-        <div className="flex-1 divide-y divide-border">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain divide-y divide-border">
           {groups.map((group) => (
             <div key={group.label}>
               {/* Group label */}
