@@ -6,6 +6,8 @@ import {
   ListTodo,
 } from "lucide-react";
 
+import type { ElementType } from "react";
+
 type DashboardStatsProps = {
   totalTasks: number;
   pendingCount: number;
@@ -20,7 +22,7 @@ export default function DashboardStats({
   totalNotes,
 }: DashboardStatsProps) {
   return (
-    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <section className="grid h-full min-h-0 min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <StatCard
         label="Total tasks"
         value={totalTasks}
@@ -74,44 +76,44 @@ function StatCard({
 }: {
   label: string;
   value: number;
-  icon: React.ElementType;
+  icon: ElementType;
   accent?: "primary" | "success";
   description: string;
 }) {
   const isSuccess = accent === "success";
 
   return (
-    <div className="group rounded-2xl border border-border bg-surface p-5 transition duration-200 hover:border-primary/30 hover:bg-surface-elevated">
-      <div className="flex items-center justify-between">
+    <article className="group flex h-full min-h-0 min-w-0 flex-col rounded-2xl border border-border bg-surface p-3 transition duration-200 hover:border-primary/30 hover:bg-surface-elevated sm:p-4 lg:p-5">
+      <div className="flex min-w-0 items-center justify-between gap-2">
         <div
-          className={`flex h-10 w-10 items-center justify-center rounded-xl ${
+          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
             isSuccess
               ? "bg-success/10 text-success"
               : "bg-primary/10 text-primary"
           }`}
         >
-          <Icon size={19} />
+          <Icon size={18} />
         </div>
 
         <ArrowRight
           size={15}
-          className="text-text-muted opacity-0 transition group-hover:translate-x-0.5 group-hover:opacity-100"
+          className="shrink-0 text-text-muted opacity-0 transition group-hover:translate-x-0.5 group-hover:opacity-100"
         />
       </div>
 
-      <div className="mt-5">
-        <p className="text-sm text-text-muted">
+      <div className="mt-3 min-w-0 flex-1 sm:mt-4">
+        <p className="break-words text-xs text-text-muted sm:text-sm">
           {label}
         </p>
 
-        <p className="mt-1 text-2xl font-semibold tracking-tight text-text-primary">
-          {value}
+        <p className="mt-1 break-words text-2xl font-semibold tracking-tight text-text-primary sm:text-3xl">
+          {value.toLocaleString()}
         </p>
 
-        <p className="mt-1 text-xs text-text-muted">
+        <p className="mt-1 break-words text-xs leading-5 text-text-muted">
           {description}
         </p>
       </div>
-    </div>
+    </article>
   );
 }
