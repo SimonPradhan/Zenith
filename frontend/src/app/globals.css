@@ -173,3 +173,28 @@ textarea:focus-visible, select:focus-visible {
   .dashboard-customizable .react-grid-item { transition: none; }
   .note-paper-board article { transition: none; }
 }
+
+/* Paper task cards with a tiny metal clip detail */
+.retro-task-board article {
+  position: relative;
+  border-color: #d0c2aa;
+  border-radius: 3px;
+  background: #fbf5e9;
+  color: #28251f;
+  box-shadow: 1px 4px 7px rgb(55 38 20 / 16%);
+}
+.retro-task-board article::before {
+  content: "";
+  position: absolute;
+  top: -7px;
+  left: 22px;
+  width: 23px;
+  height: 13px;
+  border: 2px solid #8d8b7b;
+  border-bottom-color: #c1bca9;
+  border-radius: 7px 7px 2px 2px;
+  background: linear-gradient(90deg, #ded9ca, #a9a795 50%, #e9e3d3);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 18%);
+  transform: rotate(-8deg);
+  pointer-events: none;
+}
