@@ -1,92 +1,99 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #09090b;
-  --color-surface: #111113;
-  --color-surface-elevated: #18181b;
-
-  --color-border: #27272a;
-
-  --color-primary: #8b5cf6;
-  --color-primary-hover: #a78bfa;
-
-  --color-text-primary: #fafafa;
-  --color-text-secondary: #a1a1aa;
-  --color-text-muted: #71717a;
-
-  --color-success: #34d399;
-  --color-warning: #fbbf24;
-  --color-error: #f87171;
+  --color-background: #f3ead9;
+  --color-surface: #fbf5e9;
+  --color-surface-elevated: #e9ddc8;
+  --color-border: #c8b99f;
+  --color-primary: #777754;
+  --color-primary-hover: #5d6040;
+  --color-text-primary: #28251f;
+  --color-text-secondary: #655e51;
+  --color-text-muted: #887d6b;
+  --color-success: #78806a;
+  --color-warning: #c69a4a;
+  --color-error: #b66d51;
 }
 
 :root {
-  --background: #09090b;
-  --foreground: #fafafa;
-
-  --surface: #111113;
-  --surface-elevated: #18181b;
-
-  --border: #27272a;
-
-  --primary: #8b5cf6;
-  --primary-hover: #a78bfa;
-
-  --text-primary: #fafafa;
-  --text-secondary: #a1a1aa;
-  --text-muted: #71717a;
-
-  --success: #34d399;
-  --warning: #fbbf24;
-  --error: #f87171;
+  color-scheme: light;
+  --background: #f3ead9;
+  --foreground: #28251f;
+  --surface: #fbf5e9;
+  --surface-elevated: #e9ddc8;
+  --border: #c8b99f;
+  --primary: #777754;
+  --primary-hover: #5d6040;
+  --text-primary: #28251f;
+  --text-secondary: #655e51;
+  --text-muted: #887d6b;
+  --success: #78806a;
+  --warning: #c69a4a;
+  --error: #b66d51;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 html {
   background: var(--background);
+  scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
-  background: var(--background);
   color: var(--text-primary);
+  background-color: var(--background);
+  background-image:
+    radial-gradient(circle at 1px 1px, rgb(71 59 42 / 9%) 1px, transparent 0),
+    linear-gradient(115deg, rgb(255 255 255 / 28%), transparent 45%);
+  background-size: 7px 7px, auto;
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Dashboard layout editor */
+h1, h2, h3, .retro-display {
+  font-family: Georgia, "Times New Roman", serif;
+  letter-spacing: -0.035em;
+}
+
+::selection {
+  color: #fbf5e9;
+  background: #777754;
+}
+
+button, a, input, textarea, select { -webkit-tap-highlight-color: transparent; }
+
+button:focus-visible, a:focus-visible, input:focus-visible,
+textarea:focus-visible, select:focus-visible {
+  outline: 2px solid #777754;
+  outline-offset: 3px;
+}
+
+/* Tactile paper surfaces */
+.bg-background { background-color: var(--background); }
+.bg-surface { background-color: var(--surface); }
+.bg-surface-elevated { background-color: var(--surface-elevated); }
+
 .dashboard-customizable .react-grid-item {
   overflow: visible;
   transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-
 .dashboard-customizable .react-grid-item.react-draggable-dragging,
 .dashboard-customizable .react-grid-item.resizing {
   z-index: 30;
   transition: none;
   will-change: transform, width, height;
 }
-
 .dashboard-customizable .dashboard-widget-handle {
   touch-action: none;
   -webkit-user-select: none;
   user-select: none;
 }
-
-.dashboard-customizable .dashboard-widget-content {
-  min-width: 0;
-  min-height: 0;
-}
-
+.dashboard-customizable .dashboard-widget-content { min-width: 0; min-height: 0; }
 .dashboard-customizable.is-editing .dashboard-widget-content {
   pointer-events: none;
-  -webkit-user-select: none;
   user-select: none;
   opacity: 0.78;
 }
-
-/* The resize target is deliberately larger than its visual glyph. */
 .dashboard-customizable.is-editing .react-resizable-handle-se {
   position: absolute;
   right: 0;
@@ -99,9 +106,8 @@ body {
   touch-action: none;
   opacity: 1;
   border-radius: 0 0 12px 0;
-  background: linear-gradient(135deg, transparent 50%, rgb(139 92 246 / 10%) 50%);
+  background: linear-gradient(135deg, transparent 50%, rgb(119 119 84 / 15%) 50%);
 }
-
 .dashboard-customizable.is-editing .react-resizable-handle-se::after {
   content: "";
   position: absolute;
@@ -112,18 +118,58 @@ body {
   border-right: 2px solid var(--primary);
   border-bottom: 2px solid var(--primary);
 }
-
 .dashboard-customizable.is-editing .react-resizable-handle-se:hover {
-  background: rgb(139 92 246 / 16%);
+  background: rgb(119 119 84 / 20%);
 }
-
 .dashboard-customizable.is-editing .react-grid-item:focus-within {
-  outline: 1px solid rgb(139 92 246 / 45%);
+  outline: 1px solid rgb(119 119 84 / 50%);
   outline-offset: 2px;
 }
 
+/* Corkboard task view */
+.retro-task-board {
+  padding: 14px;
+  border: 1px solid #b9a17c;
+  border-radius: 5px;
+  background-color: #b88d60;
+  background-image:
+    radial-gradient(ellipse at 20% 30%, rgb(255 240 210 / 20%), transparent 35%),
+    radial-gradient(circle at 2px 2px, rgb(70 44 24 / 17%) 1px, transparent 1.7px),
+    repeating-linear-gradient(7deg, rgb(255 255 255 / 3%) 0 2px, rgb(73 43 23 / 3%) 2px 4px);
+  background-size: auto, 6px 6px, auto;
+  box-shadow: inset 0 1px 8px rgb(64 40 21 / 13%), 0 4px 10px rgb(64 40 21 / 8%);
+}
+.retro-task-board > div { gap: 14px; }
+.retro-task-board section {
+  border-color: rgb(99 68 39 / 22%);
+  border-radius: 4px;
+  background: rgb(247 236 215 / 70%);
+  box-shadow: 0 2px 5px rgb(63 42 23 / 9%);
+}
+.retro-task-board section > header { border-color: rgb(99 68 39 / 18%); }
+.retro-task-board section > div > div > article,
+.retro-task-board [draggable="true"] {
+  filter: drop-shadow(1px 3px 3px rgb(57 39 22 / 15%));
+}
+.retro-task-board section button:hover { background-color: rgb(119 119 84 / 12%); }
+
+/* Notes should read like paper on a desk, not generic app tiles. */
+.note-paper-board {
+  background-color: #e7dbc5;
+  background-image: radial-gradient(circle at 1px 1px, rgb(75 60 39 / 10%) 1px, transparent 0);
+  background-size: 8px 8px;
+}
+.note-paper-board article {
+  box-shadow: 2px 5px 8px rgb(53 43 29 / 13%);
+}
+.note-paper-board article:nth-child(4n + 1) { transform: rotate(-1deg); }
+.note-paper-board article:nth-child(4n + 2) { transform: rotate(0.8deg); }
+.note-paper-board article:nth-child(4n + 3) { transform: rotate(-0.45deg); }
+.note-paper-board article:nth-child(4n) { transform: rotate(1.1deg); }
+.note-paper-board article:hover { z-index: 5; box-shadow: 4px 9px 14px rgb(53 43 29 / 20%); }
+
 @media (prefers-reduced-motion: reduce) {
-  .dashboard-customizable .react-grid-item {
-    transition: none;
-  }
+  html { scroll-behavior: auto; }
+  .dashboard-customizable .react-grid-item { transition: none; }
+  .note-paper-board article { transition: none; }
 }
