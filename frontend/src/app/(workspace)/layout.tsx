@@ -1,5 +1,6 @@
 import { DashboardShell } from "@/app/components/layout/dashboard-shell";
 import { UserProvider } from "../context/user-context";
+import { ThemeProvider } from "../context/theme-context";
 
 export default function WorkspaceLayout({
   children,
@@ -8,9 +9,11 @@ export default function WorkspaceLayout({
 }) {
   return (
     <UserProvider>
-      <DashboardShell>
-        {children}
-      </DashboardShell>
+      <ThemeProvider>
+        <DashboardShell>
+          {children}
+        </DashboardShell>
+      </ThemeProvider>
     </UserProvider>
   );
 }

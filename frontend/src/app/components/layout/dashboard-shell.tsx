@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useUser } from "@/app/context/user-context";
 import GlobalSearch from "./global-search";
+import ThemeToggle from "./theme-toggle";
 
 
 const navigation = [
@@ -326,6 +327,7 @@ export function DashboardShell({
           </div>
 
           <div className="ml-auto flex items-center gap-2">
+             <ThemeToggle />
             <button
               type="button"
               className="relative rounded-lg p-2 text-text-secondary transition hover:bg-surface-elevated hover:text-text-primary"

@@ -6,22 +6,18 @@ type DashboardPreferencesResponse = {
 };
 
 export function getDashboardPreferences(token: string) {
-  return apiClient<DashboardPreferencesResponse>(
-    "/dashboard/preferences/",
-    { token },
-  );
+  return apiClient<DashboardPreferencesResponse>("/dashboard/preferences/", {
+    token,
+  });
 }
 
 export function saveDashboardPreferences(
   token: string,
-  preferences: DashboardPreferences,
+  preferences: Partial<DashboardPreferences>,
 ) {
-  return apiClient<DashboardPreferencesResponse>(
-    "/dashboard/preferences/",
-    {
-      method: "PUT",
-      token,
-      body: JSON.stringify({ preferences }),
-    },
-  );
+  return apiClient<DashboardPreferencesResponse>("/dashboard/preferences/", {
+    method: "PUT",
+    token,
+    body: JSON.stringify({ preferences }),
+  });
 }

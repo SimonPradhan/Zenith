@@ -46,7 +46,9 @@ def save_dashboard_preferences(
         )
         db.add(record)
     else:
-        record.preferences = data.preferences
+        # Shallow merge: keys sent by the client replace the stored
+        # values; keys not sent (theme, hiddenWidgets, ...) are kept.
+        record.preferences = {**record.preferences, **data.preferences}
 
     db.commit()
     db.refresh(record)
