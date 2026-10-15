@@ -18,7 +18,7 @@ export default function RecentNotes({
   onCreateNote,
 }: RecentNotesProps) {
   return (
-    <section className="rounded-2xl border border-border bg-surface">
+    <section className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-border bg-surface">
       <div className="flex items-center justify-between border-b border-border px-5 py-4 sm:px-6">
         <div>
           <h2 className="font-semibold text-text-primary">
@@ -43,7 +43,7 @@ export default function RecentNotes({
       {notes.length === 0 ? (
         <EmptyNotes onCreateNote={onCreateNote} />
       ) : (
-        <div className="divide-y divide-border">
+        <div className="flex-1 divide-y divide-border">
           {notes.map((note) => (
             <NoteItem key={note.id} note={note} />
           ))}
@@ -81,7 +81,7 @@ function EmptyNotes({
   onCreateNote: () => void;
 }) {
   return (
-    <div className="px-5 py-10 text-center sm:px-6">
+    <div className="flex flex-1 flex-col items-center justify-center px-5 py-6 text-center sm:px-6">
       <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
         <FileText size={18} />
       </div>
