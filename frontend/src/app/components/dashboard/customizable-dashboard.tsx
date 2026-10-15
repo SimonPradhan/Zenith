@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useEffect, useRef } from "react";
-import { Responsive, useContainerWidth } from "react-grid-layout";
+import { Responsive, useContainerWidth, verticalCompactor } from "react-grid-layout";
 import { GripVertical, Plus, RotateCcw, X } from "lucide-react";
 
 import DashboardStats from "@/app/components/dashboard/dashboard-stats";
@@ -696,8 +696,9 @@ export default function CustomizableDashboard({
             layouts={layouts}
             breakpoints={BREAKPOINTS}
             cols={COLUMNS}
-            rowHeight={72}
-            margin={[16, 16]}
+            compactor={verticalCompactor}
+            rowHeight={64}
+            margin={[12, 12]}
             containerPadding={[0, 0]}
             dragConfig={{
               enabled: editing,
@@ -749,7 +750,7 @@ export default function CustomizableDashboard({
                     )}
 
                     <div
-                      className="dashboard-widget-content min-h-0 min-w-0 flex-1 overflow-y-auto"
+                      className="dashboard-widget-content min-h-0 min-w-0 flex-1 overflow-hidden"
                       inert={editing}
                       aria-label={
                         editing
