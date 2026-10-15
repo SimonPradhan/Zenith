@@ -5,7 +5,8 @@ export type DashboardWidgetId =
   | "today-tasks"
   | "recent-notes"
   | "task-progress"
-  | "quick-actions";
+  | "quick-actions"
+  | "calendar";
 
 export type DashboardBreakpoint =
   | "lg"

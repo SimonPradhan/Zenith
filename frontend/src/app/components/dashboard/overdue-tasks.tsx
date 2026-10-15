@@ -18,22 +18,18 @@ export default function OverdueTasks({
   onViewAll,
   onTaskClick,
 }: OverdueTasksProps) {
-  if (tasks.length === 0) {
-    return null;
-  }
-
   return (
-    <section className="overflow-hidden rounded-2xl border border-error/20 bg-surface">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-error/10 px-5 py-4 sm:px-6">
-        <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-error/10 text-error">
-            <AlertTriangle size={15} />
+    <section className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden rounded-2xl border border-error/20 bg-surface">
+      {/* Fixed header */}
+      <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-error/10 px-3 py-3 sm:px-5 sm:py-4">
+        <div className="flex min-w-0 flex-1 items-center gap-2.5">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-error/10 text-error">
+            <AlertTriangle size={16} />
           </div>
 
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="font-semibold text-text-primary">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-sm font-semibold text-text-primary sm:text-base">
                 Overdue tasks
               </h2>
 
@@ -43,7 +39,7 @@ export default function OverdueTasks({
             </div>
 
             <p className="mt-0.5 text-xs text-text-muted">
-              Tasks that still need your attention.
+              Tasks needing your attention
             </p>
           </div>
         </div>
@@ -51,29 +47,38 @@ export default function OverdueTasks({
         <button
           type="button"
           onClick={onViewAll}
-          className="
-            inline-flex items-center gap-1.5
-            text-xs font-medium
-            text-text-muted
-            transition
-            hover:text-text-primary
-          "
+          className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-text-muted transition hover:text-text-primary"
         >
           View all
           <ArrowRight size={13} />
         </button>
-      </div>
+      </header>
 
-      {/* Tasks */}
-      <div className="divide-y divide-border">
-        {tasks.map((task) => (
-          <OverdueTaskItem
-            key={task.id}
-            task={task}
-            onClick={() => onTaskClick(task)}
+      {/* Scrollable content */}
+      {tasks.length === 0 ? (
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center p-4 text-center">
+          <CheckCircle2
+            size={22}
+            className="text-success"
           />
-        ))}
-      </div>
+          <p className="mt-2 text-sm font-medium text-text-primary">
+            All caught up!
+          </p>
+          <p className="mt-1 text-xs text-text-muted">
+            No overdue tasks to worry about.
+          </p>
+        </div>
+      ) : (
+        <div className="min-h-0 min-w-0 flex-1 divide-y divide-border overflow-x-hidden overflow-y-auto overscroll-contain">
+          {tasks.map((task) => (
+            <OverdueTaskItem
+              key={task.id}
+              task={task}
+              onClick={() => onTaskClick(task)}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
@@ -89,16 +94,9 @@ function OverdueTaskItem({
     <button
       type="button"
       onClick={onClick}
-      className="
-        group flex w-full items-center gap-3
-        px-5 py-3.5 text-left
-        transition
-        hover:bg-surface-elevated
-        sm:px-6
-      "
+      className="group flex w-full min-w-0 items-start gap-2.5 px-3 py-3 text-left transition hover:bg-surface-elevated sm:items-center sm:gap-3 sm:px-5"
     >
-      {/* Status */}
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-error/10 text-error">
+      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-error/10 text-error sm:mt-0">
         {task.status === "completed" ? (
           <CheckCircle2 size={16} />
         ) : (
@@ -106,36 +104,25 @@ function OverdueTaskItem({
         )}
       </div>
 
-      {/* Task information */}
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-text-primary transition group-hover:text-error">
+        <p className="break-words text-sm font-medium text-text-primary transition group-hover:text-error [overflow-wrap:anywhere]">
           {task.title}
         </p>
 
-        <div className="mt-1 flex items-center gap-2">
+        <div className="mt-1 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
           {task.due_date && (
             <span className="text-xs text-error">
               Due {formatOverdueDate(task.due_date)}
             </span>
           )}
 
-          <span className="text-border">•</span>
-
           <PriorityLabel priority={task.priority} />
         </div>
       </div>
 
-      {/* Arrow */}
       <ArrowRight
         size={14}
-        className="
-          shrink-0
-          text-error
-          opacity-0
-          transition
-          group-hover:translate-x-0.5
-          group-hover:opacity-100
-        "
+        className="mt-2 shrink-0 text-error opacity-0 transition group-hover:translate-x-0.5 group-hover:opacity-100 sm:mt-0 sm:group-hover:opacity-100"
       />
     </button>
   );
@@ -154,9 +141,7 @@ function PriorityLabel({
   };
 
   return (
-    <span
-      className={`text-[11px] font-medium ${styles[priority]}`}
-    >
+    <span className={`shrink-0 text-[11px] font-medium ${styles[priority]}`}>
       {priority.charAt(0).toUpperCase() + priority.slice(1)}
     </span>
   );

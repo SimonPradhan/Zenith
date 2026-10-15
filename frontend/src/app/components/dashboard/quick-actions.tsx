@@ -14,7 +14,7 @@ export default function QuickActions({
   onCreateNote,
 }: QuickActionsProps) {
   return (
-    <div className="rounded-2xl border border-border bg-surface p-5 sm:p-6">
+    <div className="h-full min-h-0 rounded-2xl border border-border bg-surface p-5 sm:p-6">
       <div>
         <h2 className="font-semibold text-text-primary">
           Quick actions
@@ -25,7 +25,7 @@ export default function QuickActions({
         </p>
       </div>
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-2">
+      <div className="mt-5 grid grid-cols-1 gap-3">
         <QuickAction
           icon={ListTodo}
           title="Create a task"

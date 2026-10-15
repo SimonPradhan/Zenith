@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { Plus, Sparkles } from "lucide-react";
 import type { User } from "@/types/auth";
 
 type DashboardHeaderProps = {
@@ -11,30 +11,30 @@ export default function DashboardHeader({
   onCreateTask,
 }: DashboardHeaderProps) {
   return (
-    <section>
-      <p className="text-sm font-medium text-primary">
-        Overview
+    <section className="retro-hero relative overflow-hidden rounded-sm border-y border-border/80 py-5 sm:py-8">
+      <div className="pointer-events-none absolute right-5 top-4 hidden select-none font-serif text-8xl leading-none text-primary/10 md:block" aria-hidden="true">
+        ✳
+      </div>
+      <p className="mb-3 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-text-muted">
+        <Sparkles size={13} />
+        Your personal workspace / 01
       </p>
-
-      <div className="mt-1 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-text-primary sm:text-3xl">
-            {getGreeting()},{" "}
-            {user?.name?.split(" ")[0] ?? "there"}.
+      <div className="relative flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+        <div className="max-w-3xl">
+          <h1 className="max-w-3xl text-3xl font-black leading-[0.98] tracking-[-0.06em] text-text-primary md:text-5xl lg:text-6xl">
+            {getGreeting()}, {user?.name?.split(" ")[0] ?? "there"}.
           </h1>
-
-          <p className="mt-2 text-sm text-text-secondary">
-            Here&apos;s a quick look at your workspace.
+          <p className="mt-4 max-w-lg text-sm leading-6 text-text-secondary md:text-lg">
+            Small steps today, big results tomorrow.
           </p>
         </div>
-
         <button
           type="button"
           onClick={onCreateTask}
-          className="inline-flex w-fit items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-primary/10 transition hover:bg-primary-hover"
+          className="inline-flex w-fit shrink-0 items-center gap-2 rounded-sm border border-primary bg-primary px-4 py-3 text-sm font-semibold text-[#fbf5e9] shadow-[3px_3px_0_#c7b99e] transition hover:-translate-y-0.5 hover:shadow-[4px_5px_0_#c7b99e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           <Plus size={16} />
-          New task
+          Add a task
         </button>
       </div>
     </section>
@@ -43,14 +43,7 @@ export default function DashboardHeader({
 
 function getGreeting(): string {
   const hour = new Date().getHours();
-
-  if (hour < 12) {
-    return "Good morning";
-  }
-
-  if (hour < 18) {
-    return "Good afternoon";
-  }
-
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
   return "Good evening";
 }

@@ -18,8 +18,8 @@ interface NoteCardProps {
 
 const paperColors: Record<Note["color"], string> = {
   yellow: "bg-[#f4edc8]",
-  purple: "bg-[#e8e1f5]",
-  blue: "bg-[#dcecf2]",
+  purple: "bg-[#e7d7a9]",
+  blue: "bg-[#dce3cf]",
   green: "bg-[#e2eddc]",
   pink: "bg-[#f3dfe3]",
 };
