@@ -43,7 +43,7 @@ export default function RecentNotes({
       {notes.length === 0 ? (
         <EmptyNotes onCreateNote={onCreateNote} />
       ) : (
-        <div className="flex-1 divide-y divide-border">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain divide-y divide-border">
           {notes.map((note) => (
             <NoteItem key={note.id} note={note} />
           ))}
