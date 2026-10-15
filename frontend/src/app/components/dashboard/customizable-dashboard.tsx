@@ -10,6 +10,7 @@ import RecentNotes from "@/app/components/dashboard/recent-notes";
 import OverdueTasks from "@/app/components/dashboard/overdue-tasks";
 import TaskProgressCard from "@/app/components/dashboard/task-progress-card";
 import QuickActions from "@/app/components/dashboard/quick-actions";
+import CalendarWidget from "@/app/components/dashboard/calendar-widget";
 
 import type { Task } from "@/types/task";
 import type { Note } from "@/types/note";
@@ -581,6 +582,9 @@ export default function CustomizableDashboard({
             onViewTasks={onViewTasks}
           />
         );
+
+      case "calendar":
+        return <CalendarWidget />;
 
       case "quick-actions":
         return (
