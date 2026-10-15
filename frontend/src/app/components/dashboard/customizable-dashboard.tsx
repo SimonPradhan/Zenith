@@ -1,7 +1,16 @@
 "use client";
 
-import { useMemo, useState, useEffect, useRef } from "react";
-import { Responsive, useContainerWidth, verticalCompactor } from "react-grid-layout";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
+import { Responsive, verticalCompactor } from "react-grid-layout";
 import { GripVertical, Plus, RotateCcw, X } from "lucide-react";
 
 import DashboardStats from "@/app/components/dashboard/dashboard-stats";
@@ -35,6 +44,14 @@ import {
 
 type Breakpoint = "lg" | "md" | "sm" | "xs" | "xxs";
 
+const GRID_MARGIN: [number, number] = [12, 12];
+const GRID_CONTAINER_PADDING: [number, number] = [0, 0];
+
+const GRID_RESIZE_CONFIG = {
+  enabled: false,
+  handles: ["se"] as ("s" | "w" | "e" | "n" | "sw" | "nw" | "se" | "ne")[],
+};
+
 type GridItem = {
   i: string;
   x: number;
@@ -56,10 +73,10 @@ const DASHBOARD_LAYOUT_STORAGE_KEY = "zenith_dashboard_layouts_v1";
 const BREAKPOINT_KEYS: Breakpoint[] = ["lg", "md", "sm", "xs", "xxs"];
 
 const BREAKPOINTS = {
-  lg: 1200,
-  md: 996,
-  sm: 768,
-  xs: 480,
+  lg: 860,
+  md: 640,
+  sm: 480,
+  xs: 360,
   xxs: 0,
 };
 
@@ -69,6 +86,28 @@ const COLUMNS: Record<Breakpoint, number> = {
   sm: 6,
   xs: 4,
   xxs: 2,
+};
+
+type MasonrySpec = { x: number; w: number; h: number };
+
+const MASONRY_LG: Record<string, MasonrySpec> = {
+  stats: { x: 0, w: 12, h: 2 },
+  "today-tasks": { x: 0, w: 4, h: 6 },
+  "recent-notes": { x: 4, w: 4, h: 8 },
+  "task-progress": { x: 8, w: 4, h: 4 },
+  "overdue-tasks": { x: 8, w: 4, h: 4 },
+  calendar: { x: 0, w: 4, h: 7 },
+  "quick-actions": { x: 4, w: 4, h: 3 },
+};
+
+const MASONRY_MD: Record<string, MasonrySpec> = {
+  stats: { x: 0, w: 10, h: 2 },
+  "today-tasks": { x: 0, w: 5, h: 6 },
+  "recent-notes": { x: 5, w: 5, h: 8 },
+  "task-progress": { x: 0, w: 5, h: 4 },
+  "overdue-tasks": { x: 5, w: 5, h: 4 },
+  calendar: { x: 0, w: 5, h: 7 },
+  "quick-actions": { x: 5, w: 5, h: 3 },
 };
 
 function isGridItem(value: unknown): value is GridItem {
@@ -96,11 +135,8 @@ function isGridItem(value: unknown): value is GridItem {
   );
 }
 
-
 function toGridItem(item: DashboardWidgetLayout): GridItem {
-  const definition = DASHBOARD_WIDGETS.find(
-    (widget) => widget.id === item.id,
-  );
+  const definition = DASHBOARD_WIDGETS.find((widget) => widget.id === item.id);
 
   return {
     i: item.id,
@@ -115,58 +151,112 @@ function toGridItem(item: DashboardWidgetLayout): GridItem {
   };
 }
 
+function applyMasonry(
+  item: DashboardWidgetLayout,
+  columns: number,
+  spec: MasonrySpec,
+): GridItem {
+  const base = toGridItem(item);
+
+  const minW = Math.min(base.minW ?? 2, columns);
+  const maxW = Math.min(base.maxW ?? columns, columns);
+  const w = Math.max(minW, Math.min(maxW, spec.w));
+  const h = Math.max(base.minH ?? 2, spec.h);
+
+  return {
+    ...base,
+    x: Math.max(0, Math.min(spec.x, columns - w)),
+    w,
+    h,
+    minW,
+    maxW,
+  };
+}
+
+function placeMasonry(items: GridItem[]): GridItem[] {
+  const placed: GridItem[] = [];
+
+  for (const item of items) {
+    let y = 0;
+
+    for (const other of placed) {
+      const overlapsHorizontally =
+        item.x < other.x + other.w && item.x + item.w > other.x;
+
+      if (overlapsHorizontally) {
+        y = Math.max(y, other.y + other.h);
+      }
+    }
+
+    placed.push({ ...item, y });
+  }
+
+  return placed;
+}
+
 function createDefaultLayouts(): GridLayouts {
   const defaults = getDefaultDashboardLayout();
-  const desktop = defaults.map(toGridItem);
-  const tablet = defaults.map((item) => {
-    const definition = DASHBOARD_WIDGETS.find(
-      (widget) => widget.id === item.id,
-    );
 
-    const minW = Math.min(definition?.minW ?? 2, COLUMNS.md);
-    const maxW = Math.min(
-      definition?.maxW ?? COLUMNS.md,
-      COLUMNS.md,
-    );
-    const w = Math.max(
-      minW,
-      Math.min(maxW, Math.round((item.w / COLUMNS.lg) * COLUMNS.md)),
-    );
+  const desktop = placeMasonry(
+    defaults.map((item) => {
+      const spec = MASONRY_LG[item.id];
+      return spec ? applyMasonry(item, COLUMNS.lg, spec) : toGridItem(item);
+    }),
+  );
 
-    return {
-      ...toGridItem(item),
-      x: Math.min(
-        COLUMNS.md - w,
-        Math.round((item.x / COLUMNS.lg) * COLUMNS.md),
-      ),
-      w,
-      minW,
-      maxW,
-    };
-  });
+  const tablet = placeMasonry(
+    defaults.map((item) => {
+      const spec = MASONRY_MD[item.id];
+
+      if (spec) {
+        return applyMasonry(item, COLUMNS.md, spec);
+      }
+
+      const definition = DASHBOARD_WIDGETS.find(
+        (widget) => widget.id === item.id,
+      );
+
+      const minW = Math.min(definition?.minW ?? 2, COLUMNS.md);
+      const maxW = Math.min(definition?.maxW ?? COLUMNS.md, COLUMNS.md);
+      const w = Math.max(
+        minW,
+        Math.min(maxW, Math.round((item.w / COLUMNS.lg) * COLUMNS.md)),
+      );
+
+      return {
+        ...toGridItem(item),
+        x: Math.min(
+          COLUMNS.md - w,
+          Math.round((item.x / COLUMNS.lg) * COLUMNS.md),
+        ),
+        w,
+        minW,
+        maxW,
+      };
+    }),
+  );
 
   function stackItems(columns: number): GridItem[] {
     let y = 0;
 
-    return defaults.map((item) => {
+    return desktop.map((item) => {
       const definition = DASHBOARD_WIDGETS.find(
-        (widget) => widget.id === item.id,
+        (widget) => widget.id === item.i,
       );
-      const h = item.h;
 
       const gridItem: GridItem = {
-        i: item.id,
+        i: item.i,
         x: 0,
         y,
         w: columns,
-        h,
+        h: item.h,
         minW: Math.min(definition?.minW ?? 2, columns),
         minH: definition?.minH ?? 2,
         maxW: columns,
         maxH: definition?.maxH,
       };
 
-      y += h;
+      y += item.h;
       return gridItem;
     });
   }
@@ -179,7 +269,6 @@ function createDefaultLayouts(): GridLayouts {
     xxs: stackItems(COLUMNS.xxs),
   };
 }
-
 
 function parseLayouts(raw: unknown): GridLayouts | null {
   if (typeof raw !== "object" || raw === null) {
@@ -216,13 +305,9 @@ function parseLayouts(raw: unknown): GridLayouts | null {
 
       seen.add(value.i);
 
-
       const minW = Math.min(definition.minW, columns);
       const maxW = Math.min(definition.maxW ?? columns, columns);
-      const w = Math.max(
-        minW,
-        Math.min(maxW, value.w),
-      );
+      const w = Math.max(minW, Math.min(maxW, value.w));
       const h = Math.max(definition.minH, value.h);
 
       entries.push({
@@ -239,7 +324,9 @@ function parseLayouts(raw: unknown): GridLayouts | null {
     }
 
     restored[breakpoint] =
-      entries.length > 0 ? entries : [...defaults[breakpoint]];
+      entries.length > 0 || items.length === 0
+        ? entries
+        : [...defaults[breakpoint]];
   }
 
   return restored;
@@ -300,9 +387,53 @@ export default function CustomizableDashboard({
   onViewNotes,
   onTaskClick,
 }: CustomizableDashboardProps) {
-  const { width, containerRef, mounted } = useContainerWidth({
-    initialWidth: 1200,
-  });
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [width, setWidth] = useState(0);
+
+  useLayoutEffect(() => {
+    const element = containerRef.current;
+    const section = sectionRef.current;
+
+    if (!element || !section) return;
+
+    let committedWidth = Math.floor(element.getBoundingClientRect().width);
+    let frame = 0;
+    let settleTimer: number | undefined;
+
+    setWidth(committedWidth);
+
+    const commitWidth = () => {
+      frame = 0;
+
+      const next = Math.floor(element.getBoundingClientRect().width);
+
+      if (next === committedWidth) return;
+      committedWidth = next;
+
+      section.dataset.resizing = "true";
+      window.clearTimeout(settleTimer);
+      settleTimer = window.setTimeout(() => {
+        delete section.dataset.resizing;
+      }, 160);
+
+      setWidth(next);
+    };
+
+    const observer = new ResizeObserver(() => {
+      if (frame === 0) {
+        frame = requestAnimationFrame(commitWidth);
+      }
+    });
+
+    observer.observe(element);
+
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+      window.clearTimeout(settleTimer);
+    };
+  }, []);
 
   const [layouts, setLayouts] = useState<GridLayouts>(createDefaultLayouts);
   const [editing, setEditing] = useState(false);
@@ -311,11 +442,27 @@ export default function CustomizableDashboard({
 
   const layoutsRef = useRef<GridLayouts>(layouts);
   const hasUserChangedLayout = useRef(false);
-  const isInteractingWithGrid = useRef(false);
+  const saveTimer = useRef<number | null>(null);
+
+  const dragConfig = useMemo(
+    () => ({
+      enabled: editing,
+      handle: ".dashboard-widget-handle",
+      cancel:
+        "button, a, input, textarea, select, [contenteditable='true'], .dashboard-widget-content",
+    }),
+    [editing],
+  );
+
+  const resizeConfig = useMemo(
+    () => ({ ...GRID_RESIZE_CONFIG, enabled: editing }),
+    [editing],
+  );
 
   useEffect(() => {
     layoutsRef.current = layouts;
   }, [layouts]);
+
 
   useEffect(() => {
     let cancelled = false;
@@ -331,7 +478,6 @@ export default function CustomizableDashboard({
         }
 
         const backendLayouts = parseLayouts(response.preferences.layouts);
-
         const localLayouts = readSavedLayouts();
 
         const initialLayouts =
@@ -369,6 +515,29 @@ export default function CustomizableDashboard({
     };
   }, [token]);
 
+  const persistLayouts = useCallback(async () => {
+    const layoutsToSave = layoutsRef.current;
+
+    saveLayoutsLocally(layoutsToSave);
+    setSaveStatus("saving");
+
+    try {
+      const response = await saveDashboardPreferences(token, {
+        layouts: layoutsToSave,
+      } as DashboardPreferences);
+
+      if (layoutsRef.current === layoutsToSave) {
+        hasUserChangedLayout.current = false;
+      }
+
+      console.debug("Dashboard preferences saved:", response);
+      setSaveStatus("saved");
+    } catch (error) {
+      console.error("Failed to save dashboard preferences:", error);
+      setSaveStatus("error");
+    }
+  }, [token]);
+
   useEffect(() => {
     if (!preferencesLoaded || !hasUserChangedLayout.current) {
       return;
@@ -376,27 +545,15 @@ export default function CustomizableDashboard({
 
     setSaveStatus("saving");
 
-    const timeoutId = window.setTimeout(async () => {
-      const layoutsToSave = layoutsRef.current;
-
-      saveLayoutsLocally(layoutsToSave);
-
-      try {
-        await saveDashboardPreferences(token, {
-          layouts: layoutsToSave,
-        } as DashboardPreferences);
-
-        hasUserChangedLayout.current = false;
-        setSaveStatus("saved");
-      } catch (error) {
-        console.error("Failed to save dashboard preferences:", error);
-
-        setSaveStatus("error");
-      }
+    const timeoutId = window.setTimeout(() => {
+      saveTimer.current = null;
+      void persistLayouts();
     }, 800);
 
+    saveTimer.current = timeoutId;
+
     return () => window.clearTimeout(timeoutId);
-  }, [layouts, preferencesLoaded, token]);
+  }, [layouts, preferencesLoaded, persistLayouts]);
 
   const visibleIds = useMemo(
     () => new Set(layouts.lg.map((item) => item.i)),
@@ -407,13 +564,13 @@ export default function CustomizableDashboard({
     (widget) => !visibleIds.has(widget.id),
   );
 
-  function commitLayouts(next: GridLayouts) {
+  const commitLayouts = useCallback((next: GridLayouts) => {
     layoutsRef.current = next;
     hasUserChangedLayout.current = true;
 
     saveLayoutsLocally(next);
     setLayouts(next);
-  }
+  }, []);
 
   async function finishEditing() {
     setEditing(false);
@@ -422,105 +579,102 @@ export default function CustomizableDashboard({
       return;
     }
 
-    const latestLayouts = layoutsRef.current;
-
-    setSaveStatus("saving");
-    saveLayoutsLocally(latestLayouts);
-
-    try {
-      const response = await saveDashboardPreferences(token, {
-        layouts: latestLayouts,
-      } as DashboardPreferences);
-
-      hasUserChangedLayout.current = false;
-      setSaveStatus("saved");
-    } catch (error) {
-      console.error("Failed to save dashboard layout:", error);
-
-      setSaveStatus("error");
+    if (saveTimer.current !== null) {
+      window.clearTimeout(saveTimer.current);
+      saveTimer.current = null;
     }
+
+    if (!hasUserChangedLayout.current) {
+      return;
+    }
+
+    await persistLayouts();
   }
 
-  function updateLayouts(nextLayouts: GridLayouts) {
-    const previousLayouts = layoutsRef.current;
-    const next = {} as GridLayouts;
+  const updateLayouts = useCallback(
+    (nextLayouts: GridLayouts) => {
+      const previousLayouts = layoutsRef.current;
+      const next = {} as GridLayouts;
 
-    for (const breakpoint of BREAKPOINT_KEYS) {
-      const previous = previousLayouts[breakpoint] ?? [];
-      const incoming = nextLayouts[breakpoint] ?? [];
+      for (const breakpoint of BREAKPOINT_KEYS) {
+        const previous = previousLayouts[breakpoint] ?? [];
+        const incoming = nextLayouts[breakpoint] ?? [];
 
-      const incomingById = new Map<string, GridItem>();
+        const incomingById = new Map<string, GridItem>();
 
-      for (const item of incoming) {
-        if (isGridItem(item)) {
-          incomingById.set(item.i, item);
+        for (const item of incoming) {
+          if (isGridItem(item)) {
+            incomingById.set(item.i, item);
+          }
         }
+
+        next[breakpoint] = previous.map((oldItem) => {
+          const updated = incomingById.get(oldItem.i);
+
+          if (!updated) {
+            return oldItem;
+          }
+
+          return {
+            ...oldItem,
+            x: updated.x,
+            y: updated.y,
+            w: updated.w,
+            h: updated.h,
+          };
+        });
       }
 
-      const merged = previous.map((oldItem) => {
-        const updated = incomingById.get(oldItem.i);
+      const hasChanged = BREAKPOINT_KEYS.some((breakpoint) => {
+        const previous = previousLayouts[breakpoint] ?? [];
+        const current = next[breakpoint] ?? [];
 
-        if (!updated) {
-          return oldItem;
+        if (previous.length !== current.length) {
+          return true;
         }
 
-        return {
-          ...oldItem,
-          x: updated.x,
-          y: updated.y,
-          w: updated.w,
-          h: updated.h,
-        };
+        return previous.some((oldItem) => {
+          const newItem = current.find((item) => item.i === oldItem.i);
+
+          return (
+            !newItem ||
+            oldItem.x !== newItem.x ||
+            oldItem.y !== newItem.y ||
+            oldItem.w !== newItem.w ||
+            oldItem.h !== newItem.h
+          );
+        });
       });
 
-      for (const item of incoming) {
-        if (
-          isGridItem(item) &&
-          !merged.some((existing) => existing.i === item.i)
-        ) {
-          merged.push(item);
-        }
+      if (hasChanged) {
+        commitLayouts(next);
+      }
+    },
+    [commitLayouts],
+  );
+
+  const handleLayoutChange = useCallback(
+    (_layout: unknown, allLayouts: unknown) => {
+      if (!editing) return;
+
+      updateLayouts(allLayouts as GridLayouts);
+    },
+    [editing, updateLayouts],
+  );
+
+  const removeWidget = useCallback(
+    (id: DashboardWidgetId) => {
+      const current = layoutsRef.current;
+      const next = {} as GridLayouts;
+
+      for (const breakpoint of BREAKPOINT_KEYS) {
+        next[breakpoint] = current[breakpoint].filter((item) => item.i !== id);
       }
 
-      next[breakpoint] = merged;
-    }
-
-    const hasChanged = BREAKPOINT_KEYS.some((breakpoint) => {
-      const previous = previousLayouts[breakpoint] ?? [];
-      const current = next[breakpoint] ?? [];
-
-      if (previous.length !== current.length) {
-        return true;
-      }
-
-      return previous.some((oldItem) => {
-        const newItem = current.find((item) => item.i === oldItem.i);
-
-        return (
-          !newItem ||
-          oldItem.x !== newItem.x ||
-          oldItem.y !== newItem.y ||
-          oldItem.w !== newItem.w ||
-          oldItem.h !== newItem.h
-        );
-      });
-    });
-
-    if (hasChanged) {
       commitLayouts(next);
-    }
-  }
-
-  function removeWidget(id: DashboardWidgetId) {
-    const current = layoutsRef.current;
-    const next = {} as GridLayouts;
-
-    for (const breakpoint of BREAKPOINT_KEYS) {
-      next[breakpoint] = current[breakpoint].filter((item) => item.i !== id);
-    }
-
-    commitLayouts(next);
-  }
+    },
+    [commitLayouts],
+  );
 
   function addWidget(id: DashboardWidgetId) {
     const definition = DASHBOARD_WIDGETS.find((widget) => widget.id === id);
@@ -549,7 +703,7 @@ export default function CustomizableDashboard({
       );
 
       const newItem: GridItem = isDesktop
-        ? toGridItem(definition.defaultLayout)
+        ? { ...toGridItem(definition.defaultLayout), y: maxY }
         : {
             i: id,
             x: 0,
@@ -570,85 +724,173 @@ export default function CustomizableDashboard({
     commitLayouts(createDefaultLayouts());
   }
 
-  function renderWidget(id: DashboardWidgetId) {
-    switch (id) {
-      case "stats":
-        return (
-          <DashboardStats
-            totalTasks={totalTasks}
-            pendingCount={pendingCount}
-            completedCount={completedCount}
-            totalNotes={totalNotes}
-          />
+  /* --------------------------- Widget elements --------------------------- */
+  const widgetNodes = useMemo(() => {
+    const build = (id: DashboardWidgetId): ReactNode => {
+      switch (id) {
+        case "stats":
+          return (
+            <DashboardStats
+              totalTasks={totalTasks}
+              pendingCount={pendingCount}
+              completedCount={completedCount}
+              totalNotes={totalNotes}
+            />
+          );
+
+        case "overdue-tasks":
+          return overdueTasks.length > 0 ? (
+            <OverdueTasks
+              tasks={overdueTasks}
+              onViewAll={onViewTasks}
+              onTaskClick={onTaskClick}
+            />
+          ) : (
+            <div className="flex h-full min-h-24 items-center justify-center rounded-2xl border border-border bg-surface p-6 text-sm text-text-muted">
+              No overdue tasks. You&apos;re all caught up!
+            </div>
+          );
+
+        case "today-tasks":
+          return (
+            <TodayTasks
+              tasks={todayTasks}
+              onViewAll={onViewTasks}
+              onTaskClick={onTaskClick}
+            />
+          );
+
+        case "recent-notes":
+          return (
+            <RecentNotes
+              notes={notes}
+              onViewAll={onViewNotes}
+              onCreateNote={onCreateNote}
+            />
+          );
+
+        case "task-progress":
+          return (
+            <TaskProgressCard
+              totalTasks={totalTasks}
+              pendingCount={pendingCount}
+              completedCount={completedCount}
+              completionRate={completionRate}
+              onViewTasks={onViewTasks}
+            />
+          );
+
+        case "calendar":
+          return (
+            <CalendarWidget
+              token={token}
+              notes={notes}
+              onCreateTask={onCreateTask}
+              onTaskClick={onTaskClick}
+            />
+          );
+
+        case "quick-actions":
+          return (
+            <QuickActions
+              onCreateTask={onCreateTask}
+              onCreateNote={onCreateNote}
+            />
+          );
+
+        default:
+          return null;
+      }
+    };
+
+    const nodes = {} as Record<DashboardWidgetId, ReactNode>;
+
+    for (const widget of DASHBOARD_WIDGETS) {
+      nodes[widget.id] = build(widget.id);
+    }
+
+    return nodes;
+  }, [
+    token,
+    todayTasks,
+    overdueTasks,
+    notes,
+    totalTasks,
+    pendingCount,
+    completedCount,
+    totalNotes,
+    completionRate,
+    onCreateTask,
+    onCreateNote,
+    onViewTasks,
+    onViewNotes,
+    onTaskClick,
+  ]);
+
+  const gridChildren = useMemo(
+    () =>
+      layouts.lg.map((item, index) => {
+        const id = item.i as DashboardWidgetId;
+
+        const definition = DASHBOARD_WIDGETS.find(
+          (widget) => widget.id === id,
         );
 
-      case "overdue-tasks":
-        return overdueTasks.length > 0 ? (
-          <OverdueTasks
-            tasks={overdueTasks}
-            onViewAll={onViewTasks}
-            onTaskClick={onTaskClick}
-          />
-        ) : (
-          <div className="flex h-full min-h-24 items-center justify-center rounded-2xl border border-border bg-surface p-6 text-sm text-text-muted">
-            No overdue tasks. You&apos;re all caught up!
+        if (!definition) {
+          return null;
+        }
+
+        return (
+          <div key={id} className="min-w-0">
+            <div
+              className="dashboard-widget-shell flex h-full min-h-0 flex-col"
+              style={
+                {
+                  "--enter-delay": `${Math.min(index, 8) * 55}ms`,
+                } as CSSProperties
+              }
+            >
+              {editing && (
+                <div className="mb-2 flex shrink-0 items-center justify-between rounded-lg border border-dashed border-border bg-surface px-3 py-2">
+                  <div className="dashboard-widget-handle flex min-h-8 touch-none select-none cursor-grab items-center gap-2 rounded-md px-1 text-xs font-medium text-text-secondary transition-colors hover:text-text-primary active:cursor-grabbing">
+                    <GripVertical size={15} />
+                    {definition.title}
+                  </div>
+
+                  {definition.removable && (
+                    <button
+                      type="button"
+                      aria-label={`Remove ${definition.title}`}
+                      onClick={() => removeWidget(id)}
+                      className="rounded-md p-1 text-text-muted transition hover:bg-error/10 hover:text-error"
+                    >
+                      <X size={15} />
+                    </button>
+                  )}
+                </div>
+              )}
+
+              <div
+                className="dashboard-widget-content min-h-0 min-w-0 flex-1 overflow-hidden"
+                inert={editing}
+                aria-label={
+                  editing
+                    ? `${definition.title} preview; interactions disabled while customizing`
+                    : undefined
+                }
+              >
+                {widgetNodes[id]}
+              </div>
+            </div>
           </div>
         );
-
-      case "today-tasks":
-        return (
-          <TodayTasks
-            tasks={todayTasks}
-            onViewAll={onViewTasks}
-            onTaskClick={onTaskClick}
-          />
-        );
-
-      case "recent-notes":
-        return (
-          <RecentNotes
-            notes={notes}
-            onViewAll={onViewNotes}
-            onCreateNote={onCreateNote}
-          />
-        );
-
-      case "task-progress":
-        return (
-          <TaskProgressCard
-            totalTasks={totalTasks}
-            pendingCount={pendingCount}
-            completedCount={completedCount}
-            completionRate={completionRate}
-            onViewTasks={onViewTasks}
-          />
-        );
-
-      case "calendar":
-        return (
-          <CalendarWidget
-            token={token}
-            notes={notes}
-            onCreateTask={onCreateTask}
-            onTaskClick={onTaskClick}
-          />
-        );
-
-      case "quick-actions":
-        return (
-          <QuickActions
-            onCreateTask={onCreateTask}
-            onCreateNote={onCreateNote}
-          />
-        );
-
-      default:
-        return null;
-    }
-  }
+      }),
+    [layouts.lg, editing, widgetNodes, removeWidget],
+  );
 
   return (
     <section
+      ref={sectionRef}
       className={`dashboard-customizable space-y-4 ${
         editing ? "is-editing" : ""
       }`}
@@ -705,7 +947,7 @@ export default function CustomizableDashboard({
       </div>
 
       {editing && (
-        <div className="space-y-3 rounded-2xl border border-border bg-surface p-4">
+        <div className="dashboard-panel-in space-y-3 rounded-2xl border border-border bg-surface p-4">
           <div className="flex items-center gap-2">
             <Plus size={16} className="text-primary" />
 
@@ -741,8 +983,8 @@ export default function CustomizableDashboard({
         </div>
       )}
 
-      <div ref={containerRef} className="min-w-0">
-        {mounted && preferencesLoaded ? (
+      <div ref={containerRef} className="w-full min-w-0 overflow-x-clip">
+        {preferencesLoaded && width > 0 ? (
           <Responsive
             width={width}
             layouts={layouts}
@@ -750,85 +992,13 @@ export default function CustomizableDashboard({
             cols={COLUMNS}
             compactor={verticalCompactor}
             rowHeight={64}
-            margin={[12, 12]}
-            containerPadding={[0, 0]}
-            onDragStart={() => {
-              isInteractingWithGrid.current = true;
-            }}
-            onDragStop={() => {
-              isInteractingWithGrid.current = false;
-            }}
-            onResizeStart={() => {
-              isInteractingWithGrid.current = true;
-            }}
-            onResizeStop={() => {
-              isInteractingWithGrid.current = false;
-            }}
-            dragConfig={{
-              enabled: editing,
-              handle: ".dashboard-widget-handle",
-              cancel:
-                "button, a, input, textarea, select, [contenteditable='true'], .dashboard-widget-content",
-            }}
-            resizeConfig={{
-              enabled: editing,
-              handles: ["se"],
-            }}
-            onLayoutChange={(_layout, allLayouts) => {
-              if (!editing || !isInteractingWithGrid.current) return;
-
-              updateLayouts(allLayouts as GridLayouts);
-            }}
+            margin={GRID_MARGIN}
+            containerPadding={GRID_CONTAINER_PADDING}
+            dragConfig={dragConfig}
+            resizeConfig={resizeConfig}
+            onLayoutChange={handleLayoutChange}
           >
-            {layouts.lg.map((item) => {
-              const id = item.i as DashboardWidgetId;
-
-              const definition = DASHBOARD_WIDGETS.find(
-                (widget) => widget.id === id,
-              );
-
-              if (!definition) {
-                return null;
-              }
-
-              return (
-                <div key={id} className="min-w-0 overflow-hidden">
-                  <div className="flex h-full min-h-0 flex-col">
-                    {editing && (
-                      <div className="mb-2 flex shrink-0 items-center justify-between rounded-lg border border-dashed border-border bg-surface px-3 py-2">
-                        <div className="dashboard-widget-handle flex min-h-8 touch-none select-none cursor-grab items-center gap-2 rounded-md px-1 text-xs font-medium text-text-secondary transition-colors hover:text-text-primary active:cursor-grabbing">
-                          <GripVertical size={15} />
-                          {definition.title}
-                        </div>
-
-                        {definition.removable && (
-                          <button
-                            type="button"
-                            aria-label={`Remove ${definition.title}`}
-                            onClick={() => removeWidget(id)}
-                            className="rounded-md p-1 text-text-muted transition hover:bg-error/10 hover:text-error"
-                          >
-                            <X size={15} />
-                          </button>
-                        )}
-                      </div>
-                    )}
-
-                    <div
-                      className="dashboard-widget-content min-h-0 min-w-0 flex-1 overflow-hidden"
-                      inert={editing}
-                      aria-label={
-                        editing
-                          ? `${definition.title} preview; interactions disabled while customizing`
-                          : undefined
-                      }
-                    >
-                      {renderWidget(id)}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {gridChildren}
           </Responsive>
         ) : (
           <div

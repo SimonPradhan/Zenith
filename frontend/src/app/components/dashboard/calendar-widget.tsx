@@ -257,9 +257,14 @@ export default function CalendarWidget({
       return Array.from({ length: offset + count }, (_, index) => {
         if (index < offset) return null;
 
+        const day = index - offset + 1;
+        const date = new Date(year, month, day);
+
         return {
-          day: index - offset + 1,
-          date: new Date(year, month, index - offset + 1),
+          day,
+          date,
+          secondary: new NepaliDate(date).getDate(),
+          label: date.toLocaleDateString(),
         };
       });
     }
@@ -273,10 +278,13 @@ export default function CalendarWidget({
       if (index < offset) return null;
 
       const day = index - offset + 1;
+      const date = new NepaliDate(year, month, day).toJsDate();
 
       return {
         day,
-        date: new NepaliDate(year, month, day).toJsDate(),
+        date,
+        secondary: date.getDate(),
+        label: date.toLocaleDateString(),
       };
     });
   }, [mode, englishView, nepaliView]);
@@ -435,10 +443,7 @@ export default function CalendarWidget({
           const isToday = itemKey === dateKey(today);
           const isSelected = itemKey === dateKey(selectedDate);
 
-          const secondaryDay =
-            mode === "en"
-              ? new NepaliDate(item.date).getDate()
-              : item.date.getDate();
+          const secondaryDay = item.secondary;
 
           const hasTasks = taskDates.has(itemKey);
           const hasNotes = noteDates.has(itemKey);

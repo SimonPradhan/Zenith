@@ -296,12 +296,8 @@ export function DashboardShell({
       {/* Main */}
       <div
         className={`
-          min-h-screen transition-[padding] duration-300
-          ${
-            collapsed
-              ? "lg:pl-[76px]"
-              : "lg:pl-[250px]"
-          }
+          min-h-screen
+          ${collapsed ? "lg:pl-[76px]" : "lg:pl-[250px]"}
         `}
       >
         {/* Topbar */}
