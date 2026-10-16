@@ -124,6 +124,8 @@ function TaskModalForm({
   const [error, setError] = useState("");
 
   const editing = Boolean(task);
+  const today = getTodayInputValue();
+  const minimumDueDate = startDate && startDate > today ? startDate : today;
 
   async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>,
@@ -445,6 +447,7 @@ function TaskModalForm({
                       event.target.value,
                     )
                   }
+                  min={!editing ? today : undefined}
                   disabled={loading}
                   className="h-12 w-full rounded-sm border-2 border-[var(--ink-outline)] bg-background pl-12 pr-3 text-sm text-text-primary outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-50"
                 />
@@ -484,6 +487,7 @@ function TaskModalForm({
                       event.target.value,
                     )
                   }
+                  min={!editing ? minimumDueDate : undefined}
                   disabled={loading}
                   className="h-12 w-full rounded-sm border-2 border-[var(--ink-outline)] bg-background pl-12 pr-3 text-sm text-text-primary outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-50"
                 />
@@ -597,6 +601,14 @@ function TaskModalForm({
  *       ↓
  * 2026-10-05
  */
+function getTodayInputValue(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 function getDateInputValue(
   value: string | null | undefined,
 ): string {
