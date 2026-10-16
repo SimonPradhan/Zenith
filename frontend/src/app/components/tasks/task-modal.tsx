@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   Calendar,
   ChevronDown,
@@ -53,9 +54,15 @@ export function TaskModal({
   onClose,
   onSubmit,
 }: TaskModalProps) {
-  if (!open) return null;
+  const [portalReady, setPortalReady] = useState(false);
 
-  return (
+  useEffect(() => {
+    setPortalReady(true);
+  }, []);
+
+  if (!open || !portalReady) return null;
+
+  return createPortal(
     <TaskModalForm
       key={`${task?.id ?? "new"}-${initialStatus}`}
       task={task}
@@ -63,7 +70,8 @@ export function TaskModal({
       loading={loading}
       onClose={onClose}
       onSubmit={onSubmit}
-    />
+    />,
+    document.body,
   );
 }
 
@@ -124,6 +132,8 @@ function TaskModalForm({
   const [error, setError] = useState("");
 
   const editing = Boolean(task);
+  const today = getTodayInputValue();
+  const minimumDueDate = startDate && startDate > today ? startDate : today;
 
   async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>,
@@ -225,7 +235,7 @@ function TaskModalForm({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-end justify-center bg-black/60 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+      className="fixed inset-0 z-[100] flex items-end justify-center bg-[#211d17]/70 p-0 backdrop-blur-[3px] sm:items-center sm:p-4"
       onMouseDown={(event) => {
         if (
           event.target === event.currentTarget &&
@@ -235,17 +245,17 @@ function TaskModalForm({
         }
       }}
     >
-      <div className="w-full max-w-lg overflow-hidden rounded-t-2xl border border-border bg-surface shadow-2xl sm:rounded-2xl">
+      <div role="dialog" aria-modal="true" aria-labelledby="task-modal-title" className="relative w-full max-w-2xl overflow-hidden border-2 border-[var(--comic-ink)] bg-surface text-text-primary shadow-[7px_7px_0_var(--paper-shadow)] sm:max-h-[92vh] sm:rounded-sm">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-border px-5 py-4">
+        <div className="relative flex items-start justify-between gap-4 border-b-2 border-[var(--comic-ink)] bg-surface-elevated px-5 py-5 sm:px-7">
           <div>
-            <h2 className="text-base font-semibold">
+            <h2 id="task-modal-title" className="retro-display text-2xl font-black uppercase leading-tight tracking-tight sm:text-3xl">
               {editing
                 ? "Edit task"
                 : "Create task"}
             </h2>
 
-            <p className="mt-1 text-xs text-text-muted">
+            <p className="mt-2 max-w-lg text-sm leading-5 text-text-secondary">
               {editing
                 ? "Update the details of your task."
                 : "Add a new task to your workspace."}
@@ -256,7 +266,7 @@ function TaskModalForm({
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="rounded-lg p-2 text-text-muted transition hover:bg-surface-elevated hover:text-text-primary disabled:opacity-40"
+            className="shrink-0 border-2 border-[var(--comic-ink)] bg-surface px-2 py-2 text-text-primary shadow-[2px_2px_0_var(--comic-ink)] transition hover:-translate-y-0.5 hover:bg-background disabled:opacity-40"
             aria-label="Close modal"
           >
             <X size={18} />
@@ -266,11 +276,11 @@ function TaskModalForm({
         {/* Form */}
         <form
           onSubmit={handleSubmit}
-          className="max-h-[80vh] space-y-5 overflow-y-auto p-5"
+          className="max-h-[78vh] space-y-6 overflow-y-auto bg-surface p-5 sm:p-7"
         >
           {/* Error */}
           {error && (
-            <div className="rounded-xl border border-error/20 bg-error/10 px-3 py-2.5 text-sm text-error">
+            <div className="border-2 border-error bg-error/10 px-4 py-3 text-sm font-semibold text-error shadow-[3px_3px_0_var(--paper-shadow)]">
               {error}
             </div>
           )}
@@ -279,7 +289,7 @@ function TaskModalForm({
           <div>
             <label
               htmlFor="task-title"
-              className="mb-2 block text-sm font-medium"
+              className="mb-2 block text-xs font-black uppercase tracking-[0.12em] text-text-secondary"
             >
               Title
             </label>
@@ -294,7 +304,7 @@ function TaskModalForm({
               maxLength={255}
               autoFocus
               disabled={loading}
-              className="h-11 w-full rounded-xl border border-border bg-surface-elevated px-3.5 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-primary/60 focus:ring-2 focus:ring-primary/10 disabled:opacity-50"
+              className="h-12 w-full rounded-sm border-2 border-[var(--ink-outline)] bg-background px-3.5 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:opacity-50"
             />
           </div>
 
@@ -302,10 +312,10 @@ function TaskModalForm({
           <div>
             <label
               htmlFor="task-description"
-              className="mb-2 block text-sm font-medium"
+              className="mb-2 block text-xs font-black uppercase tracking-[0.12em] text-text-secondary"
             >
               Description
-              <span className="ml-1 text-xs font-normal text-text-muted">
+              <span className="ml-1 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
                 (optional)
               </span>
             </label>
@@ -319,7 +329,7 @@ function TaskModalForm({
               placeholder="Add some context about this task..."
               rows={4}
               disabled={loading}
-              className="w-full resize-none rounded-xl border border-border bg-surface-elevated px-3.5 py-3 text-sm leading-5 text-text-primary outline-none placeholder:text-text-muted focus:border-primary/60 focus:ring-2 focus:ring-primary/10 disabled:opacity-50"
+              className="w-full resize-y rounded-sm border-2 border-[var(--ink-outline)] bg-background px-3.5 py-3 text-sm leading-6 text-text-primary outline-none placeholder:text-text-muted focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:opacity-50"
             />
           </div>
 
@@ -329,7 +339,7 @@ function TaskModalForm({
             <div>
               <label
                 htmlFor="task-priority"
-                className="mb-2 block text-sm font-medium"
+                className="mb-2 block text-xs font-black uppercase tracking-[0.12em] text-text-secondary"
               >
                 Priority
               </label>
@@ -345,7 +355,7 @@ function TaskModalForm({
                     )
                   }
                   disabled={loading}
-                  className="h-11 w-full appearance-none rounded-xl border border-border bg-surface-elevated px-3.5 pr-10 text-sm text-text-primary outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/10 disabled:opacity-50"
+                  className="h-12 w-full appearance-none rounded-sm border-2 border-[var(--ink-outline)] bg-background px-3.5 pr-10 text-sm text-text-primary outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:opacity-50"
                 >
                   {priorityOptions.map(
                     (option) => (
@@ -371,7 +381,7 @@ function TaskModalForm({
             <div>
               <label
                 htmlFor="task-status"
-                className="mb-2 block text-sm font-medium"
+                className="mb-2 block text-xs font-black uppercase tracking-[0.12em] text-text-secondary"
               >
                 Status
               </label>
@@ -387,7 +397,7 @@ function TaskModalForm({
                     )
                   }
                   disabled={loading}
-                  className="h-11 w-full appearance-none rounded-xl border border-border bg-surface-elevated px-3.5 pr-10 text-sm text-text-primary outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/10 disabled:opacity-50"
+                  className="h-12 w-full appearance-none rounded-sm border-2 border-[var(--ink-outline)] bg-background px-3.5 pr-10 text-sm text-text-primary outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:opacity-50"
                 >
                   {statusOptions.map(
                     (option) => (
@@ -416,10 +426,10 @@ function TaskModalForm({
             <div>
               <label
                 htmlFor="task-start-date"
-                className="mb-2 block text-sm font-medium"
+                className="mb-2 block text-xs font-black uppercase tracking-[0.12em] text-text-secondary"
               >
                 Start date
-                <span className="ml-1 text-xs font-normal text-text-muted">
+                <span className="ml-1 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
                   (optional)
                 </span>
               </label>
@@ -429,7 +439,7 @@ function TaskModalForm({
                   type="button"
                   onClick={openStartDatePicker}
                   disabled={loading}
-                  className="absolute left-2 top-1/2 z-10 -translate-y-1/2 rounded-lg p-1 text-text-muted transition hover:bg-background hover:text-text-primary disabled:opacity-40"
+                  className="absolute left-2 top-1/2 z-10 -translate-y-1/2 border border-[var(--ink-outline)] bg-surface p-1.5 text-text-secondary transition hover:bg-surface-elevated hover:text-text-primary disabled:opacity-40"
                   aria-label="Open start date picker"
                 >
                   <Calendar size={17} />
@@ -445,8 +455,9 @@ function TaskModalForm({
                       event.target.value,
                     )
                   }
+                  min={!editing ? today : undefined}
                   disabled={loading}
-                  className="h-11 w-full rounded-xl border border-border bg-surface-elevated pl-11 pr-3 text-sm text-text-primary outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="h-12 w-full rounded-sm border-2 border-[var(--ink-outline)] bg-background pl-12 pr-3 text-sm text-text-primary outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-50"
                 />
               </div>
             </div>
@@ -455,10 +466,10 @@ function TaskModalForm({
             <div>
               <label
                 htmlFor="task-due-date"
-                className="mb-2 block text-sm font-medium"
+                className="mb-2 block text-xs font-black uppercase tracking-[0.12em] text-text-secondary"
               >
                 Due date
-                <span className="ml-1 text-xs font-normal text-text-muted">
+                <span className="ml-1 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
                   (optional)
                 </span>
               </label>
@@ -468,7 +479,7 @@ function TaskModalForm({
                   type="button"
                   onClick={openDueDatePicker}
                   disabled={loading}
-                  className="absolute left-2 top-1/2 z-10 -translate-y-1/2 rounded-lg p-1 text-text-muted transition hover:bg-background hover:text-text-primary disabled:opacity-40"
+                  className="absolute left-2 top-1/2 z-10 -translate-y-1/2 border border-[var(--ink-outline)] bg-surface p-1.5 text-text-secondary transition hover:bg-surface-elevated hover:text-text-primary disabled:opacity-40"
                   aria-label="Open due date picker"
                 >
                   <Calendar size={17} />
@@ -484,8 +495,9 @@ function TaskModalForm({
                       event.target.value,
                     )
                   }
+                  min={!editing ? minimumDueDate : undefined}
                   disabled={loading}
-                  className="h-11 w-full rounded-xl border border-border bg-surface-elevated pl-11 pr-3 text-sm text-text-primary outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/10 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="h-12 w-full rounded-sm border-2 border-[var(--ink-outline)] bg-background pl-12 pr-3 text-sm text-text-primary outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:cursor-not-allowed disabled:opacity-50"
                 />
               </div>
             </div>
@@ -493,9 +505,9 @@ function TaskModalForm({
 
           {/* Estimated time */}
           <div>
-            <label className="mb-2 block text-sm font-medium">
+            <label className="mb-2 block text-xs font-black uppercase tracking-[0.12em] text-text-secondary">
               Estimated time
-              <span className="ml-1 text-xs font-normal text-text-muted">
+              <span className="ml-1 text-[10px] font-semibold uppercase tracking-wide text-text-muted">
                 (optional)
               </span>
             </label>
@@ -519,7 +531,7 @@ function TaskModalForm({
                   }
                   disabled={loading}
                   placeholder="0"
-                  className="h-11 w-full rounded-xl border border-border bg-surface-elevated pl-10 pr-14 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-primary/60 focus:ring-2 focus:ring-primary/10 disabled:opacity-50"
+                  className="h-12 w-full rounded-sm border-2 border-[var(--ink-outline)] bg-background pl-10 pr-14 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:opacity-50"
                 />
 
                 <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-text-muted">
@@ -540,7 +552,7 @@ function TaskModalForm({
                   }
                   disabled={loading}
                   placeholder="0"
-                  className="h-11 w-full rounded-xl border border-border bg-surface-elevated px-3.5 pr-16 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-primary/60 focus:ring-2 focus:ring-primary/10 disabled:opacity-50"
+                  className="h-12 w-full rounded-sm border-2 border-[var(--ink-outline)] bg-background px-3.5 pr-16 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:opacity-50"
                 />
 
                 <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-text-muted">
@@ -549,18 +561,18 @@ function TaskModalForm({
               </div>
             </div>
 
-            <p className="mt-1.5 text-xs text-text-muted">
+            <p className="mt-2 border-l-2 border-primary pl-3 text-xs italic text-text-secondary">
               Example: 2 hours and 30 minutes
             </p>
           </div>
 
           {/* Actions */}
-          <div className="flex flex-col-reverse gap-2 border-t border-border pt-5 sm:flex-row sm:justify-end">
+          <div className="flex flex-col-reverse gap-3 border-t-2 border-[var(--comic-ink)] bg-surface-elevated/60 pt-5 sm:flex-row sm:justify-between">
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="h-10 rounded-xl border border-border px-4 text-sm font-medium text-text-secondary transition hover:bg-surface-elevated hover:text-text-primary disabled:opacity-40"
+              className="h-11 border-2 border-[var(--comic-ink)] bg-surface px-5 text-sm font-bold text-text-primary shadow-[3px_3px_0_var(--paper-shadow)] transition hover:-translate-y-0.5 hover:shadow-[4px_4px_0_var(--paper-shadow)] disabled:opacity-40"
             >
               Cancel
             </button>
@@ -568,7 +580,7 @@ function TaskModalForm({
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-medium text-white transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
+              className="comic-action inline-flex h-11 items-center justify-center gap-2 border-2 border-[var(--comic-ink)] bg-primary px-5 text-sm font-black uppercase tracking-wide text-white shadow-[3px_3px_0_var(--comic-ink)] transition hover:-translate-y-0.5 hover:shadow-[4px_4px_0_var(--comic-ink)] hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading && (
                 <Loader2
@@ -597,6 +609,14 @@ function TaskModalForm({
  *       ↓
  * 2026-10-05
  */
+function getTodayInputValue(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 function getDateInputValue(
   value: string | null | undefined,
 ): string {

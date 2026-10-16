@@ -18,6 +18,7 @@ import {
 import { useUser } from "@/app/context/user-context";
 import GlobalSearch from "./global-search";
 import ThemeToggle from "./theme-toggle";
+import { useToast } from "@/app/components/ui/toast-provider";
 
 
 const navigation = [
@@ -52,6 +53,7 @@ export function DashboardShell({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const toast = useToast();
 
   const {
     user,
@@ -61,6 +63,11 @@ export function DashboardShell({
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+
+  function handleLogout() {
+    toast.success("You have been signed out.");
+    logout();
+  }
 
   const sidebarWidth = collapsed
     ? "w-[76px]"
@@ -81,7 +88,7 @@ export function DashboardShell({
       <aside
         className={`
           fixed inset-y-0 left-0 z-50 flex flex-col
-          border-r border-border bg-surface
+          comic-sidebar text-[#f4ecd8]
           transition-all duration-300
           ${sidebarWidth}
           ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
@@ -89,18 +96,18 @@ export function DashboardShell({
         `}
       >
         {/* Logo */}
-        <div className="flex h-16 items-center border-b border-border px-5">
+        <div className="flex h-16 items-center border-b-2 border-[#f4d64f]/60 px-5">
           <Link
             href="/dashboard"
             className="flex min-w-0 items-center gap-3"
             onClick={() => setMobileOpen(false)}
           >
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-sm font-bold text-white shadow-lg shadow-primary/20">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center border-2 border-[#f4d64f] bg-[#1c1a16] text-sm font-bold text-[#f4d64f] shadow-[2px_2px_0_#f4d64f]">
               Z
             </div>
 
             {!collapsed && (
-              <span className="text-lg font-semibold tracking-tight">
+              <span className="comic-title text-xl uppercase tracking-wide">
                 Zenith
               </span>
             )}
@@ -109,7 +116,7 @@ export function DashboardShell({
           {/* Mobile close */}
           <button
             onClick={() => setMobileOpen(false)}
-            className="ml-auto rounded-lg p-2 text-text-muted hover:bg-surface-elevated hover:text-text-primary lg:hidden"
+            className="ml-auto rounded-lg p-2 text-[#bfb59c] hover:bg-white/10 hover:text-white lg:hidden"
             aria-label="Close navigation"
           >
             <X size={18} />
@@ -121,7 +128,7 @@ export function DashboardShell({
           <p
             className={`
               mb-2 px-3 text-[11px] font-semibold uppercase
-              tracking-wider text-text-muted
+              tracking-wider text-[#f4d64f]/80
               ${collapsed ? "hidden" : ""}
             `}
           >
@@ -144,12 +151,12 @@ export function DashboardShell({
                   onClick={() => setMobileOpen(false)}
                   title={collapsed ? item.label : undefined}
                   className={`
-                    group flex items-center gap-3 rounded-xl px-3 py-2.5
+                    group flex items-center gap-3 rounded-sm px-3 py-2.5
                     text-sm font-medium transition
                     ${
                       active
-                        ? "bg-primary/10 text-primary"
-                        : "text-text-secondary hover:bg-surface-elevated hover:text-text-primary"
+                        ? "border-2 border-[#1c1a16] bg-[#f4d64f] font-black text-[#1c1a16] shadow-[2px_2px_0_rgb(0_0_0/60%)]"
+                        : "border-2 border-transparent text-[#e6dcc4] hover:bg-white/10 hover:text-white"
                     }
                     ${collapsed ? "justify-center" : ""}
                   `}
@@ -158,8 +165,8 @@ export function DashboardShell({
                     size={18}
                     className={
                       active
-                        ? "text-primary"
-                        : "text-text-muted group-hover:text-text-primary"
+                        ? "text-[#1c1a16]"
+                        : "text-[#bfb59c] group-hover:text-white"
                     }
                   />
 
@@ -168,19 +175,19 @@ export function DashboardShell({
                   )}
 
                   {active && !collapsed && (
-                    <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" />
+                    <span className="ml-auto h-1.5 w-1.5 rounded-full bg-[#1c1a16]" />
                   )}
                 </Link>
               );
             })}
           </div>
 
-          <div className="my-6 h-px bg-border" />
+          <div className="my-6 h-0.5 bg-white/15" />
 
           <p
             className={`
               mb-2 px-3 text-[11px] font-semibold uppercase
-              tracking-wider text-text-muted
+              tracking-wider text-[#f4d64f]/80
               ${collapsed ? "hidden" : ""}
             `}
           >
@@ -202,12 +209,12 @@ export function DashboardShell({
                   onClick={() => setMobileOpen(false)}
                   title={collapsed ? item.label : undefined}
                   className={`
-                    group flex items-center gap-3 rounded-xl px-3 py-2.5
+                    group flex items-center gap-3 rounded-sm px-3 py-2.5
                     text-sm font-medium transition
                     ${
                       active
-                        ? "bg-primary/10 text-primary"
-                        : "text-text-secondary hover:bg-surface-elevated hover:text-text-primary"
+                        ? "border-2 border-[#1c1a16] bg-[#f4d64f] font-black text-[#1c1a16] shadow-[2px_2px_0_rgb(0_0_0/60%)]"
+                        : "border-2 border-transparent text-[#e6dcc4] hover:bg-white/10 hover:text-white"
                     }
                     ${collapsed ? "justify-center" : ""}
                   `}
@@ -216,8 +223,8 @@ export function DashboardShell({
                     size={18}
                     className={
                       active
-                        ? "text-primary"
-                        : "text-text-muted group-hover:text-text-primary"
+                        ? "text-[#1c1a16]"
+                        : "text-[#bfb59c] group-hover:text-white"
                     }
                   />
 
@@ -226,7 +233,7 @@ export function DashboardShell({
                   )}
 
                   {active && !collapsed && (
-                    <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary" />
+                    <span className="ml-auto h-1.5 w-1.5 rounded-full bg-[#1c1a16]" />
                   )}
                 </Link>
               );
@@ -235,41 +242,37 @@ export function DashboardShell({
         </nav>
 
         {/* User */}
-        <div className="border-t border-border p-3">
+        <div className="comic-sidebar-account border-t-2 border-[#f4d64f]/50 p-3">
           <div
-            className={`
-              flex items-center gap-3 rounded-xl p-2
-              ${collapsed ? "justify-center" : ""}
-            `}
+            className={`comic-sidebar-user flex items-center gap-3 border-2 border-transparent p-2 transition-colors ${collapsed ? "justify-center" : ""}`}
           >
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+            <div className="comic-sidebar-avatar flex h-9 w-9 shrink-0 items-center justify-center border-2 border-[#f4d64f] bg-[#f4d64f]/15 text-sm font-black text-[#f4d64f] shadow-[2px_2px_0_#f4d64f]">
               {user?.name?.charAt(0).toUpperCase() ?? "Z"}
             </div>
 
             {!collapsed && (
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-text-primary">
+                <p className="truncate text-sm font-medium text-[#f4ecd8]">
                   {loading
                     ? "Loading..."
                     : user?.name ?? "User"}
                 </p>
 
-                <p className="truncate text-xs text-text-muted">
+                <p className="truncate text-xs text-[#bfb59c]">
                   {user?.email ?? ""}
                 </p>
               </div>
             )}
 
-            {!collapsed && (
-              <button
-                type="button"
-                onClick={logout}
-                title="Logout"
-                className="rounded-lg p-2 text-text-muted transition hover:bg-error/10 hover:text-error"
-              >
-                <LogOut size={16} />
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={handleLogout}
+              title="Sign out"
+              aria-label="Sign out"
+              className="comic-sidebar-logout shrink-0 border-2 border-transparent p-2 text-[#bfb59c] transition hover:-translate-y-px hover:border-[#ef8f7e] hover:bg-[#ef8f7e]/10 hover:text-[#ef8f7e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f4d64f]"
+            >
+              <LogOut size={16} />
+            </button>
           </div>
         </div>
 
@@ -277,7 +280,7 @@ export function DashboardShell({
         <button
           type="button"
           onClick={() => setCollapsed((value) => !value)}
-          className="absolute -right-3 top-[72px] hidden h-6 w-6 items-center justify-center rounded-full border border-border bg-background text-text-muted shadow-lg hover:text-text-primary lg:flex"
+          className="absolute -right-3 top-[72px] hidden h-6 w-6 items-center justify-center rounded-full border-2 border-[#1c1a16] bg-[#f4d64f] text-[#1c1a16] shadow-[2px_2px_0_rgb(0_0_0/50%)] lg:flex"
           aria-label={
             collapsed
               ? "Expand sidebar"
@@ -301,11 +304,11 @@ export function DashboardShell({
         `}
       >
         {/* Topbar */}
-        <header className="sticky top-0 z-30 flex h-16 items-center border-b border-border bg-background/80 px-4 backdrop-blur-xl sm:px-6">
+        <header className="dashboard-shell-topbar sticky top-0 z-30 flex h-16 items-center border-b-2 border-[var(--comic-ink)] px-4 backdrop-blur-xl sm:px-6">
           <button
             type="button"
             onClick={() => setMobileOpen(true)}
-            className="mr-3 rounded-lg p-2 text-text-secondary hover:bg-surface-elevated hover:text-text-primary lg:hidden"
+            className="shell-icon-button mr-3 border-2 border-transparent p-2 text-text-secondary hover:-translate-y-px lg:hidden"
             aria-label="Open navigation"
           >
             <Menu size={20} />
@@ -316,7 +319,7 @@ export function DashboardShell({
             <div className="relative">
               <GlobalSearch />
 
-              <kbd className="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded border border-border bg-surface-elevated px-1.5 py-0.5 text-[10px] text-text-muted md:block">
+              <kbd className="shell-shortcut absolute right-2 top-1/2 hidden -translate-y-1/2 border border-border px-1.5 py-0.5 text-[10px] md:block">
                 ⌘ K
               </kbd>
             </div>
@@ -326,7 +329,7 @@ export function DashboardShell({
              <ThemeToggle />
             <button
               type="button"
-              className="relative rounded-lg p-2 text-text-secondary transition hover:bg-surface-elevated hover:text-text-primary"
+              className="shell-icon-button relative border-2 border-transparent p-2 text-text-secondary transition hover:-translate-y-px"
               aria-label="Notifications"
             >
               <Bell size={19} />
@@ -336,8 +339,8 @@ export function DashboardShell({
 
             <div className="ml-1 h-6 w-px bg-border" />
 
-            <div className="flex items-center gap-2 pl-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 text-xs font-semibold text-primary">
+            <div className="shell-user-chip ml-1 flex items-center gap-2 border-l-2 border-border pl-3">
+              <div className="shell-user-avatar flex h-8 w-8 items-center justify-center border-2 border-[var(--comic-ink)] text-xs font-black shadow-[2px_2px_0_var(--comic-ink)]">
                 {user?.name?.charAt(0).toUpperCase() ?? "Z"}
               </div>
 

@@ -6,18 +6,21 @@ import { useRouter } from "next/navigation";
 import DashboardHeader from "@/app/components/dashboard/dashboard-header";
 import DashboardSkeleton from "@/app/components/dashboard/dashboard-skeleton";
 
-import { getTasks } from "@/lib/api/tasks";
+import { createTask, getTasks } from "@/lib/api/tasks";
 import { getNotes } from "@/lib/api/notes";
 
-import type { Task } from "@/types/task";
+import type { Task, TaskCreate } from "@/types/task";
 import type { Note } from "@/types/note";
 import { getToken } from "@/lib/auth";
 import { useUser } from "@/app/context/user-context";
 import CustomizableDashboard from "@/app/components/dashboard/customizable-dashboard";
+import { TaskModal } from "@/app/components/tasks/task-modal";
+import { useToast } from "@/app/components/ui/toast-provider";
 
 export default function DashboardPage() {
   const router = useRouter();
   const { user, loading: userLoading } = useUser();
+  const toast = useToast();
   const [accessToken, setAccessToken] = useState<string>("");
   const [todayTasks, setTodayTasks] = useState<Task[]>([]);
   const [overdueTasks, setOverdueTasks] = useState<Task[]>([]);
@@ -29,6 +32,9 @@ export default function DashboardPage() {
   const [totalNotes, setTotalNotes] = useState(0);
 
   const [loading, setLoading] = useState(true);
+  const [taskModalOpen, setTaskModalOpen] = useState(false);
+  const [creatingTask, setCreatingTask] = useState(false);
+  const [dashboardRefreshKey, setDashboardRefreshKey] = useState(0);
 
   useEffect(() => {
     if (userLoading || !user) {
@@ -110,7 +116,7 @@ export default function DashboardPage() {
     }
 
     loadDashboard();
-  }, [user, userLoading]);
+  }, [user, userLoading, dashboardRefreshKey]);
 
   if (userLoading || loading) {
     return <DashboardSkeleton />;
@@ -120,7 +126,31 @@ export default function DashboardPage() {
     totalTasks === 0 ? 0 : Math.round((completedCount / totalTasks) * 100);
 
   function handleCreateTask() {
-    router.push("/tasks?create=true");
+    setTaskModalOpen(true);
+  }
+
+  async function handleSubmitNewTask(taskData: TaskCreate) {
+    const token = getToken();
+
+    if (!token) {
+      router.replace("/login");
+      throw new Error("Your session has expired. Please sign in again.");
+    }
+
+    setCreatingTask(true);
+
+    try {
+      await createTask(token, taskData);
+      setTaskModalOpen(false);
+      setDashboardRefreshKey((current) => current + 1);
+      toast.success("Task created successfully.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to create task. Please try again.";
+      toast.error(message);
+      throw error;
+    } finally {
+      setCreatingTask(false);
+    }
   }
 
   function handleCreateNote() {
@@ -139,9 +169,21 @@ export default function DashboardPage() {
     router.push(`/tasks?task=${encodeURIComponent(task.id)}`);
   }
 
+  function handleNoteClick(note: Note) {
+    router.push(`/notes?note=${encodeURIComponent(note.id)}`);
+  }
+
   return (
     <div className="space-y-6">
       <DashboardHeader user={user} onCreateTask={handleCreateTask} />
+      <TaskModal
+        open={taskModalOpen}
+        loading={creatingTask}
+        onClose={() => {
+          if (!creatingTask) setTaskModalOpen(false);
+        }}
+        onSubmit={handleSubmitNewTask}
+      />
       <CustomizableDashboard
         token={accessToken}
         todayTasks={todayTasks}
@@ -157,6 +199,7 @@ export default function DashboardPage() {
         onViewTasks={handleViewTasks}
         onViewNotes={handleViewNotes}
         onTaskClick={handleTaskClick}
+        onNoteClick={handleNoteClick}
       />
     </div>
   );

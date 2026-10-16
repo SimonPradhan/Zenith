@@ -1,32 +1,41 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { FileText, Plus, Search } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { LayoutGrid, Plus, Search, StickyNote } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import {
   createNote,
   deleteNote,
+  getNote,
   getNotes,
   updateNote,
 } from "@/lib/api/notes";
 import { getToken } from "@/lib/auth";
+import { useToast } from "@/app/components/ui/toast-provider";
 
 import { DeleteNoteDialog } from "@/app/components/notes/delete-note-dialog";
-import { NoteList } from "@/app/components/notes/note-list";
+import { NoteBoard, tidyPatches } from "@/app/components/notes/note-board";
+import { NoteDetailModal } from "@/app/components/notes/note-detail-modal";
+import { NoteEmptyState } from "@/app/components/notes/note-empty-state";
+import { NoteListSkeleton } from "@/app/components/notes/note-list-skeleton";
 import { NoteModal } from "@/app/components/notes/note-modal";
 
+import type { NoteBoardHandle, NoteMovePatch } from "@/app/components/notes/note-board";
 import type {
   Note,
   NoteCreate,
   NoteListResponse,
 } from "@/types/note";
 
-const PAGE_SIZE = 10;
+/** The board loads every note at once; this matches the API's maximum page. */
+const BOARD_LIMIT = 100;
 
 export default function NotesPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const toast = useToast();
+  const boardRef = useRef<NoteBoardHandle>(null);
 
   const [data, setData] = useState<NoteListResponse | null>(null);
 
@@ -36,8 +45,6 @@ export default function NotesPage() {
 
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
-  const [page, setPage] = useState(0);
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -45,8 +52,61 @@ export default function NotesPage() {
   const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [saving, setSaving] = useState(false);
 
+  const [viewingNoteId, setViewingNoteId] = useState<string | null>(null);
+
+  // A note opened via /notes?note=<id> may be hidden by the current search.
+  const [linkedNote, setLinkedNote] = useState<Note | null>(null);
+
   const [deleteTarget, setDeleteTarget] = useState<Note | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  const notes = data?.items ?? [];
+  const viewingNote =
+    notes.find((note) => note.id === viewingNoteId) ??
+    (linkedNote?.id === viewingNoteId ? linkedNote : null);
+  const linkedNoteId = searchParams.get("note");
+
+  useEffect(() => {
+    if (!linkedNoteId) return;
+
+    let cancelled = false;
+
+    async function loadLinkedNote(id: string) {
+      const token = getToken();
+
+      if (!token) {
+        router.replace("/login");
+        return;
+      }
+
+      try {
+        const note = await getNote(token, id);
+
+        if (!cancelled) {
+          setLinkedNote(note);
+          setViewingNoteId(note.id);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setError(
+            error instanceof Error
+              ? error.message
+              : "Unable to load selected note",
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          router.replace("/notes", { scroll: false });
+        }
+      }
+    }
+
+    loadLinkedNote(linkedNoteId);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [linkedNoteId, router]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -74,8 +134,7 @@ export default function NotesPage() {
 
       try {
         const result = await getNotes(token, {
-          limit: PAGE_SIZE,
-          offset: page * PAGE_SIZE,
+          limit: BOARD_LIMIT,
           search: debouncedSearch.trim() || undefined,
         });
 
@@ -102,11 +161,15 @@ export default function NotesPage() {
     return () => {
       cancelled = true;
     };
-  }, [page, router, debouncedSearch]);
+  }, [router, debouncedSearch]);
 
-  function handleSearch(value: string) {
-    setSearch(value);
-    setPage(0);
+  async function reloadNotes(token: string) {
+    const result = await getNotes(token, {
+      limit: BOARD_LIMIT,
+      search: debouncedSearch.trim() || undefined,
+    });
+
+    setData(result);
   }
 
   function openCreateModal() {
@@ -115,6 +178,7 @@ export default function NotesPage() {
   }
 
   function openEditModal(note: Note) {
+    setViewingNoteId(null);
     setEditingNote(note);
     setModalOpen(true);
   }
@@ -140,23 +204,71 @@ export default function NotesPage() {
       if (editingNote) {
         await updateNote(token, editingNote.id, noteData);
       } else {
-        await createNote(token, noteData);
+        // New notes land on a free spot in the part of the board in view.
+        const spot = boardRef.current?.getFreeSpot();
+
+        await createNote(token, { ...noteData, ...spot });
       }
 
       setModalOpen(false);
       setEditingNote(null);
 
-      const result = await getNotes(token, {
-        limit: PAGE_SIZE,
-        offset: page * PAGE_SIZE,
-        search: debouncedSearch.trim() || undefined,
-      });
-
-      setData(result);
+      await reloadNotes(token);
       setError("");
+      toast.success(editingNote ? "Note updated successfully." : "Note created successfully.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to save note";
+      setError(message);
+      toast.error(message);
     } finally {
       setSaving(false);
     }
+  }
+
+  /**
+   * Moves a note on the board. The UI updates immediately; if the request
+   * fails the list is reloaded so the board shows what is actually saved.
+   */
+  async function handleMoveNote(note: Note, patch: NoteMovePatch) {
+    setData((current) =>
+      current
+        ? {
+            ...current,
+            items: current.items.map((item) =>
+              item.id === note.id ? { ...item, ...patch } : item,
+            ),
+          }
+        : current,
+    );
+
+    const token = getToken();
+
+    if (!token) {
+      router.replace("/login");
+      return;
+    }
+
+    try {
+      await updateNote(token, note.id, patch);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to save note position";
+      setError(message);
+      toast.error(message);
+
+      try {
+        await reloadNotes(token);
+      } catch {
+        // The error banner above already tells the user something is wrong.
+      }
+    }
+  }
+
+  async function handleTidyUp() {
+    await Promise.all(
+      tidyPatches(notes).map(({ note, patch }) =>
+        handleMoveNote(note, patch),
+      ),
+    );
   }
 
   async function handleDeleteNote() {
@@ -176,66 +288,63 @@ export default function NotesPage() {
       await deleteNote(token, deleteTarget.id);
 
       setDeleteTarget(null);
-
-      const result = await getNotes(token, {
-        limit: PAGE_SIZE,
-        offset: page * PAGE_SIZE,
-        search: debouncedSearch.trim() || undefined,
-      });
-
-      if (result.items.length === 0 && page > 0) {
-        setPage((currentPage) => currentPage - 1);
-        return;
-      }
-
-      setData(result);
+      await reloadNotes(token);
+      toast.success("Note deleted successfully.");
     } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Unable to delete note",
-      );
+      const message = error instanceof Error ? error.message : "Unable to delete note";
+      setError(message);
+      toast.error(message);
     } finally {
       setDeleting(false);
     }
   }
 
-  const totalPages = data
-    ? Math.ceil(data.total / PAGE_SIZE)
-    : 0;
+  const total = data?.total ?? 0;
 
   return (
     <>
-      <div className="mx-auto max-w-[1400px] space-y-6">
+      <div className="mx-auto max-w-[1600px] space-y-6">
         {/* Header */}
-        <section className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <section className="comic-hero comic-hero-paper flex flex-col gap-4 border-2 p-5 sm:flex-row sm:items-end sm:justify-between sm:p-7">
           <div>
             <p className="mb-1 flex items-center gap-2 text-sm text-text-muted">
-              <FileText size={15} />
-              Workspace
+              <StickyNote size={15} />
+              Notice board
             </p>
 
-            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+            <h1 className="comic-heading text-3xl font-black uppercase tracking-tight sm:text-4xl">
               Notes
             </h1>
 
             <p className="mt-2 text-sm text-text-secondary">
-              Capture ideas, information, and things worth keeping.
+              Drag sticky notes anywhere on the board. Click one to read it.
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={openCreateModal}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-primary/10 transition hover:bg-primary-hover"
-          >
-            <Plus size={17} />
-            New note
-          </button>
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={handleTidyUp}
+              disabled={notes.length === 0}
+              className="comic-btn inline-flex items-center justify-center gap-2 bg-surface px-4 py-2.5 text-sm font-black uppercase text-text-primary disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <LayoutGrid size={16} />
+              Tidy up
+            </button>
+
+            <button
+              type="button"
+              onClick={openCreateModal}
+              className="comic-btn inline-flex items-center justify-center gap-2 bg-[#f4d64f] px-4 py-2.5 text-sm font-black uppercase text-[#1c1a16]"
+            >
+              <Plus size={17} />
+              New note
+            </button>
+          </div>
         </section>
 
         {/* Search */}
-        <section className="rounded-2xl border border-border bg-surface p-3">
+        <section className="comic-list-panel border-2 border-[var(--comic-ink)] bg-surface p-3">
           <div className="relative">
             <Search
               size={17}
@@ -245,11 +354,9 @@ export default function NotesPage() {
             <input
               type="search"
               value={search}
-              onChange={(event) =>
-                handleSearch(event.target.value)
-              }
+              onChange={(event) => setSearch(event.target.value)}
               placeholder="Search notes..."
-              className="h-10 w-full rounded-xl border border-border bg-surface-elevated pl-10 pr-4 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-primary/60 focus:ring-2 focus:ring-primary/10"
+              className="h-11 w-full rounded-sm border-2 border-border bg-surface-elevated pl-10 pr-4 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-primary focus:ring-2 focus:ring-primary/10"
             />
           </div>
         </section>
@@ -257,66 +364,50 @@ export default function NotesPage() {
         {/* Summary */}
         <div>
           <p className="text-sm font-medium">
-            {data?.total ?? 0}{" "}
-            {data?.total === 1 ? "note" : "notes"}
+            {total} {total === 1 ? "note" : "notes"}
           </p>
 
           <p className="mt-1 text-xs text-text-muted">
-            {search
-              ? `Matching "${search}"`
-              : "All notes"}
+            {search ? `Matching "${search}"` : "All notes"}
+            {total > BOARD_LIMIT &&
+              ` · showing the newest ${BOARD_LIMIT}`}
           </p>
         </div>
 
         {/* Error */}
         {error && (
-          <div className="rounded-xl border border-error/20 bg-error/10 p-4 text-sm text-error">
+          <div className="rounded-sm border-2 border-error/40 bg-error/10 p-4 text-sm text-error">
             {error}
           </div>
         )}
 
-        {/* Notes */}
-        <NoteList
-          notes={data?.items ?? []}
-          loading={loading}
-          search={search}
-          onEdit={openEditModal}
-          onDelete={setDeleteTarget}
-        />
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between">
-            <p className="text-xs text-text-muted">
-              Page {page + 1} of {totalPages}
-            </p>
-
-            <div className="flex gap-2">
-              <button
-                type="button"
-                disabled={page === 0}
-                onClick={() =>
-                  setPage((value) => value - 1)
-                }
-                className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text-secondary transition hover:bg-surface-elevated hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                Previous
-              </button>
-
-              <button
-                type="button"
-                disabled={page >= totalPages - 1}
-                onClick={() =>
-                  setPage((value) => value + 1)
-                }
-                className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text-secondary transition hover:bg-surface-elevated hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                Next
-              </button>
-            </div>
-          </div>
+        {/* Board */}
+        {loading && notes.length === 0 ? (
+          <NoteListSkeleton />
+        ) : notes.length === 0 ? (
+          <NoteEmptyState search={search} />
+        ) : (
+          <NoteBoard
+            ref={boardRef}
+            notes={notes}
+            loading={loading}
+            onOpen={(note) => setViewingNoteId(note.id)}
+            onMove={handleMoveNote}
+          />
         )}
       </div>
+
+      {viewingNote && (
+        <NoteDetailModal
+          note={viewingNote}
+          onClose={() => setViewingNoteId(null)}
+          onEdit={openEditModal}
+          onDelete={(note) => {
+            setViewingNoteId(null);
+            setDeleteTarget(note);
+          }}
+        />
+      )}
 
       <NoteModal
         open={modalOpen}

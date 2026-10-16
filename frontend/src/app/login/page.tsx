@@ -15,9 +15,11 @@ import { useRouter } from "next/navigation";
 
 import { login } from "@/lib/api/auth";
 import { setToken } from "@/lib/auth";
+import { useToast } from "@/app/components/ui/toast-provider";
 
 export default function LoginPage() {
   const router = useRouter();
+  const toast = useToast();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,20 +41,21 @@ export default function LoginPage() {
       });
 
       setToken(response.access_token);
+      toast.success("Welcome back! You are signed in.");
       router.push("/dashboard");
     } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Unable to sign in. Please try again.",
-      );
+      const message = error instanceof Error
+        ? error.message
+        : "Unable to sign in. Please try again.";
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="auth-comic-page min-h-screen bg-background">
       <div className="grid min-h-screen lg:grid-cols-[1.05fr_0.95fr]">
         {/* ==================== BRAND PANEL ==================== */}
         <section className="relative hidden overflow-hidden border-r border-border bg-surface lg:flex lg:flex-col">
@@ -162,7 +165,7 @@ export default function LoginPage() {
             </div>
 
             {/* Error */}
-            {error && (
+            {/*{error && (
               <div
                 role="alert"
                 className="mb-5 flex items-start gap-3 rounded-xl border border-error/20 bg-error/10 px-4 py-3 text-sm leading-5 text-error"
@@ -174,7 +177,7 @@ export default function LoginPage() {
 
                 <span>{error}</span>
               </div>
-            )}
+            )}*/}
 
             {/* Form */}
             <form

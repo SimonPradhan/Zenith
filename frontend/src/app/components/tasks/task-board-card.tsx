@@ -9,6 +9,7 @@ import { formatTaskDueDate } from "@/lib/task-date";
 
 interface TaskBoardCardProps {
   task: Task;
+  onOpen: (task: Task) => void;
   onEdit: (task: Task) => void;
   onDelete: (task: Task) => void;
   onDragStart: (task: Task) => void;
@@ -26,28 +27,29 @@ const priorityConfig: Record<
 > = {
   low: {
     label: "Low",
-    className: "bg-surface-elevated text-text-muted",
-    dotClassName: "bg-text-muted",
+    className: "border-2 border-[#1c1a16] bg-[#cdb6ea] text-[#1c1a16]",
+    dotClassName: "bg-[#1c1a16]",
   },
   medium: {
     label: "Medium",
-    className: "bg-primary/10 text-primary",
-    dotClassName: "bg-primary",
+    className: "border-2 border-[#1c1a16] bg-[#f4d64f] text-[#1c1a16]",
+    dotClassName: "bg-[#1c1a16]",
   },
   high: {
     label: "High",
-    className: "bg-warning/10 text-warning",
-    dotClassName: "bg-warning",
+    className: "border-2 border-[#1c1a16] bg-[#f2a65a] text-[#1c1a16]",
+    dotClassName: "bg-[#1c1a16]",
   },
   urgent: {
     label: "Urgent",
-    className: "bg-error/10 text-error",
-    dotClassName: "bg-error",
+    className: "border-2 border-[#1c1a16] bg-[#ef6f5f] text-[#1c1a16]",
+    dotClassName: "bg-[#1c1a16]",
   },
 };
 
 export function TaskBoardCard({
   task,
+  onOpen,
   onEdit,
   onDelete,
   onDragStart,
@@ -67,11 +69,11 @@ export function TaskBoardCard({
         onDragStart(task);
       }}
       onDragEnd={onDragEnd}
-      onDoubleClick={() => onEdit(task)}
+      onClick={() => onOpen(task)}
       className="
-        group cursor-grab rounded-xl border border-border
+        comic-board-card group cursor-grab rounded-sm border-2 border-[#1c1a16]
         bg-surface p-4
-        shadow-sm
+        shadow-[3px_3px_0_#1c1a16]
         transition
         hover:-translate-y-0.5
         hover:border-primary/30
@@ -93,7 +95,7 @@ export function TaskBoardCard({
 
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="line-clamp-2 text-sm font-medium leading-5 text-text-primary">
+            <h3 className="comic-heading line-clamp-2 text-lg uppercase leading-5 text-text-primary">
               {task.title}
             </h3>
 
@@ -110,8 +112,8 @@ export function TaskBoardCard({
             <span
               className={`
                 inline-flex items-center gap-1.5
-                rounded-full px-2 py-1
-                text-[11px] font-medium
+                px-2 py-0.5
+                text-[10px] font-black uppercase tracking-wide
                 ${priority.className}
               `}
             >

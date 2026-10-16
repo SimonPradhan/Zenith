@@ -2,12 +2,10 @@
 
 import { useEffect, useState } from "react";
 import {
-  Check,
   Copy,
   Link2,
   LogOut,
   Mail,
-  Moon,
   Smartphone,
   User as UserIcon,
 } from "lucide-react";
@@ -15,6 +13,7 @@ import { useRouter } from "next/navigation";
 
 import { createWidgetLinkCode, getMe } from "@/lib/api/auth";
 import { getToken, removeToken } from "@/lib/auth";
+import ThemeToggle from "@/app/components/layout/theme-toggle";
 import type { User } from "@/types/auth";
 
 export default function SettingsPage() {
@@ -127,10 +126,10 @@ export default function SettingsPage() {
     .toUpperCase();
 
   return (
-    <div className="mx-auto max-w-[1000px] space-y-8">
-      <section>
-        <p className="text-sm font-medium text-primary">Workspace</p>
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight text-text-primary sm:text-3xl">
+    <div className="settings-comic-page mx-auto max-w-[1000px] space-y-7 sm:space-y-8">
+      <section className="settings-page-heading">
+        <p className="settings-eyebrow mb-3 inline-flex items-center border-2 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] shadow-[2px_2px_0_var(--comic-ink)]">Workspace / Preferences</p>
+        <h1 className="comic-heading mt-1 text-4xl uppercase leading-none tracking-wide text-text-primary sm:text-5xl">
           Settings
         </h1>
         <p className="mt-2 text-sm text-text-secondary">
@@ -138,11 +137,11 @@ export default function SettingsPage() {
         </p>
       </section>
 
-      <section className="overflow-hidden rounded-2xl border border-border bg-surface">
+      <section className="settings-comic-card overflow-hidden rounded-md border-2 border-[var(--comic-ink)] bg-surface">
         <SectionHeader title="Profile" description="Your personal account information." />
         <div className="p-5 sm:p-6">
           <div className="flex items-center gap-4 border-b border-border pb-6">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary/15 text-lg font-semibold text-primary">
+            <div className="settings-avatar flex h-14 w-14 shrink-0 items-center justify-center border-2 border-[var(--comic-ink)] text-lg font-black shadow-[3px_3px_0_var(--comic-ink)]">
               {initials}
             </div>
             <div className="min-w-0">
@@ -157,14 +156,14 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-2xl border border-border bg-surface">
+      <section className="settings-comic-card overflow-hidden rounded-md border-2 border-[var(--comic-ink)] bg-surface">
         <SectionHeader
           title="Android home-screen widget"
           description="Connect your home-screen widget to the account you're already signed in to."
         />
         <div className="flex flex-col gap-4 p-5 sm:p-6">
           <div className="flex items-start gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <div className="settings-icon-tile flex h-11 w-11 shrink-0 items-center justify-center border-2 border-[var(--comic-ink)] shadow-[2px_2px_0_var(--comic-ink)]">
               <Smartphone size={20} />
             </div>
             <div className="min-w-0">
@@ -180,7 +179,7 @@ export default function SettingsPage() {
               type="button"
               onClick={handleConnectWidget}
               disabled={linking}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+              className="settings-comic-button inline-flex min-h-11 items-center justify-center gap-2 border-2 px-4 py-2.5 text-sm font-black transition hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-60"
             >
               <Link2 size={16} />
               {linking ? "Connecting…" : "Connect Android widget"}
@@ -197,13 +196,13 @@ export default function SettingsPage() {
           )}
 
           {widgetLinkCode && (
-            <div className="rounded-xl border border-border bg-surface-elevated p-4">
+            <div className="settings-comic-inset rounded-md border-2 border-dashed border-border bg-surface-elevated p-4">
               <p className="text-xs font-medium text-text-muted">One-time code · expires in 2 minutes</p>
               <p className="mt-2 break-all font-mono text-sm text-text-primary">{widgetLinkCode}</p>
               <button
                 type="button"
                 onClick={handleCopyWidgetCode}
-                className="mt-3 inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-medium text-text-secondary transition hover:bg-surface"
+                className="settings-comic-secondary mt-3 inline-flex items-center gap-2 border-2 border-[var(--comic-ink)] px-3 py-2 text-sm font-bold text-text-primary transition hover:-translate-y-px"
               >
                 <Copy size={15} />
                 Copy code
@@ -213,29 +212,20 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-2xl border border-border bg-surface">
-        <SectionHeader title="Appearance" description="Customize how Zenith looks on your device." />
-        <div className="p-5 sm:p-6">
-          <div className="flex items-center justify-between gap-4 rounded-xl border border-border bg-surface-elevated p-4">
-            <div className="flex min-w-0 items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <Moon size={18} />
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-text-primary">Dark theme</p>
-                <p className="mt-1 text-xs text-text-muted">Zenith currently uses the dark workspace theme.</p>
-              </div>
-            </div>
-            <div className="flex h-6 w-11 shrink-0 items-center justify-end rounded-full bg-primary px-1">
-              <div className="flex h-4 w-4 items-center justify-center rounded-full bg-white">
-                <Check size={10} className="text-primary" />
-              </div>
-            </div>
+      <section className="settings-comic-card overflow-hidden rounded-md border-2 border-[var(--comic-ink)] bg-surface">
+        <SectionHeader title="Appearance" description="Choose the paper tone that suits your workspace." />
+        <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+          <div className="min-w-0">
+            <p className="text-sm font-bold text-text-primary">Workspace theme</p>
+            <p className="mt-1 text-sm text-text-secondary">Switch between warm light paper, dark ink, or your system preference.</p>
+          </div>
+          <div className="settings-theme-control shrink-0 border-2 border-[var(--comic-ink)] bg-surface-elevated p-1 shadow-[3px_3px_0_var(--comic-ink)]">
+            <ThemeToggle />
           </div>
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-2xl border border-border bg-surface">
+      <section className="settings-comic-card overflow-hidden rounded-md border-2 border-[var(--comic-ink)] bg-surface">
         <SectionHeader title="Account" description="Manage your Zenith account." />
         <div className="p-5 sm:p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -246,7 +236,7 @@ export default function SettingsPage() {
             <button
               type="button"
               onClick={handleLogout}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-border px-4 text-sm font-medium text-text-secondary transition hover:border-error/30 hover:bg-error/5 hover:text-error"
+              className="settings-comic-secondary inline-flex h-10 items-center justify-center gap-2 border-2 border-[var(--comic-ink)] px-4 text-sm font-bold text-text-primary transition hover:-translate-y-px hover:bg-[#efaaa7]/30"
             >
               <LogOut size={16} />
               Sign out
@@ -275,7 +265,7 @@ function SectionHeader({
   description: string;
 }) {
   return (
-    <div className="border-b border-border px-5 py-4 sm:px-6">
+    <div className="settings-comic-section-heading border-b-2 border-dashed border-border px-5 py-4 sm:px-6">
       <h2 className="text-sm font-semibold text-text-primary">{title}</h2>
       <p className="mt-1 text-xs text-text-muted">{description}</p>
     </div>
@@ -304,15 +294,15 @@ function InfoField({
 
 function SettingsSkeleton() {
   return (
-    <div className="mx-auto max-w-[1000px] space-y-8">
+    <div className="settings-comic-page mx-auto max-w-[1000px] space-y-7 sm:space-y-8">
       <section>
         <div className="h-4 w-20 animate-pulse rounded bg-surface-elevated" />
         <div className="mt-3 h-9 w-40 animate-pulse rounded-lg bg-surface-elevated" />
         <div className="mt-3 h-4 w-80 animate-pulse rounded bg-surface-elevated" />
       </section>
-      <div className="h-64 animate-pulse rounded-2xl border border-border bg-surface" />
-      <div className="h-32 animate-pulse rounded-2xl border border-border bg-surface" />
-      <div className="h-32 animate-pulse rounded-2xl border border-border bg-surface" />
+      <div className="h-64 animate-pulse border-2 border-[var(--comic-ink)] bg-surface" />
+      <div className="h-32 animate-pulse border-2 border-[var(--comic-ink)] bg-surface" />
+      <div className="h-32 animate-pulse border-2 border-[var(--comic-ink)] bg-surface" />
     </div>
   );
 }

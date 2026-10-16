@@ -1,8 +1,4 @@
-import {
-  ArrowRight,
-  FileText,
-  Plus,
-} from "lucide-react";
+import { ArrowRight, FileText, Plus, Clipboard } from "lucide-react";
 
 import type { Note } from "@/types/note";
 
@@ -10,20 +6,25 @@ type RecentNotesProps = {
   notes: Note[];
   onViewAll: () => void;
   onCreateNote: () => void;
+  onNoteClick: (note: Note) => void;
 };
 
 export default function RecentNotes({
   notes,
   onViewAll,
   onCreateNote,
+  onNoteClick,
 }: RecentNotesProps) {
   return (
-    <section className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-border bg-surface">
-      <div className="flex items-center justify-between border-b border-border px-5 py-4 sm:px-6">
+    <section className="comic-list-panel flex h-full min-h-0 flex-col overflow-hidden rounded-sm border-2 border-text-primary bg-surface">
+      <div className="flex shrink-0 items-center justify-between gap-3 border-b-2 border-[#28251f]/80 bg-[#efaaa7]/70 px-4 py-4 sm:px-6">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-[#28251f] bg-[#efaaa7] text-[#28251f] shadow-[2px_2px_0_#28251f]">
+          <Clipboard size={19} />
+        </div>
         <div>
-          <h2 className="font-semibold text-text-primary">
+          <h3 className="comic-heading truncate text-xl text-foreground">
             Recent notes
-          </h2>
+          </h3>
 
           <p className="mt-1 text-xs text-text-muted">
             Your latest saved notes.
@@ -33,7 +34,7 @@ export default function RecentNotes({
         <button
           type="button"
           onClick={onViewAll}
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-primary transition hover:text-primary-hover"
+          className="comic-action inline-flex shrink-0 items-center gap-1.5 border-2 border-[#28251f] bg-[#fffaf0] px-3 py-2 text-xs font-bold text-[#28251f] shadow-[2px_2px_0_#28251f] transition hover:-translate-y-0.5 hover:shadow-[3px_3px_0_#28251f]"
         >
           View all
           <ArrowRight size={13} />
@@ -43,9 +44,13 @@ export default function RecentNotes({
       {notes.length === 0 ? (
         <EmptyNotes onCreateNote={onCreateNote} />
       ) : (
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain divide-y divide-border">
+        <div className="min-h-0 flex-1 divide-y divide-dashed divide-[#28251f]/20 overflow-y-auto overscroll-contain bg-[radial-gradient(#28251f0b_1px,transparent_1px)] bg-[length:10px_10px]">
           {notes.map((note) => (
-            <NoteItem key={note.id} note={note} />
+            <NoteItem
+              key={note.id}
+              note={note}
+              onClick={() => onNoteClick(note)}
+            />
           ))}
         </div>
       )}
@@ -53,15 +58,19 @@ export default function RecentNotes({
   );
 }
 
-function NoteItem({ note }: { note: Note }) {
+function NoteItem({ note, onClick }: { note: Note; onClick: () => void }) {
   return (
-    <div className="flex items-start gap-3 px-5 py-4 transition hover:bg-surface-elevated sm:px-6">
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+    <button
+      type="button"
+      onClick={onClick}
+      className="comic-note-row flex w-full cursor-pointer items-start gap-3 border-b border-dashed border-[#28251f]/20 bg-[#fffaf0]/85 px-4 py-4 text-left transition hover:bg-[#f4d64f]/20 sm:px-6"
+    >
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center border-2 border-[#28251f]/70 bg-[#f4d64f]/70 text-[#28251f] shadow-[2px_2px_0_#28251f]">
         <FileText size={16} />
       </div>
 
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-text-primary">
+        <p className="truncate text-sm font-semibold text-[#28251f]">
           {note.title}
         </p>
 
@@ -71,24 +80,18 @@ function NoteItem({ note }: { note: Note }) {
           </p>
         )}
       </div>
-    </div>
+    </button>
   );
 }
 
-function EmptyNotes({
-  onCreateNote,
-}: {
-  onCreateNote: () => void;
-}) {
+function EmptyNotes({ onCreateNote }: { onCreateNote: () => void }) {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center px-5 py-6 text-center sm:px-6">
-      <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+    <div className="flex min-h-0 flex-1 flex-col items-center justify-center bg-[radial-gradient(#28251f12_1px,transparent_1px)] bg-[length:10px_10px] px-5 py-6 text-center sm:px-6">
+      <div className="mx-auto flex h-11 w-11 items-center justify-center border-2 border-[#28251f] bg-[#f4d64f]/70 text-[#28251f] shadow-[3px_3px_0_#28251f]">
         <FileText size={18} />
       </div>
 
-      <p className="mt-3 text-sm font-medium text-text-primary">
-        No notes yet
-      </p>
+      <p className="mt-3 text-sm font-medium text-text-primary">No notes yet</p>
 
       <p className="mt-1 text-xs text-text-muted">
         Capture an idea or something important.
@@ -97,7 +100,7 @@ function EmptyNotes({
       <button
         type="button"
         onClick={onCreateNote}
-        className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-white transition hover:bg-primary-hover"
+        className="comic-action mt-4 inline-flex items-center gap-1.5 border-2 border-[#28251f] bg-[#c4e3e0] px-3 py-2 text-xs font-bold text-[#28251f] shadow-[3px_3px_0_#28251f] transition hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#28251f]"
       >
         <Plus size={14} />
         Create note

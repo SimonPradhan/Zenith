@@ -656,3 +656,74 @@ def test_get_notes_invalid_empty_search(client, auth_headers):
     )
 
     assert response.status_code == 422
+
+
+def test_note_board_position_defaults_and_update(client, auth_headers):
+    created = client.post(
+        "/notes/",
+        json={"title": "Pinned", "content": "On the board"},
+        headers=auth_headers,
+    )
+
+    assert created.status_code == 201
+
+    note = created.json()
+
+    assert note["pos_x"] is None
+    assert note["pos_y"] is None
+    assert note["rotation"] == 0
+    assert note["z_index"] == 0
+
+    updated = client.patch(
+        f"/notes/{note['id']}",
+        json={
+            "pos_x": 320,
+            "pos_y": 140,
+            "rotation": -3.5,
+            "z_index": 7,
+        },
+        headers=auth_headers,
+    )
+
+    assert updated.status_code == 200
+
+    body = updated.json()
+
+    assert body["pos_x"] == 320
+    assert body["pos_y"] == 140
+    assert body["rotation"] == -3.5
+    assert body["z_index"] == 7
+    assert body["title"] == "Pinned"
+
+    fetched = client.get(
+        f"/notes/{note['id']}",
+        headers=auth_headers,
+    )
+
+    assert fetched.json()["pos_x"] == 320
+
+
+def test_note_board_position_rejects_out_of_range(client, auth_headers):
+    created = client.post(
+        "/notes/",
+        json={"title": "Bounds", "content": "Check"},
+        headers=auth_headers,
+    )
+
+    note_id = created.json()["id"]
+
+    response = client.patch(
+        f"/notes/{note_id}",
+        json={"pos_x": -5},
+        headers=auth_headers,
+    )
+
+    assert response.status_code == 422
+
+    response = client.patch(
+        f"/notes/{note_id}",
+        json={"rotation": 90},
+        headers=auth_headers,
+    )
+
+    assert response.status_code == 422

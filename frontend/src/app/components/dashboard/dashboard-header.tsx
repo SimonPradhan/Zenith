@@ -1,4 +1,4 @@
-import { Plus, Sparkles } from "lucide-react";
+import { Plus, Sparkles, Star } from "lucide-react";
 import type { User } from "@/types/auth";
 
 type DashboardHeaderProps = {
@@ -11,31 +11,60 @@ export default function DashboardHeader({
   onCreateTask,
 }: DashboardHeaderProps) {
   return (
-    <section className="retro-hero relative overflow-hidden rounded-sm border-y border-border/80 py-5 sm:py-8">
-      <div className="pointer-events-none absolute right-5 top-4 hidden select-none font-serif text-8xl leading-none text-primary/10 md:block" aria-hidden="true">
+    <section className="dashboard-comic-hero comic-hero relative isolate min-h-[270px] overflow-hidden rounded-md border-2 px-5 pb-24 pt-6 shadow-[5px_5px_0_var(--paper-shadow)] sm:min-h-[290px] sm:px-8 sm:pb-24 sm:pt-8 lg:px-10 lg:pt-9">
+      <div
+        className="pointer-events-none absolute inset-0 -z-10 comic-hero-paper"
+        aria-hidden="true"
+      />
+
+      <div
+        className="dashboard-hero-burst pointer-events-none absolute -right-3 -top-5 hidden rotate-12 text-8xl font-black sm:block lg:right-10 lg:top-1 lg:text-9xl"
+        aria-hidden="true"
+      >
         ✳
       </div>
-      <p className="mb-3 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-text-muted">
-        <Sparkles size={13} />
-        Your personal workspace / 01
-      </p>
-      <div className="relative flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-        <div className="max-w-3xl">
-          <h1 className="max-w-3xl text-3xl font-black leading-[0.98] tracking-[-0.06em] text-text-primary md:text-5xl lg:text-6xl">
-            {getGreeting()}, {user?.name?.split(" ")[0] ?? "there"}.
-          </h1>
-          <p className="mt-4 max-w-lg text-sm leading-6 text-text-secondary md:text-lg">
-            Small steps today, big results tomorrow.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={onCreateTask}
-          className="inline-flex w-fit shrink-0 items-center gap-2 rounded-sm border border-primary bg-primary px-4 py-3 text-sm font-semibold text-[#fbf5e9] shadow-[3px_3px_0_#c7b99e] transition hover:-translate-y-0.5 hover:shadow-[4px_5px_0_#c7b99e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-        >
-          <Plus size={16} />
-          Add a task
-        </button>
+
+      <div className="dashboard-hero-sticker pointer-events-none absolute right-5 top-5 hidden rotate-[-8deg] border-2 px-3 py-2 text-center text-[10px] font-black uppercase leading-tight shadow-[3px_3px_0_var(--comic-ink)] md:block lg:right-24 lg:top-7">
+        Better<br />ideas<br />ahead!
+      </div>
+
+      <div className="relative z-10 max-w-4xl">
+        <p className="dashboard-hero-eyebrow mb-4 inline-flex items-center gap-2 border-2 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] shadow-[2px_2px_0_var(--comic-ink)] sm:text-xs">
+          <Sparkles size={14} aria-hidden="true" />
+          Your personal workspace · 01
+        </p>
+
+        <h1 className="comic-heading max-w-3xl text-4xl uppercase leading-[0.94] tracking-normal text-text-primary sm:text-5xl lg:text-7xl">
+          {getGreeting()},<br />
+          <span className="relative inline-block">
+            {user?.name?.split(" ")[0] ?? "there"}!
+            <span
+              className="dashboard-hero-highlight absolute -bottom-1 left-0 -z-10 h-2 w-full -rotate-1"
+              aria-hidden="true"
+            />
+          </span>
+        </h1>
+
+        <p className="mt-5 max-w-xl pr-2 text-sm font-medium leading-6 text-text-secondary sm:text-base">
+          Small steps today. Big dreams tomorrow. Let’s make room for what matters.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        onClick={onCreateTask}
+        className="dashboard-header-action comic-action absolute bottom-5 right-5 z-20 inline-flex items-center gap-2 border-2 px-4 py-3 text-sm font-black shadow-[4px_4px_0_var(--comic-ink)] transition hover:-translate-y-0.5 hover:shadow-[5px_5px_0_var(--comic-ink)] active:translate-y-0 active:shadow-[2px_2px_0_var(--comic-ink)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary sm:bottom-6 sm:right-7 lg:bottom-7 lg:right-9"
+      >
+        <Plus size={17} strokeWidth={3} aria-hidden="true" />
+        New task
+        <Star size={15} aria-hidden="true" />
+      </button>
+
+      <div
+        className="pointer-events-none absolute bottom-7 left-5 hidden -rotate-12 text-3xl text-text-primary/70 sm:block lg:left-8 lg:text-4xl"
+        aria-hidden="true"
+      >
+        ✦
       </div>
     </section>
   );

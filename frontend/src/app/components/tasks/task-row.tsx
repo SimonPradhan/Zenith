@@ -2,11 +2,13 @@
 
 import {
   CalendarDays,
-  CheckCircle2,
-  Circle,
   Clock3,
   Loader2,
   PlayCircle,
+  SquareCheckBig,
+  SquareDot,
+  SquarePen,
+  SquareX,
 } from "lucide-react";
 
 import type {
@@ -22,6 +24,7 @@ interface TaskRowProps {
   task: Task;
   last: boolean;
   updating?: boolean;
+  onOpen: (task: Task) => void;
   onEdit: (task: Task) => void;
   onDelete: (task: Task) => void;
   onToggleStatus: (task: Task) => void;
@@ -37,25 +40,25 @@ const priorityConfig: Record<
   low: {
     label: "Low",
     className:
-      "bg-surface-elevated text-text-muted",
+      "border-2 border-[#1c1a16] bg-[#cdb6ea] text-[#1c1a16]",
   },
 
   medium: {
     label: "Medium",
     className:
-      "bg-primary/10 text-primary",
+      "border-2 border-[#1c1a16] bg-[#f4d64f] text-[#1c1a16]",
   },
 
   high: {
     label: "High",
     className:
-      "bg-warning/10 text-warning",
+      "border-2 border-[#1c1a16] bg-[#f2a65a] text-[#1c1a16]",
   },
 
   urgent: {
     label: "Urgent",
     className:
-      "bg-error/10 text-error",
+      "border-2 border-[#1c1a16] bg-[#ef6f5f] text-[#1c1a16]",
   },
 };
 
@@ -69,25 +72,25 @@ const statusConfig: Record<
   pending: {
     label: "To do",
     className:
-      "bg-surface-elevated text-text-secondary",
+      "border-2 border-[#1c1a16] bg-[#a9c9e8] text-[#1c1a16]",
   },
 
   in_progress: {
     label: "In progress",
     className:
-      "bg-primary/10 text-primary",
+      "border-2 border-[#1c1a16] bg-[#f4d64f] text-[#1c1a16]",
   },
 
   completed: {
     label: "Completed",
     className:
-      "bg-success/10 text-success",
+      "border-2 border-[#1c1a16] bg-[#b8d9b7] text-[#1c1a16]",
   },
 
   cancelled: {
     label: "Cancelled",
     className:
-      "bg-error/10 text-error",
+      "border-2 border-[#1c1a16] bg-[#efaaa7] text-[#1c1a16]",
   },
 };
 
@@ -95,6 +98,7 @@ export function TaskRow({
   task,
   last,
   updating = false,
+  onOpen,
   onEdit,
   onDelete,
   onToggleStatus,
@@ -115,10 +119,10 @@ export function TaskRow({
   return (
     <div
       className={`
-        group flex gap-3 p-4 transition
-        hover:bg-surface-elevated/70
+        comic-task-row group relative flex gap-3 border-b-2 border-dashed border-[var(--comic-ink)]/20 p-4 transition
+        hover:-translate-y-px hover:bg-[#fffaf0]
         sm:gap-4 sm:p-5
-        ${last ? "" : "border-b border-border"}
+        ${last ? "border-b-0" : ""} ${/* keep the active menu above neighboring rows */ "task-row-menu-layer"}
         ${completed ? "opacity-75" : ""}
       `}
     >
@@ -142,29 +146,46 @@ export function TaskRow({
             className="animate-spin text-primary"
           />
         ) : completed ? (
-          <CheckCircle2
+          <SquareCheckBig
             size={21}
             className="text-success"
           />
         ) : task.status === "in_progress" ? (
-          <PlayCircle
+          <SquarePen
             size={21}
             className="text-primary"
           />
-        ) : (
-          <Circle
+        ) :task.status === "cancelled" ? (
+          <SquareX
+            size={21}
+            className="text-destructive"
+          />
+        ): (
+          <SquareDot
             size={21}
             className="text-text-muted transition group-hover:text-primary"
           />
         )}
       </button>
 
-      {/* Main content */}
-      <div className="min-w-0 flex-1">
+      {/* Main content: click or press Enter to open the detail view */}
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => onOpen(task)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            onOpen(task);
+          }
+        }}
+        aria-label={`Open task: ${task.title}`}
+        className="min-w-0 flex-1 cursor-pointer rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      >
         <div className="flex items-start justify-between gap-3">
           <h3
             className={`
-              min-w-0 text-sm font-medium
+              comic-heading min-w-0 text-sm font-bold
               ${
                 completed
                   ? "text-text-muted line-through"
@@ -187,8 +208,8 @@ export function TaskRow({
           {/* Status */}
           <span
             className={`
-              rounded-full px-2 py-1
-              text-[11px] font-medium
+              px-2 py-0.5
+              text-[10px] font-black uppercase tracking-wide
               ${status.className}
             `}
           >
@@ -198,8 +219,8 @@ export function TaskRow({
           {/* Priority */}
           <span
             className={`
-              rounded-full px-2 py-1
-              text-[11px] font-medium
+              px-2 py-0.5
+              text-[10px] font-black uppercase tracking-wide
               ${priority.className}
             `}
           >

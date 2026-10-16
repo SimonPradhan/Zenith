@@ -18,8 +18,10 @@ import {
   updateTask,
 } from "@/lib/api/tasks";
 import { getToken } from "@/lib/auth";
+import { useToast } from "@/app/components/ui/toast-provider";
 
 import { TaskModal } from "@/app/components/tasks/task-modal";
+import { TaskDetailModal } from "@/app/components/tasks/task-detail-modal";
 import { TaskList } from "@/app/components/tasks/task-list";
 import { DeleteTaskDialog } from "@/app/components/tasks/delete-task-dialog";
 import { TaskBoard } from "@/app/components/tasks/task-board";
@@ -63,6 +65,7 @@ const statusOptions: {
 export default function TasksPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const toast = useToast();
 
   const [data, setData] = useState<TaskListResponse | null>(null);
 
@@ -89,6 +92,10 @@ export default function TasksPage() {
 
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
+  const [viewingTaskId, setViewingTaskId] = useState<string | null>(null);
+
+  const [linkedTask, setLinkedTask] = useState<Task | null>(null);
+
   const [updatingTaskId, setUpdatingTaskId] = useState<string | null>(
     null,
   );
@@ -99,9 +106,6 @@ export default function TasksPage() {
 
   const [deleting, setDeleting] = useState(false);
 
-  /*
-   * Search debounce.
-   */
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
@@ -112,9 +116,6 @@ export default function TasksPage() {
     };
   }, [search]);
 
-  /*
-   * Load tasks.
-   */
   useEffect(() => {
     let cancelled = false;
 
@@ -168,15 +169,6 @@ export default function TasksPage() {
     };
   }, [page, router, debouncedSearch, status, view]);
 
-  /*
-   * Open a specific task from the dashboard.
-   *
-   * Dashboard links use:
-   * /tasks?task=<task-id>
-   *
-   * We fetch the task directly instead of searching
-   * the currently visible page.
-   */
   useEffect(() => {
     const taskId = searchParams.get("task");
 
@@ -202,8 +194,8 @@ export default function TasksPage() {
         const task = await getTask(token, taskId);
 
         if (!cancelled) {
-          setEditingTask(task);
-          setModalOpen(true);
+          setLinkedTask(task);
+          setViewingTaskId(task.id);
 
           router.replace("/tasks", {
             scroll: false,
@@ -231,9 +223,6 @@ export default function TasksPage() {
     };
   }, [searchParams, router]);
 
-  /*
-   * Toggle task status.
-   */
   async function handleToggleStatus(task: Task) {
     const token = getToken();
 
@@ -288,6 +277,8 @@ export default function TasksPage() {
       await updateTask(token, task.id, {
         status: nextStatus,
       });
+      toast.success("Task status updated.");
+      toast.success("Task status updated.");
     } catch (error) {
       setData((current) => {
         if (!current) {
@@ -307,19 +298,14 @@ export default function TasksPage() {
         };
       });
 
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Unable to update task",
-      );
+      const message = error instanceof Error ? error.message : "Unable to update task";
+      setError(message);
+      toast.error(message);
     } finally {
       setUpdatingTaskId(null);
     }
   }
 
-  /*
-   * Kanban drag/drop status change.
-   */
   async function handleBoardStatusChange(
     task: Task,
     nextStatus: TaskStatus,
@@ -382,11 +368,9 @@ export default function TasksPage() {
         };
       });
 
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Unable to update task status",
-      );
+      const message = error instanceof Error ? error.message : "Unable to update task status";
+      setError(message);
+      toast.error(message);
     } finally {
       setUpdatingTaskId(null);
     }
@@ -409,6 +393,7 @@ export default function TasksPage() {
   }
 
   function openEditModal(task: Task) {
+    setViewingTaskId(null);
     setEditingTask(task);
     setModalOpen(true);
   }
@@ -443,6 +428,8 @@ export default function TasksPage() {
         await createTask(token, taskData);
       }
 
+      toast.success(editingTask ? "Task updated successfully." : "Task created successfully.");
+
       setModalOpen(false);
       setEditingTask(null);
 
@@ -461,11 +448,9 @@ export default function TasksPage() {
 
       setData(result);
     } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Unable to save task",
-      );
+      const message = error instanceof Error ? error.message : "Unable to save task";
+      setError(message);
+      toast.error(message);
     } finally {
       setSaving(false);
     }
@@ -491,6 +476,7 @@ export default function TasksPage() {
 
     try {
       await deleteTask(token, deleteTarget.id);
+      toast.success("Task deleted successfully.");
 
       setDeleteTarget(null);
 
@@ -519,15 +505,17 @@ export default function TasksPage() {
 
       setData(result);
     } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Unable to delete task",
-      );
+      const message = error instanceof Error ? error.message : "Unable to delete task";
+      setError(message);
+      toast.error(message);
     } finally {
       setDeleting(false);
     }
   }
+
+  const viewingTask =
+    data?.items.find((task) => task.id === viewingTaskId) ??
+    (linkedTask?.id === viewingTaskId ? linkedTask : null);
 
   const totalPages =
     data && view === "list"
@@ -538,13 +526,13 @@ export default function TasksPage() {
     <>
       <div className="mx-auto max-w-[1400px] space-y-6">
         {/* Header */}
-        <section className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <section className="comic-hero comic-hero-paper flex flex-col gap-4 border-2 p-5 sm:flex-row sm:items-end sm:justify-between sm:p-7">
           <div>
             <p className="mb-1 text-sm text-text-muted">
               Workspace
             </p>
 
-            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+            <h1 className="comic-heading text-3xl uppercase sm:text-4xl">
               Tasks
             </h1>
 
@@ -557,16 +545,7 @@ export default function TasksPage() {
           <button
             type="button"
             onClick={openCreateModal}
-            className="
-              inline-flex items-center
-              justify-center gap-2
-              rounded-xl bg-primary
-              px-4 py-2.5
-              text-sm font-medium text-white
-              shadow-lg shadow-primary/10
-              transition
-              hover:bg-primary-hover
-            "
+            className="comic-btn inline-flex items-center justify-center gap-2 bg-[#f4d64f] px-4 py-2.5 text-sm font-black uppercase text-[#1c1a16]"
           >
             <Plus size={17} />
             New task
@@ -585,7 +564,7 @@ export default function TasksPage() {
             </p>
           </div>
 
-          <div className="flex items-center rounded-xl border border-border bg-surface p-1">
+          <div className="flex items-center gap-1 border-2 border-[var(--comic-ink)] bg-surface p-1 shadow-[3px_3px_0_var(--comic-ink)]">
             <button
               type="button"
               onClick={() => {
@@ -594,13 +573,13 @@ export default function TasksPage() {
               }}
               className={`
                 inline-flex items-center gap-2
-                rounded-lg px-3 py-2
-                text-xs font-medium
+                px-3 py-2
+                text-xs font-black uppercase
                 transition
                 ${
                   view === "list"
-                    ? "bg-surface-elevated text-text-primary shadow-sm"
-                    : "text-text-muted hover:text-text-secondary"
+                    ? "bg-[#f4d64f] text-[#1c1a16]"
+                    : "text-text-muted hover:text-text-primary"
                 }
               `}
             >
@@ -617,13 +596,13 @@ export default function TasksPage() {
               }}
               className={`
                 inline-flex items-center gap-2
-                rounded-lg px-3 py-2
-                text-xs font-medium
+                px-3 py-2
+                text-xs font-black uppercase
                 transition
                 ${
                   view === "board"
-                    ? "bg-primary/10 text-primary shadow-sm"
-                    : "text-text-muted hover:text-text-secondary"
+                    ? "bg-[#f4d64f] text-[#1c1a16]"
+                    : "text-text-muted hover:text-text-primary"
                 }
               `}
             >
@@ -634,7 +613,7 @@ export default function TasksPage() {
         </div>
 
         {/* Filters */}
-        <section className="rounded-2xl border border-border bg-surface p-3">
+        <section className="comic-list-panel border-2 border-[var(--comic-ink)] bg-surface p-3">
           <div className="flex flex-col gap-3 md:flex-row">
             <div className="relative flex-1">
               <Search
@@ -654,8 +633,8 @@ export default function TasksPage() {
                 }
                 placeholder="Search tasks..."
                 className="
-                  h-10 w-full rounded-xl
-                  border border-border
+                  h-10 w-full rounded-sm
+                  border-2 border-border
                   bg-surface-elevated
                   pl-10 pr-4
                   text-sm text-text-primary
@@ -690,8 +669,8 @@ export default function TasksPage() {
                 className="
                   h-10 w-full
                   appearance-none
-                  rounded-xl
-                  border border-border
+                  rounded-sm
+                  border-2 border-border
                   bg-surface-elevated
                   pl-9 pr-10
                   text-sm text-text-primary
@@ -752,12 +731,7 @@ export default function TasksPage() {
         {/* Tasks */}
         {view === "list" ? (
           <section
-            className="
-              overflow-hidden
-              rounded-2xl
-              border border-border
-              bg-surface
-            "
+            className="comic-list-panel overflow-hidden rounded-sm border-2 border-[var(--comic-ink)] bg-surface"
           >
             <TaskList
               tasks={data?.items ?? []}
@@ -765,6 +739,7 @@ export default function TasksPage() {
               search={search}
               status={status}
               updatingTaskId={updatingTaskId}
+              onOpen={(task) => setViewingTaskId(task.id)}
               onEdit={openEditModal}
               onDelete={setDeleteTarget}
               onToggleStatus={handleToggleStatus}
@@ -802,6 +777,7 @@ export default function TasksPage() {
             <TaskBoard
               tasks={data?.items ?? []}
               updatingTaskId={updatingTaskId}
+              onOpen={(task) => setViewingTaskId(task.id)}
               onEdit={openEditModal}
               onDelete={setDeleteTarget}
               onCreateTask={(status) => {
@@ -871,6 +847,21 @@ export default function TasksPage() {
           </div>
         )}
       </div>
+
+      {/* Task detail */}
+      {viewingTask && (
+        <TaskDetailModal
+          task={viewingTask}
+          updating={updatingTaskId === viewingTask.id}
+          onClose={() => setViewingTaskId(null)}
+          onEdit={openEditModal}
+          onDelete={(task) => {
+            setViewingTaskId(null);
+            setDeleteTarget(task);
+          }}
+          onToggleStatus={handleToggleStatus}
+        />
+      )}
 
       {/* Task modal */}
       <TaskModal

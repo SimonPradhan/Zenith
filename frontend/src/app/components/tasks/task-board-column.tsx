@@ -12,6 +12,7 @@ interface TaskBoardColumnProps {
   title: string;
   tasks: Task[];
   updatingTaskId: string | null;
+  onOpen: (task: Task) => void;
   onEdit: (task: Task) => void;
   onDelete: (task: Task) => void;
   onCreateTask: (status: TaskStatus) => void;
@@ -29,20 +30,20 @@ const statusConfig: Record<
   }
 > = {
   pending: {
-    dotClassName: "bg-text-muted",
-    countClassName: "bg-surface-elevated text-text-secondary",
+    dotClassName: "bg-[#1c1a16]",
+    countClassName: "bg-[#1c1a16] text-[#f4ecd8]",
   },
   in_progress: {
-    dotClassName: "bg-primary",
-    countClassName: "bg-primary/10 text-primary",
+    dotClassName: "bg-[#1c1a16]",
+    countClassName: "bg-[#1c1a16] text-[#f4ecd8]",
   },
   completed: {
-    dotClassName: "bg-success",
-    countClassName: "bg-success/10 text-success",
+    dotClassName: "bg-[#1c1a16]",
+    countClassName: "bg-[#1c1a16] text-[#f4ecd8]",
   },
   cancelled: {
-    dotClassName: "bg-error",
-    countClassName: "bg-error/10 text-error",
+    dotClassName: "bg-[#1c1a16]",
+    countClassName: "bg-[#1c1a16] text-[#f4ecd8]",
   },
 };
 
@@ -51,6 +52,7 @@ export function TaskBoardColumn({
   title,
   tasks,
   updatingTaskId,
+  onOpen,
   onEdit,
   onDelete,
   onCreateTask,
@@ -68,6 +70,7 @@ export function TaskBoardColumn({
       tasks={tasks}
       config={config}
       updatingTaskId={updatingTaskId}
+      onOpen={onOpen}
       onEdit={onEdit}
       onDelete={onDelete}
       onCreateTask={onCreateTask}
@@ -85,6 +88,7 @@ function ColumnDropZone({
   tasks,
   config,
   updatingTaskId,
+  onOpen,
   onEdit,
   onDelete,
   onCreateTask,
@@ -101,6 +105,7 @@ function ColumnDropZone({
     countClassName: string;
   };
   updatingTaskId: string | null;
+  onOpen: (task: Task) => void;
   onEdit: (task: Task) => void;
   onDelete: (task: Task) => void;
   onCreateTask: (status: TaskStatus) => void;
@@ -133,10 +138,10 @@ function ColumnDropZone({
   return (
     <section
       className={`
-        relative
-        flex min-h-[520px] min-w-[280px]
-        flex-1 flex-col rounded-2xl
-        border
+        comic-board-column comic-column-${status}
+        relative flex min-h-[520px] min-w-[280px]
+        flex-1 flex-col rounded-sm
+        border-2 border-text-primary/70
         bg-surface/60
         transition-all duration-200
         ${
@@ -165,16 +170,16 @@ function ColumnDropZone({
           Drop task here
         </div>
       )}
-      <header className="flex items-center justify-between border-b border-border px-4 py-3">
+      <header className="comic-column-header flex items-center justify-between border-b-2 border-text-primary/50 px-4 py-3">
         <div className="flex items-center gap-2.5">
           <span className={`h-2 w-2 rounded-full ${config.dotClassName}`} />
 
-          <h2 className="text-sm font-medium text-text-primary">{title}</h2>
+          <h3 className="comic-heading truncate text-xl text-[#28251f]">{title}</h3>
 
           <span
             className={`
-              rounded-full px-2 py-0.5
-              text-[11px] font-medium
+              px-2 py-0.5
+              text-[11px] font-black
               ${config.countClassName}
             `}
           >
@@ -186,11 +191,12 @@ function ColumnDropZone({
           type="button"
           onClick={() => onCreateTask(status)}
           className="
-            rounded-lg p-1.5
-            text-text-muted
+            border-2 border-[#1c1a16] bg-white/70 p-1
+            text-[#1c1a16]
+            shadow-[2px_2px_0_#1c1a16]
             transition
-            hover:bg-surface-elevated
-            hover:text-text-primary
+            hover:-translate-y-0.5
+            hover:bg-white
           "
           aria-label={`Add task to ${title}`}
         >
@@ -206,6 +212,7 @@ function ColumnDropZone({
           >
             <TaskBoardCard
               task={task}
+              onOpen={onOpen}
               onEdit={onEdit}
               onDelete={onDelete}
               onDragStart={onDragStart}
