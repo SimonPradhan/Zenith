@@ -17,8 +17,8 @@ export default function RecentTasks({
   onViewAll,
 }: RecentTasksProps) {
   return (
-    <section className="rounded-2xl border border-border bg-surface">
-      <div className="flex items-center justify-between border-b border-border px-5 py-4 sm:px-6">
+    <section className="comic-list-panel rounded-sm border-2 border-text-primary bg-surface">
+      <div className="flex items-center justify-between border-b-2 border-text-primary/70 bg-[#a9c9e8]/55 px-5 py-4 sm:px-6">
         <div>
           <h2 className="font-semibold text-text-primary">
             Recent tasks
@@ -68,7 +68,7 @@ function TaskItem({ task }: { task: Task }) {
   const completed = task.status === "completed";
 
   return (
-    <div className="flex items-center gap-3 px-5 py-4 transition hover:bg-surface-elevated sm:px-6">
+    <div className="comic-task-row flex items-center gap-3 border-b border-dashed border-text-primary/20 px-5 py-4 transition hover:bg-surface-elevated sm:px-6">
       <div
         className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
           completed
