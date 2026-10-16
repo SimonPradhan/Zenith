@@ -1701,3 +1701,170 @@ html {
     }
 }
 
+
+/* Authentication pages: carry the same retro comic-paper language into entry flows. */
+.auth-comic-page {
+    background-color: var(--background);
+    background-image: radial-gradient(circle at 2px 2px, var(--paper-grain) 0.75px, transparent 1.1px);
+    background-size: 10px 10px;
+}
+
+.auth-comic-page section.bg-surface {
+    background-color: var(--surface);
+    background-image: radial-gradient(circle at 2px 2px, var(--paper-grain) 0.75px, transparent 1.1px);
+    background-size: 10px 10px;
+}
+
+.auth-comic-page section.border-r {
+    border-right-width: 2px;
+    border-right-color: var(--comic-ink);
+}
+
+.auth-comic-page a[href="/login"] > div,
+.auth-comic-page a[href="/register"] > div {
+    border: 2px solid var(--comic-ink);
+    border-radius: 2px;
+    background: #f4d64f;
+    color: #28251f;
+    box-shadow: 3px 3px 0 var(--comic-ink);
+}
+
+.auth-comic-page h1,
+.auth-comic-page h2 {
+    font-family: var(--font-comic-heading, var(--font-heading, inherit));
+}
+
+.auth-comic-page h1 {
+    font-weight: 900;
+    letter-spacing: -0.04em;
+}
+
+.auth-comic-page form input {
+    border-width: 2px;
+    border-color: var(--ink-outline);
+    border-radius: 2px;
+    background-color: var(--surface);
+}
+
+.auth-comic-page form input:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.auth-comic-page form button[type="submit"] {
+    border: 2px solid var(--comic-ink);
+    border-radius: 2px;
+    background: #f4d64f;
+    color: #28251f;
+    font-weight: 900;
+    box-shadow: 4px 4px 0 var(--comic-ink);
+}
+
+.auth-comic-page form button[type="submit"]:hover:not(:disabled) {
+    background: #ffe477;
+    box-shadow: 5px 5px 0 var(--comic-ink);
+}
+
+.auth-comic-page form button[type="submit"]:active:not(:disabled) {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 var(--comic-ink);
+}
+
+.auth-comic-page form button[type="submit"]:disabled {
+    opacity: 0.65;
+}
+
+.auth-comic-page form + div a,
+.auth-comic-page a.border {
+    border-radius: 2px;
+}
+
+.auth-comic-page [role="alert"] {
+    border-radius: 2px;
+    border-width: 2px;
+    box-shadow: 3px 3px 0 var(--paper-shadow);
+}
+
+.auth-comic-page .rounded-2xl.border,
+.auth-comic-page .rounded-xl.border {
+    border-radius: 2px;
+}
+
+.auth-comic-page .rounded-2xl.border.border-border.bg-card,
+.auth-comic-page .rounded-2xl.border.border-border.bg-background\/40 {
+    border: 2px solid var(--comic-ink);
+    box-shadow: 3px 3px 0 var(--paper-shadow);
+}
+
+:root[data-theme="dark"] .auth-comic-page {
+    background-color: #211f1a;
+    background-image: radial-gradient(circle at 2px 2px, rgb(235 220 190 / 4%) 0.75px, transparent 1.1px);
+}
+
+:root[data-theme="dark"] .auth-comic-page section.bg-surface {
+    background-color: #2b2923;
+    background-image: radial-gradient(circle at 2px 2px, rgb(235 220 190 / 4%) 0.75px, transparent 1.1px);
+}
+
+:root[data-theme="dark"] .auth-comic-page section.border-r {
+    border-right-color: #756a54;
+}
+
+:root[data-theme="dark"] .auth-comic-page form input {
+    border-color: #756a54;
+    background-color: #211f1a;
+    color: #eee5d4;
+}
+
+:root[data-theme="dark"] .auth-comic-page form input::placeholder {
+    color: #a89d89;
+}
+
+:root[data-theme="dark"] .auth-comic-page form button[type="submit"] {
+    border-color: #eee5d4;
+    background: #66572d;
+    color: #fff4d9;
+    box-shadow: 4px 4px 0 rgb(0 0 0 / 55%);
+}
+
+:root[data-theme="dark"] .auth-comic-page form button[type="submit"]:hover:not(:disabled) {
+    background: #786632;
+    box-shadow: 5px 5px 0 rgb(0 0 0 / 55%);
+}
+
+:root[data-theme="dark"] .auth-comic-page .rounded-2xl.border.border-border.bg-card,
+:root[data-theme="dark"] .auth-comic-page .rounded-2xl.border.border-border.bg-background\/40 {
+    border-color: #756a54;
+    background-color: #38352c;
+    box-shadow: 3px 3px 0 rgb(0 0 0 / 35%);
+}
+
+.comic-sidebar-account {
+    background: rgb(0 0 0 / 10%);
+}
+
+.comic-sidebar-user:hover {
+    border-color: rgb(244 214 79 / 40%);
+    background: rgb(255 255 255 / 5%);
+}
+
+.comic-sidebar-avatar {
+    border-radius: 2px;
+}
+
+.comic-sidebar-logout {
+    border-radius: 2px;
+}
+
+:root[data-theme="dark"] .comic-sidebar-account {
+    background: rgb(0 0 0 / 18%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .auth-comic-page button,
+    .auth-comic-page a,
+    .comic-sidebar-logout {
+        transition: none;
+    }
+}
+
