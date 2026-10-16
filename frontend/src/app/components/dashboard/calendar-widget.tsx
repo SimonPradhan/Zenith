@@ -455,12 +455,12 @@ export default function CalendarWidget({
               onClick={() => setSelectedDate(localDate(item.date))}
               aria-label={item.date.toLocaleDateString()}
               aria-pressed={isSelected}
-              className={`relative flex min-h-8 min-w-0 flex-col items-center justify-center rounded-md text-[11px] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:min-h-9 sm:rounded-lg sm:text-xs ${
+              className={`relative flex min-h-8 min-w-0 flex-col items-center justify-center border border-transparent text-[11px] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#28251f] sm:min-h-9 sm:text-xs ${
                 isSelected
-                  ? "bg-primary text-white"
+                  ? "border-[#28251f] bg-[#f4d64f] font-bold text-[#28251f] shadow-[2px_2px_0_#28251f]"
                   : isToday
-                    ? "border border-primary text-primary"
-                    : "text-text-primary hover:bg-surface-elevated"
+                    ? "border-2 border-[#28251f] bg-[#c4e3e0] font-bold text-[#28251f]"
+                    : "text-[#28251f] hover:border-[#28251f]/40 hover:bg-[#efaaa7]/30"
               }`}
             >
               <span className="font-medium leading-4">
