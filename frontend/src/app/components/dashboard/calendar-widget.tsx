@@ -367,10 +367,10 @@ export default function CalendarWidget({
             type="button"
             onClick={() => setMode("en")}
             aria-pressed={mode === "en"}
-            className={`rounded-md px-2 py-1 text-xs font-medium transition ${
+            className={`px-2 py-1 text-xs font-bold transition ${
               mode === "en"
-                ? "bg-primary text-white shadow-sm"
-                : "text-text-secondary hover:text-text-primary"
+                ? "border border-[#28251f] bg-[#f4d64f] text-[#28251f] shadow-[2px_2px_0_#28251f]"
+                : "text-[#28251f]/70 hover:bg-[#fffaf0]"
             }`}
           >
             AD
@@ -380,10 +380,10 @@ export default function CalendarWidget({
             type="button"
             onClick={() => setMode("np")}
             aria-pressed={mode === "np"}
-            className={`rounded-md px-2 py-1 text-xs font-medium transition ${
+            className={`px-2 py-1 text-xs font-bold transition ${
               mode === "np"
-                ? "bg-primary text-white shadow-sm"
-                : "text-text-secondary hover:text-text-primary"
+                ? "border border-[#28251f] bg-[#f4d64f] text-[#28251f] shadow-[2px_2px_0_#28251f]"
+                : "text-[#28251f]/70 hover:bg-[#fffaf0]"
             }`}
           >
             नेपाली
