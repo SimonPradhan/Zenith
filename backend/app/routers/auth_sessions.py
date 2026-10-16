@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+import secrets
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlalchemy import select
@@ -10,7 +11,6 @@ from app.core.security import create_access_token
 from app.core.sessions import (
     REFRESH_COOKIE_NAME,
     clear_refresh_cookie,
-    create_refresh_session,
     hash_refresh_token,
     set_refresh_cookie,
 )
@@ -87,7 +87,7 @@ def refresh_session(
     session.revoked_at = now
     db.flush()
     absolute_expiry = session.absolute_expires_at
-    new_token = __import__("secrets").token_urlsafe(48)
+    new_token = secrets.token_urlsafe(48)
     new_expiry = min(
         now + timedelta(days=settings.refresh_token_days),
         absolute_expiry,
