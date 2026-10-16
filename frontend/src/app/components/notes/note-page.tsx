@@ -12,6 +12,7 @@ import {
   updateNote,
 } from "@/lib/api/notes";
 import { getToken } from "@/lib/auth";
+import { useToast } from "@/app/components/ui/toast-provider";
 
 import { DeleteNoteDialog } from "@/app/components/notes/delete-note-dialog";
 import { NoteBoard, tidyPatches } from "@/app/components/notes/note-board";
@@ -33,6 +34,7 @@ const BOARD_LIMIT = 100;
 export default function NotesPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const toast = useToast();
   const boardRef = useRef<NoteBoardHandle>(null);
 
   const [data, setData] = useState<NoteListResponse | null>(null);
@@ -213,6 +215,11 @@ export default function NotesPage() {
 
       await reloadNotes(token);
       setError("");
+      toast.success(editingNote ? "Note updated successfully." : "Note created successfully.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to save note";
+      setError(message);
+      toast.error(message);
     } finally {
       setSaving(false);
     }
@@ -244,11 +251,9 @@ export default function NotesPage() {
     try {
       await updateNote(token, note.id, patch);
     } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Unable to save note position",
-      );
+      const message = error instanceof Error ? error.message : "Unable to save note position";
+      setError(message);
+      toast.error(message);
 
       try {
         await reloadNotes(token);
@@ -284,12 +289,11 @@ export default function NotesPage() {
 
       setDeleteTarget(null);
       await reloadNotes(token);
+      toast.success("Note deleted successfully.");
     } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Unable to delete note",
-      );
+      const message = error instanceof Error ? error.message : "Unable to delete note";
+      setError(message);
+      toast.error(message);
     } finally {
       setDeleting(false);
     }
