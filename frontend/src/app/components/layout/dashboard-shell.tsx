@@ -64,7 +64,12 @@ export function DashboardShell({
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
-  function handleLogout() {\n    toast.success("You have been signed out.");\n    logout();\n  }\n\n  const sidebarWidth = collapsed
+  function handleLogout() {
+    toast.success("You have been signed out.");
+    logout();
+  }
+
+  const sidebarWidth = collapsed
     ? "w-[76px]"
     : "w-[250px]";
 
