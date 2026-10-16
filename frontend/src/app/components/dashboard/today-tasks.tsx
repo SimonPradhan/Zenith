@@ -35,7 +35,7 @@ export default function TodayTasks({
         </div>
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="comic-heading truncate text-xl text-foreground">
+            <h3 className="comic-heading truncate text-xl text-[#28251f]">
               Today & upcoming
             </h3>
           </div>
