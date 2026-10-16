@@ -22,13 +22,13 @@ export default function TaskProgressCard({
   onViewTasks,
 }: TaskProgressCardProps) {
   return (
-    <div className="comic-list-panel relative h-full min-h-0 overflow-hidden rounded-sm border-2 border-[#28251f] bg-[#fffaf0] p-4 sm:p-5">
+    <div className="comic-paper-widget comic-list-panel relative h-full min-h-0 overflow-hidden rounded-sm border-2 border-[#28251f] bg-[#fffaf0] p-4 sm:p-5">
       {/* Decorative glow */}
       <div className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-primary/5 blur-3xl" />
 
       <div className="relative">
         {/* Header */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="comic-widget-header -mx-4 -mt-4 mb-5 flex flex-col gap-3 border-b-2 border-[#28251f]/80 bg-[#c4e3e0]/70 px-4 py-4 sm:-mx-5 sm:-mt-5 sm:flex-row sm:items-start sm:justify-between sm:px-5">
           <div className="flex items-start gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-[#28251f] bg-[#c4e3e0] text-[#28251f] shadow-[2px_2px_0_#28251f]">
               <Target size={19} />
@@ -45,13 +45,13 @@ export default function TaskProgressCard({
             </div>
           </div>
 
-          <div className="flex items-center gap-2 self-start rounded-full bg-primary/10 px-3 py-1.5">
+          <div className="flex items-center gap-2 self-start border-2 border-[#28251f] bg-[#fffaf0] px-3 py-1.5 text-[#28251f] shadow-[2px_2px_0_#28251f]">
             <TrendingUp
               size={13}
-              className="text-primary"
+              className="text-[#28251f]"
             />
 
-            <span className="text-xs font-semibold text-primary">
+            <span className="text-xs font-bold text-[#28251f]">
               {completionRate}% complete
             </span>
           </div>
@@ -69,9 +69,9 @@ export default function TaskProgressCard({
             </span>
           </div>
 
-          <div className="h-2 overflow-hidden rounded-full bg-surface-elevated">
+          <div className="h-3 overflow-hidden border-2 border-[#28251f] bg-[#e9e0cf]">
             <div
-              className="h-full rounded-full bg-primary transition-all duration-700"
+              className="h-full border-r-2 border-[#28251f] bg-[#f4d64f] transition-all duration-700"
               style={{
                 width: `${completionRate}%`,
               }}
@@ -97,7 +97,7 @@ export default function TaskProgressCard({
         </div>
 
         {/* Footer */}
-        <div className="mt-5 flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-5 flex flex-col gap-3 border-t-2 border-dashed border-[#28251f]/35 pt-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-text-muted">
             {getProgressMessage(
               totalTasks,
@@ -131,7 +131,7 @@ function ProgressStat({
   tone: "primary" | "success";
 }) {
   return (
-    <div className="border-2 border-dashed border-[#28251f]/35 bg-[#e9e0cf]/50 p-3">
+    <div className="border-2 border-dashed border-[#28251f]/45 bg-[#e9e0cf]/60 p-3">
       <div className="flex items-center gap-2">
         <Icon
           size={15}
