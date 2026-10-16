@@ -122,7 +122,7 @@ export function TaskRow({
         comic-task-row group relative flex gap-3 border-b-2 border-dashed border-[var(--comic-ink)]/20 p-4 transition
         hover:-translate-y-px hover:bg-[#fffaf0]
         sm:gap-4 sm:p-5
-        ${last ? "border-b-0" : ""}
+        ${last ? "border-b-0" : ""} ${/* keep the active menu above neighboring rows */ "task-row-menu-layer"}
         ${completed ? "opacity-75" : ""}
       `}
     >
