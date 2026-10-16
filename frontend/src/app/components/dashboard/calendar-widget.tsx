@@ -521,7 +521,7 @@ export default function CalendarWidget({
                     day: "numeric",
                     month: "short",
                   })
-                : selectedNepali.format("DD MMMM YYYY", "np")}
+                : toNepaliDigits(selectedNepali.format("DD MMMM YYYY", "np"))}
             </p>
           </div>
 
