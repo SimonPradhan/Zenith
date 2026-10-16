@@ -158,7 +158,7 @@ export function TaskRow({
         ) :task.status === "cancelled" ? (
           <SquareX
             size={21}
-            className="text-primary"
+            className="text-destructive"
           />
         ): (
           <SquareDot

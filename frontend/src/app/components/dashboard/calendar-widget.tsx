@@ -340,9 +340,9 @@ export default function CalendarWidget({
 
   return (
     <section className="comic-paper-widget flex h-full min-h-[420px] min-w-0 flex-col overflow-hidden rounded-sm border-2 border-[#28251f] bg-[#fffaf0]">
-      <header className="comic-widget-header flex shrink-0 flex-wrap items-start justify-between gap-2 border-b-2 border-[#28251f]/80 bg-[#efaaa7]/70 px-4 py-4 sm:gap-3 sm:px-6">
+      <header className="comic-widget-header flex shrink-0 flex-wrap items-start justify-between gap-2 border-b-2 border-[#28251f]/80 bg-[#b8d9b7]/70 px-4 py-4 sm:gap-3 sm:px-6">
         <div className="flex min-w-0 items-center gap-2">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-[#28251f] bg-[#efaaa7] text-[#28251f] shadow-[2px_2px_0_#28251f]">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-[#28251f] bg-[#b8d9b7] text-[#28251f] shadow-[2px_2px_0_#28251f]">
             <CalendarDays size={18} />
           </span>
 
