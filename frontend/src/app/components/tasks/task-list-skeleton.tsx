@@ -1,6 +1,6 @@
 export function TaskListSkeleton() {
   return (
-    <div>
+    <div className="comic-task-skeleton">
       {[1, 2, 3, 4, 5].map(
         (item) => (
           <div
