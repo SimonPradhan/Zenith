@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Permanent_Marker } from "next/font/google";
+import { Bangers, Geist, Geist_Mono, Permanent_Marker } from "next/font/google";
 import ServiceWorkerRegister from "./service-worker-register";
 import "./globals.css";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
@@ -16,6 +16,12 @@ const geistMono = Geist_Mono({
 
 const permanentMarker = Permanent_Marker({
   variable: "--font-marker",
+  weight: "400",
+  subsets: ["latin"],
+});
+
+const bangers = Bangers({
+  variable: "--font-bangers",
   weight: "400",
   subsets: ["latin"],
 });
@@ -45,7 +51,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} ${permanentMarker.variable} h-full antialiased`}>
+    <html lang="en" suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} ${permanentMarker.variable} ${bangers.variable} h-full antialiased`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
