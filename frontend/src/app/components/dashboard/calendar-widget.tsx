@@ -467,7 +467,7 @@ export default function CalendarWidget({
             >
               <span className="font-medium leading-4">
                 {mode === "np"
-                  ? item.day.toLocaleString("ne-NP")
+                  ? toNepaliDigits(item.day)
                   : item.day}
               </span>
 
@@ -476,9 +476,7 @@ export default function CalendarWidget({
                   isSelected ? "text-[#28251f]/70" : "text-[#28251f]/60"
                 }`}
               >
-                {mode === "en"
-                  ? secondaryDay.toLocaleString("ne-NP")
-                  : secondaryDay.toLocaleString("ne-NP")}
+                {toNepaliDigits(secondaryDay)}
               </span>
 
               {(hasTasks || hasNotes) && (
