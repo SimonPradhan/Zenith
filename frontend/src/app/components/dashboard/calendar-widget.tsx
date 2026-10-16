@@ -350,7 +350,7 @@ export default function CalendarWidget({
             <p className="truncate text-xs text-text-muted">
               {mode === "en"
                 ? `Today · BS ${todayNepali.format("DD MMM YYYY", "np")}`
-                : `आज · AD ${today.toLocaleDateString("en-GB", {
+                : `आज · AD ${today.toLocaleDateString("ne-NP", {
                     day: "2-digit",
                     month: "short",
                     year: "numeric",
@@ -412,7 +412,7 @@ export default function CalendarWidget({
           type="button"
           onClick={() => moveMonth(1)}
           aria-label="Next month"
-          className="rounded-lg border border-border p-2 text-text-secondary transition hover:bg-surface-elevated hover:text-text-primary"
+          className="border-2 border-[#28251f]/60 bg-[#fffaf0] p-2 text-[#28251f] transition hover:bg-[#f4d64f] hover:shadow-[2px_2px_0_#28251f]"
         >
           <ChevronRight size={16} />
         </button>
@@ -476,7 +476,7 @@ export default function CalendarWidget({
               >
                 {mode === "en"
                   ? secondaryDay.toLocaleString("ne-NP")
-                  : secondaryDay}
+                  : secondaryDay.toLocaleString("ne-NP")}
               </span>
 
               {(hasTasks || hasNotes) && (
