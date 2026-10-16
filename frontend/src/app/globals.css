@@ -528,3 +528,44 @@ body {
         transition: none !important;
     }
 }
+
+
+/* Sidebar and workspace chrome: inked, slightly imperfect comic panels. */
+body aside {
+    border-right-color: var(--ink-outline, rgb(40 37 31 / 50%)) !important;
+    box-shadow: 3px 0 0 rgb(40 37 31 / 5%);
+}
+
+body aside > div:first-child {
+    border-bottom-color: var(--ink-outline, rgb(40 37 31 / 35%));
+}
+
+body aside nav a {
+    border-radius: 4px !important;
+}
+
+body aside nav a[aria-current="page"],
+body aside nav a.bg-primary\/10 {
+    box-shadow: 2px 2px 0 var(--paper-shadow, rgb(49 38 23 / 12%));
+}
+
+body header.sticky {
+    border-bottom-color: var(--ink-outline, rgb(40 37 31 / 28%));
+    background-color: color-mix(in srgb, var(--background) 94%, transparent);
+}
+
+body header.sticky > div,
+body header.sticky button {
+    border-radius: 4px;
+}
+
+/* Avoid overly busy decoration in compact/mobile layouts. */
+@media (max-width: 640px) {
+    body {
+        background-size: 7px 7px, auto;
+    }
+
+    .dashboard-widget-shell {
+        box-shadow: 1px 2px 0 var(--paper-shadow, rgb(49 38 23 / 10%));
+    }
+}
