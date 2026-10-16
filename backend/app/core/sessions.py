@@ -19,6 +19,9 @@ def hash_refresh_token(token: str) -> str:
 def cookie_settings() -> dict:
     secure = settings.refresh_cookie_secure or settings.environment.lower() in {"production", "prod"}
     same_site = settings.refresh_cookie_samesite.lower()
+    if settings.environment.lower() in {"production", "prod"} and same_site == "lax":
+        # Separate frontend/API hosting domains need cross-site cookie support.
+        same_site = "none"
     if same_site not in {"lax", "strict", "none"}:
         same_site = "lax"
     if same_site == "none":
