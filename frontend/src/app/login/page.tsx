@@ -15,9 +15,11 @@ import { useRouter } from "next/navigation";
 
 import { login } from "@/lib/api/auth";
 import { setToken } from "@/lib/auth";
+import { useToast } from "@/app/components/ui/toast-provider";
 
 export default function LoginPage() {
   const router = useRouter();
+  const toast = useToast();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,13 +41,14 @@ export default function LoginPage() {
       });
 
       setToken(response.access_token);
+      toast.success("Welcome back! You are signed in.");
       router.push("/dashboard");
     } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Unable to sign in. Please try again.",
-      );
+      const message = error instanceof Error
+        ? error.message
+        : "Unable to sign in. Please try again.";
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
