@@ -337,15 +337,15 @@ export default function CalendarWidget({
   }
 
   return (
-    <section className="flex h-full min-h-[420px] min-w-0 flex-col overflow-hidden rounded-sm border-2 border-[#28251f] bg-[#fffaf0] " >
-      <header className="flex flex-wrap items-start justify-between gap-2 sm:gap-3 border-b-2 border-[#28251f]/80 bg-[#efaaa7]/70 px-4 py-4 sm:px-6">
+    <section className="comic-paper-widget flex h-full min-h-[420px] min-w-0 flex-col overflow-hidden rounded-sm border-2 border-[#28251f] bg-[#fffaf0]">
+      <header className="comic-widget-header flex shrink-0 flex-wrap items-start justify-between gap-2 border-b-2 border-[#28251f]/80 bg-[#efaaa7]/70 px-4 py-4 sm:gap-3 sm:px-6">
         <div className="flex min-w-0 items-center gap-2">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-[#28251f] bg-[#efaaa7] text-[#28251f] shadow-[2px_2px_0_#28251f]">
             <CalendarDays size={18} />
           </span>
 
           <div className="min-w-0">
-            <h3 className="comic-heading truncate text-xl text-f">Calendar</h3>
+            <h3 className="comic-heading truncate text-xl text-[#28251f]">Calendar</h3>
 
             <p className="truncate text-xs text-text-muted">
               {mode === "en"
@@ -360,7 +360,7 @@ export default function CalendarWidget({
         </div>
 
         <div
-          className="inline-flex shrink-0 rounded-lg border border-border bg-surface-elevated p-1"
+          className="inline-flex shrink-0 border-2 border-[#28251f]/60 bg-[#e9e0cf] p-1"
           aria-label="Calendar type"
         >
           <button
@@ -396,13 +396,13 @@ export default function CalendarWidget({
           type="button"
           onClick={() => moveMonth(-1)}
           aria-label="Previous month"
-          className="rounded-lg border border-border p-2 text-text-secondary transition hover:bg-surface-elevated hover:text-text-primary"
+          className="border-2 border-[#28251f]/60 bg-[#fffaf0] p-2 text-[#28251f] transition hover:bg-[#f4d64f] hover:shadow-[2px_2px_0_#28251f]"
         >
           <ChevronLeft size={16} />
         </button>
 
         <h4
-          className="min-w-0 truncate text-center text-sm font-semibold"
+          className="comic-heading min-w-0 truncate text-center text-lg text-[#28251f]"
           aria-live="polite"
         >
           {title}
@@ -422,7 +422,7 @@ export default function CalendarWidget({
         {(mode === "en" ? EN_WEEKDAYS : NP_WEEKDAYS).map((weekday) => (
           <div
             key={weekday}
-            className="min-w-0 py-1 text-center text-[10px] font-semibold uppercase tracking-wide text-text-muted"
+            className="min-w-0 border-b border-dashed border-[#28251f]/30 py-1 text-center text-[10px] font-bold uppercase tracking-wide text-[#28251f]/70"
           >
             {weekday}
           </div>
@@ -471,7 +471,7 @@ export default function CalendarWidget({
 
               <span
                 className={`text-[8px] leading-3 ${
-                  isSelected ? "text-white/80" : "text-text-muted"
+                  isSelected ? "text-[#28251f]/70" : "text-[#28251f]/60"
                 }`}
               >
                 {mode === "en"
@@ -487,7 +487,7 @@ export default function CalendarWidget({
                   {hasTasks && (
                     <span
                       className={`h-1 w-1 rounded-full ${
-                        isSelected ? "bg-white" : "bg-primary"
+                        isSelected ? "bg-[#28251f]" : "bg-[#28251f]"
                       }`}
                     />
                   )}
@@ -495,7 +495,7 @@ export default function CalendarWidget({
                   {hasNotes && (
                     <span
                       className={`h-1 w-1 rounded-full ${
-                        isSelected ? "bg-white/70" : "bg-amber-500"
+                        isSelected ? "bg-[#28251f]/60" : "bg-[#d48a30]"
                       }`}
                     />
                   )}
@@ -507,7 +507,7 @@ export default function CalendarWidget({
       </div>
 
       <section
-        className="mt-3 flex min-h-[100px] min-w-0 flex-1 flex-col overflow-hidden border-t border-border pt-3 px-4"
+        className="mt-3 flex min-h-[100px] min-w-0 flex-1 flex-col overflow-hidden border-t-2 border-dashed border-[#28251f]/35 px-4 pt-3"
         aria-label="Selected date agenda"
       >
         <div className="mb-2 flex items-center justify-between gap-2 ">
@@ -528,7 +528,7 @@ export default function CalendarWidget({
           <button
             type="button"
             onClick={onCreateTask}
-            className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-primary px-2.5 py-2 text-xs font-medium text-white transition hover:bg-primary-hover"
+            className="comic-action inline-flex shrink-0 items-center gap-1 border-2 border-[#28251f] bg-[#f4d64f] px-2.5 py-2 text-xs font-bold text-[#28251f] shadow-[2px_2px_0_#28251f] transition hover:-translate-y-0.5"
             aria-label="Create a task"
           >
             <Plus size={13} />
@@ -536,7 +536,7 @@ export default function CalendarWidget({
           </button>
         </div>
 
-        <div className="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain pr-1 ">
+        <div className="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain bg-[radial-gradient(#28251f0b_1px,transparent_1px)] bg-[length:10px_10px] pr-1">
           {loadingTasks ? (
             <p className="flex items-center gap-2 py-2 text-xs text-text-muted">
               <LoaderCircle size={14} className="animate-spin" />
@@ -557,7 +557,7 @@ export default function CalendarWidget({
                   key={task.id}
                   type="button"
                   onClick={() => onTaskClick(task)}
-                  className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left transition hover:bg-surface-elevated"
+                  className="flex w-full items-center gap-2 border-b border-dashed border-[#28251f]/15 px-2 py-2 text-left transition hover:bg-[#f4d64f]/25"
                 >
                   {task.status === "completed" ? (
                     <CheckCircle2
@@ -587,7 +587,7 @@ export default function CalendarWidget({
               {selectedNotes.map((note) => (
                 <div
                   key={note.id}
-                  className="flex items-center gap-2 rounded-lg px-2 py-2"
+                  className="flex items-center gap-2 border-b border-dashed border-[#28251f]/15 px-2 py-2"
                 >
                   <FileText
                     size={14}
@@ -608,7 +608,7 @@ export default function CalendarWidget({
         </div>
       </section>
 
-      <footer className="mt-3 flex items-center justify-between gap-2 border-t border-border p-4 pt-3">
+      <footer className="mt-3 flex shrink-0 items-center justify-between gap-2 border-t-2 border-[#28251f]/70 bg-[#e9e0cf]/70 p-4 pt-3">
         <p className="min-w-0 truncate text-xs text-text-muted">
           {selectedTasks.length} task
           {selectedTasks.length === 1 ? "" : "s"} · {selectedNotes.length}{" "}
