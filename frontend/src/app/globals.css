@@ -1205,6 +1205,109 @@ html {
     box-shadow: 2px 2px 0 rgb(0 0 0 / 60%);
 }
 
+
+/* Dashboard hero: responsive comic cover with theme-aware ink and paper. */
+.dashboard-comic-hero {
+    border-color: var(--comic-ink);
+    background-color: var(--surface);
+    color: var(--text-primary);
+}
+
+.dashboard-comic-hero .dashboard-hero-eyebrow {
+    border-color: var(--comic-ink);
+    background-color: #d9e8d4;
+    color: #28251f;
+}
+
+.dashboard-comic-hero .dashboard-hero-highlight {
+    background-color: #f4d64f;
+}
+
+.dashboard-comic-hero .dashboard-hero-burst {
+    color: #df5f55;
+    text-shadow: 2px 2px 0 var(--comic-ink);
+}
+
+.dashboard-comic-hero .dashboard-hero-sticker {
+    border-color: #28251f;
+    background-color: #f4d64f;
+    color: #28251f;
+}
+
+.dashboard-comic-hero .dashboard-header-action {
+    border-color: #28251f;
+    background-color: #f4d64f;
+    color: #28251f;
+}
+
+.dashboard-comic-hero .dashboard-header-action:hover {
+    background-color: #ffe477;
+}
+
+:root[data-theme="dark"] .dashboard-comic-hero {
+    border-color: #eee5d4;
+    background-color: #2b2923;
+    box-shadow: 5px 5px 0 rgb(0 0 0 / 42%);
+}
+
+:root[data-theme="dark"] .dashboard-comic-hero .comic-hero-paper {
+    background-color: #2b2923;
+    background-image:
+        radial-gradient(circle at 2px 2px, rgb(235 220 190 / 5%) 1px, transparent 1.4px),
+        linear-gradient(115deg, rgb(255 255 255 / 3%), transparent 55%);
+}
+
+:root[data-theme="dark"] .dashboard-comic-hero .dashboard-hero-eyebrow {
+    border-color: #756a54;
+    background-color: #344638;
+    color: #eee5d4;
+    box-shadow: 2px 2px 0 rgb(0 0 0 / 55%);
+}
+
+:root[data-theme="dark"] .dashboard-comic-hero .dashboard-hero-highlight {
+    background-color: #66572d;
+}
+
+:root[data-theme="dark"] .dashboard-comic-hero .dashboard-hero-burst {
+    color: #d78c83;
+    text-shadow: 2px 2px 0 #171612;
+}
+
+:root[data-theme="dark"] .dashboard-comic-hero .dashboard-hero-sticker {
+    border-color: #d8c9ad;
+    background-color: #454033;
+    color: #f4e8d3;
+    box-shadow: 3px 3px 0 rgb(0 0 0 / 55%);
+}
+
+:root[data-theme="dark"] .dashboard-comic-hero .dashboard-header-action {
+    border-color: #eee5d4;
+    background-color: #66572d;
+    color: #fff4d9;
+    box-shadow: 4px 4px 0 rgb(0 0 0 / 65%);
+}
+
+:root[data-theme="dark"] .dashboard-comic-hero .dashboard-header-action:hover {
+    background-color: #786632;
+}
+
+:root[data-theme="dark"] .dashboard-comic-hero .dashboard-header-action:focus-visible {
+    outline-color: #d8c17e;
+}
+
+@media (max-width: 420px) {
+    .dashboard-comic-hero {
+        min-height: 300px;
+        padding-bottom: 88px;
+    }
+
+    .dashboard-comic-hero .dashboard-header-action {
+        right: 1rem;
+        bottom: 1rem;
+        padding: 0.625rem 0.75rem;
+    }
+}
+
 /* Dashboard widgets share paper, ink, and halftone details while retaining
    their own scroll containers inside the resizable grid. */
 .comic-list-panel {
