@@ -14,9 +14,9 @@ export default function QuickActions({
   onCreateNote,
 }: QuickActionsProps) {
   return (
-    <div className="h-full min-h-0 rounded-2xl border border-border bg-surface p-5 sm:p-6">
+    <div className="comic-list-panel h-full min-h-0 rounded-sm border-2 border-[#28251f] bg-[#fffaf0] p-4 sm:p-5">
       <div>
-        <h2 className="font-semibold text-text-primary">
+        <h2 className="comic-heading text-xl text-[#28251f] sm:text-2xl">
           Quick actions
         </h2>
 
@@ -59,14 +59,14 @@ function QuickAction({
     <button
       type="button"
       onClick={onClick}
-      className="group flex items-center gap-3 rounded-xl border border-border bg-background/40 p-4 text-left transition duration-200 hover:border-primary/30 hover:bg-surface-elevated"
+      className="group flex items-center gap-3 border-2 border-[#28251f]/60 bg-[#e9e0cf]/45 p-3 text-left transition duration-200 hover:-translate-y-0.5 hover:bg-[#f4d64f]/25 hover:shadow-[3px_3px_0_#28251f] sm:p-4"
     >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition group-hover:bg-primary/15">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-[#28251f]/70 bg-[#f4d64f]/65 text-[#28251f] transition group-hover:bg-[#efaaa7]/60">
         <Icon size={18} />
       </div>
 
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium text-text-primary">
+        <p className="text-sm font-bold text-[#28251f]">
           {title}
         </p>
 
