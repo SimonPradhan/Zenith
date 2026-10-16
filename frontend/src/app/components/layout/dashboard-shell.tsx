@@ -235,14 +235,11 @@ export function DashboardShell({
         </nav>
 
         {/* User */}
-        <div className="border-t-2 border-white/15 p-3">
+        <div className="comic-sidebar-account border-t-2 border-[#f4d64f]/50 p-3">
           <div
-            className={`
-              flex items-center gap-3 rounded-xl p-2
-              ${collapsed ? "justify-center" : ""}
-            `}
+            className={`comic-sidebar-user flex items-center gap-3 border-2 border-transparent p-2 transition-colors ${collapsed ? "justify-center" : ""}`}
           >
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-[#f4d64f] bg-[#f4d64f]/15 text-sm font-semibold text-[#f4d64f]">
+            <div className="comic-sidebar-avatar flex h-9 w-9 shrink-0 items-center justify-center border-2 border-[#f4d64f] bg-[#f4d64f]/15 text-sm font-black text-[#f4d64f] shadow-[2px_2px_0_#f4d64f]">
               {user?.name?.charAt(0).toUpperCase() ?? "Z"}
             </div>
 
@@ -260,16 +257,15 @@ export function DashboardShell({
               </div>
             )}
 
-            {!collapsed && (
-              <button
-                type="button"
-                onClick={logout}
-                title="Logout"
-                className="rounded-lg p-2 text-[#bfb59c] transition hover:bg-white/10 hover:text-[#ef8f7e]"
-              >
-                <LogOut size={16} />
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={logout}
+              title="Sign out"
+              aria-label="Sign out"
+              className="comic-sidebar-logout shrink-0 border-2 border-transparent p-2 text-[#bfb59c] transition hover:-translate-y-px hover:border-[#ef8f7e] hover:bg-[#ef8f7e]/10 hover:text-[#ef8f7e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f4d64f]"
+            >
+              <LogOut size={16} />
+            </button>
           </div>
         </div>
 
