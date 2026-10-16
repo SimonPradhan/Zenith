@@ -650,3 +650,46 @@ body header.sticky button {
         transition: none;
     }
 }
+
+
+.comic-list-panel {
+    box-shadow: 3px 3px 0 var(--paper-shadow);
+}
+
+.comic-list-panel > div:first-child h2 {
+    font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+    font-size: 1.12rem;
+    font-weight: 900;
+    letter-spacing: -0.025em;
+    text-transform: uppercase;
+}
+
+.comic-task-row,
+.comic-note-row {
+    background-image: linear-gradient(90deg, rgb(255 255 255 / 12%), transparent 45%);
+}
+
+.comic-task-row:hover,
+.comic-note-row:hover {
+    background-color: color-mix(in srgb, var(--surface-elevated) 75%, #f4d64f 25%);
+}
+
+.comic-list-panel button {
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+}
+
+.comic-list-panel button:hover {
+    text-decoration: underline;
+}
+
+:root[data-theme="dark"] .comic-list-panel > div:first-child {
+    background-color: color-mix(in srgb, var(--surface-elevated) 75%, #5c5140 25%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .comic-task-row,
+    .comic-note-row {
+        transition: none;
+    }
+}
