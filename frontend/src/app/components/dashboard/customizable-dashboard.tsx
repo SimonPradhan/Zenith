@@ -855,8 +855,8 @@ export default function CustomizableDashboard({
               }
             >
               {editing && (
-                <div className="mb-2 flex shrink-0 items-center justify-between rounded-lg border border-dashed border-border bg-surface px-3 py-2">
-                  <div className="dashboard-widget-handle flex min-h-8 touch-none select-none cursor-grab items-center gap-2 rounded-md px-1 text-xs font-medium text-text-secondary transition-colors hover:text-text-primary active:cursor-grabbing">
+                <div className="mb-2 flex shrink-0 items-center justify-between border-2 border-dashed border-[#28251f]/60 bg-[#f4d64f]/35 px-3 py-2">
+                  <div className="dashboard-widget-handle flex min-h-8 touch-none select-none cursor-grab items-center gap-2 px-1 text-xs font-bold text-[#28251f] transition-colors hover:text-primary active:cursor-grabbing">
                     <GripVertical size={15} />
                     {definition.title}
                   </div>
@@ -866,7 +866,7 @@ export default function CustomizableDashboard({
                       type="button"
                       aria-label={`Remove ${definition.title}`}
                       onClick={() => removeWidget(id)}
-                      className="rounded-md p-1 text-text-muted transition hover:bg-error/10 hover:text-error"
+                      className="border border-[#28251f]/30 bg-[#fffaf0] p-1 text-[#28251f] transition hover:bg-[#efaaa7]/70 hover:text-[#28251f]"
                     >
                       <X size={15} />
                     </button>
