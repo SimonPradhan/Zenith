@@ -71,13 +71,17 @@ export function NoteCard({
         group relative
         flex min-h-[220px] flex-col
         cursor-pointer
+        border-2 border-[var(--ink-outline)]
         p-5 pt-7
         text-zinc-900
+        shadow-[2px_3px_0_var(--paper-shadow)]
         transition-all duration-300
         hover:-translate-y-1.5
         hover:rotate-[0.35deg]
         hover:scale-[1.01]
         hover:z-10
+        hover:shadow-[4px_5px_0_var(--paper-shadow)]
+        focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary
       "
     >
       {/* Paper + fold (shadow wrapper so the cut corner casts a proper shadow) */}
