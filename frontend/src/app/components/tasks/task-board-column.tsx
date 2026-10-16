@@ -133,10 +133,10 @@ function ColumnDropZone({
   return (
     <section
       className={`
-        relative
-        flex min-h-[520px] min-w-[280px]
-        flex-1 flex-col rounded-2xl
-        border
+        comic-board-column comic-column-${status}
+        relative flex min-h-[520px] min-w-[280px]
+        flex-1 flex-col rounded-sm
+        border-2 border-text-primary/70
         bg-surface/60
         transition-all duration-200
         ${
@@ -165,7 +165,7 @@ function ColumnDropZone({
           Drop task here
         </div>
       )}
-      <header className="flex items-center justify-between border-b border-border px-4 py-3">
+      <header className="comic-column-header flex items-center justify-between border-b-2 border-text-primary/50 px-4 py-3">
         <div className="flex items-center gap-2.5">
           <span className={`h-2 w-2 rounded-full ${config.dotClassName}`} />
 
