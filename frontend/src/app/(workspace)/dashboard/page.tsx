@@ -169,7 +169,14 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <DashboardHeader user={user} onCreateTask={handleCreateTask} />
-      <TaskModal\n        open={taskModalOpen}\n        loading={creatingTask}\n        onClose={() => {\n          if (!creatingTask) setTaskModalOpen(false);\n        }}\n        onSubmit={handleSubmitNewTask}\n      />
+      <TaskModal
+        open={taskModalOpen}
+        loading={creatingTask}
+        onClose={() => {
+          if (!creatingTask) setTaskModalOpen(false);
+        }}
+        onSubmit={handleSubmitNewTask}
+      />
       <CustomizableDashboard
         token={accessToken}
         todayTasks={todayTasks}
