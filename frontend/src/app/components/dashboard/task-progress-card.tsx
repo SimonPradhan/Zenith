@@ -22,7 +22,7 @@ export default function TaskProgressCard({
   onViewTasks,
 }: TaskProgressCardProps) {
   return (
-    <div className="relative h-full min-h-0 overflow-hidden rounded-2xl border border-border bg-surface p-5 sm:p-6">
+    <div className="comic-list-panel relative h-full min-h-0 overflow-hidden rounded-sm border-2 border-[#28251f] bg-[#fffaf0] p-4 sm:p-5">
       {/* Decorative glow */}
       <div className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-primary/5 blur-3xl" />
 
@@ -30,12 +30,12 @@ export default function TaskProgressCard({
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-[#28251f] bg-[#c4e3e0] text-[#28251f] shadow-[2px_2px_0_#28251f]">
               <Target size={19} />
             </div>
 
             <div>
-              <h2 className="font-semibold text-text-primary">
+              <h2 className="comic-heading text-xl text-[#28251f] sm:text-2xl">
                 Task progress
               </h2>
 
@@ -108,7 +108,7 @@ export default function TaskProgressCard({
           <button
             type="button"
             onClick={onViewTasks}
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-primary transition hover:text-primary-hover"
+            className="comic-action inline-flex items-center gap-1.5 border-2 border-[#28251f] bg-[#f4d64f]/60 px-3 py-2 text-xs font-bold text-[#28251f] shadow-[2px_2px_0_#28251f] transition hover:-translate-y-0.5"
           >
             Manage tasks
             <ArrowRight size={13} />
@@ -131,7 +131,7 @@ function ProgressStat({
   tone: "primary" | "success";
 }) {
   return (
-    <div className="rounded-xl border border-border bg-background/40 p-3">
+    <div className="border-2 border-dashed border-[#28251f]/35 bg-[#e9e0cf]/50 p-3">
       <div className="flex items-center gap-2">
         <Icon
           size={15}
