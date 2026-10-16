@@ -292,11 +292,13 @@ export default function CalendarWidget({
   const title =
     mode === "en"
       ? `${EN_MONTHS[englishView.getMonth()]} ${englishView.getFullYear()}`
-      : new NepaliDate(
-          nepaliView.year,
-          nepaliView.month,
-          1,
-        ).format("MMMM YYYY", "np");
+      : toNepaliDigits(
+          new NepaliDate(
+            nepaliView.year,
+            nepaliView.month,
+            1,
+          ).format("MMMM YYYY", "np"),
+        );
 
   function moveMonth(direction: -1 | 1) {
     if (mode === "en") {
@@ -349,7 +351,7 @@ export default function CalendarWidget({
 
             <p className="truncate text-xs text-text-muted">
               {mode === "en"
-                ? `Today · BS ${todayNepali.format("DD MMM YYYY", "np")}`
+                ? `Today · BS ${toNepaliDigits(todayNepali.format("DD MMM YYYY", "np"))}`
                 : `आज · AD ${today.toLocaleDateString("ne-NP", {
                     day: "2-digit",
                     month: "short",
@@ -626,4 +628,10 @@ export default function CalendarWidget({
       </footer>
     </section>
   );
+}
+
+
+function toNepaliDigits(value: string | number): string {
+  const digits = ["०", "१", "२", "३", "४", "५", "६", "७", "८", "९"];
+  return String(value).replace(/\\d/g, (digit) => digits[Number(digit)]);
 }
