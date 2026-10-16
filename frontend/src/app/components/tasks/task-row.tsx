@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   Circle,
   Clock3,
+  Hourglass,
   Loader2,
   PlayCircle,
 } from "lucide-react";
@@ -38,25 +39,25 @@ const priorityConfig: Record<
   low: {
     label: "Low",
     className:
-      "bg-surface-elevated text-text-muted",
+      "border-2 border-[#1c1a16] bg-[#cdb6ea] text-[#1c1a16]",
   },
 
   medium: {
     label: "Medium",
     className:
-      "bg-primary/10 text-primary",
+      "border-2 border-[#1c1a16] bg-[#f4d64f] text-[#1c1a16]",
   },
 
   high: {
     label: "High",
     className:
-      "bg-warning/10 text-warning",
+      "border-2 border-[#1c1a16] bg-[#f2a65a] text-[#1c1a16]",
   },
 
   urgent: {
     label: "Urgent",
     className:
-      "bg-error/10 text-error",
+      "border-2 border-[#1c1a16] bg-[#ef6f5f] text-[#1c1a16]",
   },
 };
 
@@ -70,25 +71,25 @@ const statusConfig: Record<
   pending: {
     label: "To do",
     className:
-      "bg-surface-elevated text-text-secondary",
+      "border-2 border-[#1c1a16] bg-[#a9c9e8] text-[#1c1a16]",
   },
 
   in_progress: {
     label: "In progress",
     className:
-      "bg-primary/10 text-primary",
+      "border-2 border-[#1c1a16] bg-[#f4d64f] text-[#1c1a16]",
   },
 
   completed: {
     label: "Completed",
     className:
-      "bg-success/10 text-success",
+      "border-2 border-[#1c1a16] bg-[#b8d9b7] text-[#1c1a16]",
   },
 
   cancelled: {
     label: "Cancelled",
     className:
-      "bg-error/10 text-error",
+      "border-2 border-[#1c1a16] bg-[#efaaa7] text-[#1c1a16]",
   },
 };
 
@@ -149,7 +150,7 @@ export function TaskRow({
             className="text-success"
           />
         ) : task.status === "in_progress" ? (
-          <PlayCircle
+          <Hourglass
             size={21}
             className="text-primary"
           />
@@ -201,8 +202,8 @@ export function TaskRow({
           {/* Status */}
           <span
             className={`
-              rounded-full px-2 py-1
-              text-[11px] font-medium
+              px-2 py-0.5
+              text-[10px] font-black uppercase tracking-wide
               ${status.className}
             `}
           >
@@ -212,8 +213,8 @@ export function TaskRow({
           {/* Priority */}
           <span
             className={`
-              rounded-full px-2 py-1
-              text-[11px] font-medium
+              px-2 py-0.5
+              text-[10px] font-black uppercase tracking-wide
               ${priority.className}
             `}
           >
@@ -254,7 +255,7 @@ export function TaskRow({
           {/* Start date */}
           {task.start_date && (
             <span className="hidden items-center gap-1 text-xs text-text-muted sm:inline-flex">
-              <PlayCircle size={13} />
+              <Hourglass size={13} />
               Starts {formatShortDate(task.start_date)}
             </span>
           )}

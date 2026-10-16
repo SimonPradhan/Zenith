@@ -549,13 +549,13 @@ export default function TasksPage() {
     <>
       <div className="mx-auto max-w-[1400px] space-y-6">
         {/* Header */}
-        <section className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <section className="comic-hero comic-hero-paper flex flex-col gap-4 border-2 p-5 sm:flex-row sm:items-end sm:justify-between sm:p-7">
           <div>
             <p className="mb-1 text-sm text-text-muted">
               Workspace
             </p>
 
-            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+            <h1 className="retro-display text-3xl font-black uppercase tracking-tight sm:text-4xl">
               Tasks
             </h1>
 
@@ -568,16 +568,7 @@ export default function TasksPage() {
           <button
             type="button"
             onClick={openCreateModal}
-            className="
-              inline-flex items-center
-              justify-center gap-2
-              rounded-xl bg-primary
-              px-4 py-2.5
-              text-sm font-medium text-white
-              shadow-lg shadow-primary/10
-              transition
-              hover:bg-primary-hover
-            "
+            className="comic-btn inline-flex items-center justify-center gap-2 bg-[#f4d64f] px-4 py-2.5 text-sm font-black uppercase text-[#1c1a16]"
           >
             <Plus size={17} />
             New task
@@ -596,7 +587,7 @@ export default function TasksPage() {
             </p>
           </div>
 
-          <div className="flex items-center rounded-xl border border-border bg-surface p-1">
+          <div className="flex items-center gap-1 border-2 border-[var(--comic-ink)] bg-surface p-1 shadow-[3px_3px_0_var(--comic-ink)]">
             <button
               type="button"
               onClick={() => {
@@ -605,13 +596,13 @@ export default function TasksPage() {
               }}
               className={`
                 inline-flex items-center gap-2
-                rounded-lg px-3 py-2
-                text-xs font-medium
+                px-3 py-2
+                text-xs font-black uppercase
                 transition
                 ${
                   view === "list"
-                    ? "bg-surface-elevated text-text-primary shadow-sm"
-                    : "text-text-muted hover:text-text-secondary"
+                    ? "bg-[#f4d64f] text-[#1c1a16]"
+                    : "text-text-muted hover:text-text-primary"
                 }
               `}
             >
@@ -628,13 +619,13 @@ export default function TasksPage() {
               }}
               className={`
                 inline-flex items-center gap-2
-                rounded-lg px-3 py-2
-                text-xs font-medium
+                px-3 py-2
+                text-xs font-black uppercase
                 transition
                 ${
                   view === "board"
-                    ? "bg-primary/10 text-primary shadow-sm"
-                    : "text-text-muted hover:text-text-secondary"
+                    ? "bg-[#f4d64f] text-[#1c1a16]"
+                    : "text-text-muted hover:text-text-primary"
                 }
               `}
             >
@@ -645,7 +636,7 @@ export default function TasksPage() {
         </div>
 
         {/* Filters */}
-        <section className="rounded-2xl border border-border bg-surface p-3">
+        <section className="comic-list-panel border-2 border-[var(--comic-ink)] bg-surface p-3">
           <div className="flex flex-col gap-3 md:flex-row">
             <div className="relative flex-1">
               <Search
@@ -665,8 +656,8 @@ export default function TasksPage() {
                 }
                 placeholder="Search tasks..."
                 className="
-                  h-10 w-full rounded-xl
-                  border border-border
+                  h-10 w-full rounded-sm
+                  border-2 border-border
                   bg-surface-elevated
                   pl-10 pr-4
                   text-sm text-text-primary
@@ -701,8 +692,8 @@ export default function TasksPage() {
                 className="
                   h-10 w-full
                   appearance-none
-                  rounded-xl
-                  border border-border
+                  rounded-sm
+                  border-2 border-border
                   bg-surface-elevated
                   pl-9 pr-10
                   text-sm text-text-primary
@@ -763,12 +754,7 @@ export default function TasksPage() {
         {/* Tasks */}
         {view === "list" ? (
           <section
-            className="
-              overflow-hidden
-              rounded-2xl
-              border border-border
-              bg-surface
-            "
+            className="comic-list-panel overflow-hidden rounded-sm border-2 border-[var(--comic-ink)] bg-surface"
           >
             <TaskList
               tasks={data?.items ?? []}

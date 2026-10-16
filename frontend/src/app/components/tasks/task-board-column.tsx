@@ -30,20 +30,20 @@ const statusConfig: Record<
   }
 > = {
   pending: {
-    dotClassName: "bg-text-muted",
-    countClassName: "bg-surface-elevated text-text-secondary",
+    dotClassName: "bg-[#1c1a16]",
+    countClassName: "bg-[#1c1a16] text-[#f4ecd8]",
   },
   in_progress: {
-    dotClassName: "bg-primary",
-    countClassName: "bg-primary/10 text-primary",
+    dotClassName: "bg-[#1c1a16]",
+    countClassName: "bg-[#1c1a16] text-[#f4ecd8]",
   },
   completed: {
-    dotClassName: "bg-success",
-    countClassName: "bg-success/10 text-success",
+    dotClassName: "bg-[#1c1a16]",
+    countClassName: "bg-[#1c1a16] text-[#f4ecd8]",
   },
   cancelled: {
-    dotClassName: "bg-error",
-    countClassName: "bg-error/10 text-error",
+    dotClassName: "bg-[#1c1a16]",
+    countClassName: "bg-[#1c1a16] text-[#f4ecd8]",
   },
 };
 
@@ -174,12 +174,12 @@ function ColumnDropZone({
         <div className="flex items-center gap-2.5">
           <span className={`h-2 w-2 rounded-full ${config.dotClassName}`} />
 
-          <h2 className="text-sm font-medium text-text-primary">{title}</h2>
+          <h2 className="comic-title text-base uppercase text-[#1c1a16]">{title}</h2>
 
           <span
             className={`
-              rounded-full px-2 py-0.5
-              text-[11px] font-medium
+              px-2 py-0.5
+              text-[11px] font-black
               ${config.countClassName}
             `}
           >
@@ -191,11 +191,12 @@ function ColumnDropZone({
           type="button"
           onClick={() => onCreateTask(status)}
           className="
-            rounded-lg p-1.5
-            text-text-muted
+            border-2 border-[#1c1a16] bg-white/70 p-1
+            text-[#1c1a16]
+            shadow-[2px_2px_0_#1c1a16]
             transition
-            hover:bg-surface-elevated
-            hover:text-text-primary
+            hover:-translate-y-0.5
+            hover:bg-white
           "
           aria-label={`Add task to ${title}`}
         >

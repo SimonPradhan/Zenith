@@ -67,7 +67,7 @@ export function TaskBoard({
   }, {} as Record<TaskStatus, Task[]>);
 
   return (
-    <div className="retro-task-board overflow-x-auto pb-3 scrollbar-thin" aria-label="Task board">
+    <div className="retro-task-board scroll-autohide overflow-x-auto pb-3" aria-label="Task board">
       <div className="flex min-w-[1200px] gap-4">
         {columns.map((column) => (
           <TaskBoardColumn

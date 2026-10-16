@@ -940,3 +940,132 @@ body header.sticky button {
         transition: none;
     }
 }
+
+
+/* ------------------------------------------------------------------ */
+/* Tasks: coloured comic columns on a paper board                      */
+/* (.retro-task-board section is more specific than .comic-column-*,   */
+/* so these selectors repeat the board class to win.)                  */
+/* ------------------------------------------------------------------ */
+
+.retro-task-board {
+    border: 3px solid var(--comic-ink);
+    background-color: var(--surface-elevated);
+    background-image:
+        radial-gradient(circle at 2px 2px, var(--paper-grain) 1px, transparent 1.4px);
+    background-size: 8px 8px;
+    box-shadow: 5px 5px 0 var(--paper-shadow);
+}
+
+.retro-task-board .comic-board-column {
+    border: 2px solid #1c1a16;
+    border-radius: 3px;
+    box-shadow: 4px 4px 0 #1c1a16;
+    background-image:
+        radial-gradient(circle at 2px 2px, rgb(28 26 22 / 10%) 0.9px, transparent 1.2px);
+    background-size: 8px 8px;
+}
+
+.retro-task-board .comic-column-pending { background-color: #a9c9e8; }
+.retro-task-board .comic-column-in_progress { background-color: #f4d64f; }
+.retro-task-board .comic-column-completed { background-color: #b8d9b7; }
+.retro-task-board .comic-column-cancelled { background-color: #efaaa7; }
+
+.retro-task-board .comic-column-header {
+    border-bottom: 2px solid #1c1a16;
+    background: rgb(255 255 255 / 30%);
+}
+
+/* Drop the sticky "tape" decoration the old board added to cards. */
+.retro-task-board article::before {
+    display: none;
+}
+
+/* Cards stay white paper in both themes, so keep their text dark. */
+.retro-task-board .comic-board-card,
+:root[data-theme="dark"] .retro-task-board .comic-board-card {
+    border-color: #1c1a16;
+    background-color: #fffaf0;
+    color: #1c1a16;
+}
+
+.retro-task-board .comic-board-card h3,
+.retro-task-board .comic-board-card p {
+    color: #1c1a16;
+}
+
+/* ------------------------------------------------------------------ */
+/* Scrollbars                                                          */
+/* Slim ink bars everywhere; boards hide theirs until you hover them.  */
+/* ------------------------------------------------------------------ */
+
+:root,
+:root[data-theme="light"] {
+    --scroll-thumb: #1c1a16;
+    --scroll-track: #e9ddc8;
+}
+
+:root[data-theme="dark"] {
+    --scroll-thumb: #b8b58a;
+    --scroll-track: #2b2923;
+}
+
+html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scroll-thumb) var(--scroll-track);
+}
+
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--scroll-track);
+}
+
+::-webkit-scrollbar-thumb {
+    border: 3px solid var(--scroll-track);
+    border-radius: 9999px;
+    background: var(--scroll-thumb);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #f4d64f;
+    border-color: #1c1a16;
+}
+
+::-webkit-scrollbar-corner {
+    background: var(--scroll-track);
+}
+
+/* Auto-hide: bar is invisible until the pointer is over the scroller. */
+.scroll-autohide,
+.notice-board-viewport {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+}
+
+.scroll-autohide:hover,
+.notice-board-viewport:hover {
+    scrollbar-color: #1c1a16 transparent;
+}
+
+.scroll-autohide::-webkit-scrollbar-track,
+.notice-board-viewport::-webkit-scrollbar-track,
+.scroll-autohide::-webkit-scrollbar-corner,
+.notice-board-viewport::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+.scroll-autohide::-webkit-scrollbar-thumb,
+.notice-board-viewport::-webkit-scrollbar-thumb {
+    border: 3px solid transparent;
+    background-clip: padding-box;
+    background-color: transparent;
+}
+
+.scroll-autohide:hover::-webkit-scrollbar-thumb,
+.notice-board-viewport:hover::-webkit-scrollbar-thumb {
+    background-color: #1c1a16;
+}
