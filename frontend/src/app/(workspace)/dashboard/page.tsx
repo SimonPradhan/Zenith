@@ -15,10 +15,12 @@ import { getToken } from "@/lib/auth";
 import { useUser } from "@/app/context/user-context";
 import CustomizableDashboard from "@/app/components/dashboard/customizable-dashboard";
 import { TaskModal } from "@/app/components/tasks/task-modal";
+import { useToast } from "@/app/components/ui/toast-provider";
 
 export default function DashboardPage() {
   const router = useRouter();
   const { user, loading: userLoading } = useUser();
+  const toast = useToast();
   const [accessToken, setAccessToken] = useState<string>("");
   const [todayTasks, setTodayTasks] = useState<Task[]>([]);
   const [overdueTasks, setOverdueTasks] = useState<Task[]>([]);
@@ -141,6 +143,11 @@ export default function DashboardPage() {
       await createTask(token, taskData);
       setTaskModalOpen(false);
       setDashboardRefreshKey((current) => current + 1);
+      toast.success("Task created successfully.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to create task. Please try again.";
+      toast.error(message);
+      throw error;
     } finally {
       setCreatingTask(false);
     }
