@@ -2,8 +2,10 @@
 
 import {
   CalendarDays,
-  CheckCircle2,
-  Circle,
+  SquareCheckBig,
+  SquareDot,
+  SquarePen,
+  SquareX,
   Clock3,
   Flag,
   Loader2,
@@ -69,9 +71,9 @@ export function TaskDetailModal({
       widthClassName="max-w-2xl"
     >
       <div className="detail-modal-paper bg-[#fbf5e9] p-6 pt-10 text-[#1c1a16] sm:p-9 sm:pt-11">
-        <p className="mb-3 text-[11px] font-black uppercase tracking-[0.14em] text-[#1c1a16]/60">
+        <h3 className="mb-3 comic-heading uppercase tracking-[0.14em] text-[#1c1a16]/60">
           Task
-        </p>
+        </h3>
 
         <div className="flex items-start gap-3">
           {onToggleStatus && (
@@ -84,14 +86,18 @@ export function TaskDetailModal({
                   ? "Mark task as pending"
                   : "Mark task as completed"
               }
-              className="mt-1 shrink-0 transition hover:scale-110 disabled:opacity-60"
+              className="mt-1 shrink-0 transition hover:scale-110 disabled:opacity-60 cursor-pointer"
             >
               {updating ? (
                 <Loader2 size={28} className="animate-spin" />
               ) : completed ? (
-                <CheckCircle2 size={28} className="text-[#3f8a4a]" />
-              ) : (
-                <Circle size={28} />
+                <SquareCheckBig size={28} className="border-2 border-[#1c1a16] bg-[#b8d9b7] text-[#1c1a16]" />
+              ) :  task.status === "in_progress" ? (
+                <SquarePen size={28} className="border-2 border-[#1c1a16] bg-[#f4d64f] text-[#1c1a16]" />
+              ):  task.status === "cancelled" ? (
+                <SquareX size={28} className="border-2 border-[#1c1a16] bg-[#efaaa7] text-[#1c1a16]" />
+              )  : (
+                <SquareDot size={28} />
               )}
             </button>
           )}

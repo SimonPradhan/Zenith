@@ -555,7 +555,7 @@ export default function TasksPage() {
               Workspace
             </p>
 
-            <h1 className="retro-display text-3xl font-black uppercase tracking-tight sm:text-4xl">
+            <h1 className="comic-heading text-3xl font-black uppercase tracking-tight sm:text-4xl">
               Tasks
             </h1>
 

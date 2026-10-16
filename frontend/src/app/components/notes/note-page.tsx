@@ -308,7 +308,7 @@ export default function NotesPage() {
               Notice board
             </p>
 
-            <h1 className="retro-display text-3xl font-black uppercase tracking-tight sm:text-4xl">
+            <h1 className="comic-heading text-3xl font-black uppercase tracking-tight sm:text-4xl">
               Notes
             </h1>
 
