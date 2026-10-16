@@ -61,7 +61,7 @@ function QuickAction({
       onClick={onClick}
       className="group flex min-w-0 items-center gap-3 border-2 border-[#28251f]/60 bg-[#e9e0cf]/45 p-3 text-left transition duration-200 hover:-translate-y-0.5 hover:border-[#28251f] hover:bg-[#f4d64f]/25 hover:shadow-[3px_3px_0_#28251f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#28251f] focus-visible:ring-offset-2 sm:p-4"
     >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-[#28251f]/70 bg-[#f4d64f]/65 text-[#28251f] shadow-[2px_2px_0_#28251f]/40 transition group-hover:bg-[#efaaa7]/60">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-[#28251f]/70 bg-[#f4d64f]/65 text-[#28251f] shadow-[2px_2px_0_#28251f] transition group-hover:bg-[#efaaa7]/60">
         <Icon size={18} />
       </div>
 
