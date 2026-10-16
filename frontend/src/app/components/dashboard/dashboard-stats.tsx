@@ -58,7 +58,7 @@ function StatCard({
       </div>
       <div className="relative mt-4 min-w-0 flex-1">
         <p className="text-xs font-bold uppercase tracking-[0.13em] text-[#28251f]/75 sm:text-sm">{label}</p>
-        <p className="mt-1 text-4xl font-black leading-none tracking-[-0.06em] text-[#28251f] sm:text-5xl">{value.toLocaleString()}</p>
+        <p className="comic-heading mt-1 text-4xl leading-none tracking-normal text-[#28251f] sm:text-5xl">{value.toLocaleString()}</p>
         <p className="mt-2 text-xs font-semibold text-[#28251f]/75 sm:text-sm">{description}</p>
       </div>
       <ArrowUpRight className="absolute bottom-3 right-3 text-[#28251f]/70 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" size={19} />
