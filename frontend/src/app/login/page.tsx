@@ -52,7 +52,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="auth-comic-page min-h-screen bg-background">
       <div className="grid min-h-screen lg:grid-cols-[1.05fr_0.95fr]">
         {/* ==================== BRAND PANEL ==================== */}
         <section className="relative hidden overflow-hidden border-r border-border bg-surface lg:flex lg:flex-col">
