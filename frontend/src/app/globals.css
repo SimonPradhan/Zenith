@@ -628,6 +628,27 @@ body header.sticky button {
 .comic-stat-mint { background-color: #b8d9b7; }
 .comic-stat-pink { background-color: #efaaa7; }
 
+/* Dashboard metrics keep their four identities in dark mode without glowing pastel panels. */
+:root[data-theme="dark"] .comic-stat-yellow { background-color: #5b4d27; }
+:root[data-theme="dark"] .comic-stat-blue { background-color: #304858; }
+:root[data-theme="dark"] .comic-stat-mint { background-color: #304638; }
+:root[data-theme="dark"] .comic-stat-pink { background-color: #563737; }
+
+:root[data-theme="dark"] .comic-stat-card {
+    color: #eee5d4;
+    border-color: #eee5d4;
+    box-shadow: 3px 3px 0 rgb(0 0 0 / 45%);
+}
+
+:root[data-theme="dark"] .comic-stat-card :is(p, span, svg) {
+    color: #eee5d4 !important;
+}
+
+:root[data-theme="dark"] .comic-stat-card [class~="bg-[#fbf5e9]/70"],
+:root[data-theme="dark"] .comic-stat-card [class~="bg-[#fbf5e9]/60"] {
+    background-color: #38352c !important;
+}
+
 :root[data-theme="dark"] .comic-stat-card {
     background-image:
         radial-gradient(circle at 2px 2px, rgb(40 37 31 / 12%) 0.8px, transparent 1px),
