@@ -1,3 +1,6 @@
+import hashlib
+from datetime import datetime, timedelta, timezone
+
 from sqlalchemy import select
 
 from app.models.refresh_session import RefreshSession
@@ -92,3 +95,39 @@ def test_logout_revokes_session_and_clears_cookie(client, db):
 
     refresh = client.post("/auth/refresh")
     assert refresh.status_code == 401
+
+
+
+def test_password_reset_revokes_existing_refresh_sessions(client, db):
+    user = _create_verified_user(client, db, "reset-session@zenith.dev")
+
+    login = client.post(
+        "/auth/login",
+        json={
+            "email": "reset-session@zenith.dev",
+            "password": "TestPassword123!",
+        },
+    )
+    assert login.status_code == 200
+
+    raw_reset_token = "reset-session-token"
+    user.password_reset_token_hash = hashlib.sha256(
+        raw_reset_token.encode()
+    ).hexdigest()
+    user.password_reset_expires_at = (
+        datetime.now(timezone.utc) + timedelta(hours=1)
+    )
+    db.commit()
+
+    response = client.post(
+        "/auth/reset-password",
+        json={
+            "token": raw_reset_token,
+            "new_password": "ChangedPassword123!",
+        },
+    )
+    assert response.status_code == 200
+
+    session = db.scalar(select(RefreshSession))
+    assert session is not None
+    assert session.revoked_at is not None
