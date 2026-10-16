@@ -1132,6 +1132,15 @@ html {
 }
 
 :root[data-theme="dark"] .comic-paper-widget [class~="text-text-muted"],
+:root[data-theme="dark"] .comic-paper-widget [class~="text-[#28251f]/70"],
+:root[data-theme="dark"] .comic-paper-widget [class~="text-[#28251f]/60"] {
+    color: #c4b9a5 !important;
+}
+
+:root[data-theme="dark"] .comic-paper-widget [class~="text-[#28251f]/70"] {
+    color: #c4b9a5 !important;
+}
+
 :root[data-theme="dark"] .comic-paper-widget [class~="text-text-secondary"] {
     color: var(--widget-muted) !important;
 }
