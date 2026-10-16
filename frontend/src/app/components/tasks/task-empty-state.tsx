@@ -17,15 +17,15 @@ export function TaskEmptyState({
     Boolean(search) || status !== "all";
 
   return (
-    <div className="flex min-h-[320px] flex-col items-center justify-center px-6 text-center">
-      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
+    <div className="comic-task-empty flex min-h-[320px] flex-col items-center justify-center px-6 py-10 text-center">
+      <div className="mb-4 flex h-14 w-14 items-center justify-center border-2 border-[var(--comic-ink)] bg-[#f4d64f] text-[#28251f] shadow-[3px_3px_0_var(--comic-ink)]">
         <ListTodo
           size={25}
           className="text-primary"
         />
       </div>
 
-      <h3 className="font-medium">
+      <h3 className="comic-title text-xl uppercase text-text-primary">
         {filtered
           ? "No matching tasks"
           : "No tasks yet"}
