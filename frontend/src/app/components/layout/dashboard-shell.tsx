@@ -301,11 +301,11 @@ export function DashboardShell({
         `}
       >
         {/* Topbar */}
-        <header className="sticky top-0 z-30 flex h-16 items-center border-b-2 border-[var(--comic-ink)] bg-background/90 px-4 backdrop-blur-xl sm:px-6">
+        <header className="dashboard-shell-topbar sticky top-0 z-30 flex h-16 items-center border-b-2 border-[var(--comic-ink)] px-4 backdrop-blur-xl sm:px-6">
           <button
             type="button"
             onClick={() => setMobileOpen(true)}
-            className="mr-3 rounded-lg p-2 text-text-secondary hover:bg-surface-elevated hover:text-text-primary lg:hidden"
+            className="shell-icon-button mr-3 border-2 border-transparent p-2 text-text-secondary hover:-translate-y-px lg:hidden"
             aria-label="Open navigation"
           >
             <Menu size={20} />
@@ -316,7 +316,7 @@ export function DashboardShell({
             <div className="relative">
               <GlobalSearch />
 
-              <kbd className="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded border border-border bg-surface-elevated px-1.5 py-0.5 text-[10px] text-text-muted md:block">
+              <kbd className="shell-shortcut absolute right-2 top-1/2 hidden -translate-y-1/2 border border-border px-1.5 py-0.5 text-[10px] md:block">
                 ⌘ K
               </kbd>
             </div>
@@ -326,7 +326,7 @@ export function DashboardShell({
              <ThemeToggle />
             <button
               type="button"
-              className="relative rounded-lg p-2 text-text-secondary transition hover:bg-surface-elevated hover:text-text-primary"
+              className="shell-icon-button relative border-2 border-transparent p-2 text-text-secondary transition hover:-translate-y-px"
               aria-label="Notifications"
             >
               <Bell size={19} />
@@ -336,8 +336,8 @@ export function DashboardShell({
 
             <div className="ml-1 h-6 w-px bg-border" />
 
-            <div className="flex items-center gap-2 pl-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 text-xs font-semibold text-primary">
+            <div className="shell-user-chip ml-1 flex items-center gap-2 border-l-2 border-border pl-3">
+              <div className="shell-user-avatar flex h-8 w-8 items-center justify-center border-2 border-[var(--comic-ink)] text-xs font-black shadow-[2px_2px_0_var(--comic-ink)]">
                 {user?.name?.charAt(0).toUpperCase() ?? "Z"}
               </div>
 
