@@ -131,7 +131,7 @@ function NoteModalForm({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-end justify-center bg-black/60 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+      className="fixed inset-0 z-[100] flex items-end justify-center bg-[#211d17]/70 p-0 backdrop-blur-[3px] sm:items-center sm:p-4"
       onMouseDown={(event) => {
         if (
           event.target === event.currentTarget &&
@@ -141,11 +141,11 @@ function NoteModalForm({
         }
       }}
     >
-      <div className="w-full max-w-2xl rounded-t-2xl border border-border bg-surface shadow-2xl sm:rounded-2xl">
+      <div role="dialog" aria-modal="true" aria-labelledby="note-modal-title" className="comic-note-modal relative flex max-h-[94vh] w-full max-w-2xl flex-col overflow-hidden border-2 border-[var(--comic-ink)] bg-surface text-text-primary shadow-[7px_7px_0_var(--paper-shadow)] sm:max-h-[92vh] sm:rounded-sm">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-border px-5 py-4">
+        <div className="relative flex shrink-0 items-start justify-between gap-4 border-b-2 border-[var(--comic-ink)] bg-surface-elevated px-5 py-5 sm:px-7">
           <div>
-            <h2 className="text-base font-semibold text-text-primary">
+            <h2 id="note-modal-title" className="retro-display text-2xl font-black uppercase leading-tight tracking-tight sm:text-3xl">
               {editing ? "Edit note" : "Create note"}
             </h2>
 
@@ -160,7 +160,7 @@ function NoteModalForm({
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="rounded-lg p-2 text-text-muted transition hover:bg-surface-elevated hover:text-text-primary disabled:opacity-40"
+            className="shrink-0 border-2 border-[var(--comic-ink)] bg-surface px-2 py-2 text-text-primary shadow-[2px_2px_0_var(--comic-ink)] transition hover:-translate-y-0.5 hover:bg-background disabled:opacity-40"
             aria-label="Close modal"
           >
             <X size={18} />
@@ -170,10 +170,10 @@ function NoteModalForm({
         {/* Form */}
         <form
           onSubmit={handleSubmit}
-          className="space-y-5 p-5"
+          className="comic-note-modal-form min-h-0 space-y-6 overflow-y-auto bg-surface p-5 sm:p-7"
         >
           {error && (
-            <div className="rounded-xl border border-error/20 bg-error/10 px-3 py-2.5 text-sm text-error">
+            <div className="border-2 border-error bg-error/10 px-4 py-3 text-sm font-semibold text-error shadow-[3px_3px_0_var(--paper-shadow)]">
               {error}
             </div>
           )}
@@ -182,7 +182,7 @@ function NoteModalForm({
           <div>
             <label
               htmlFor="note-title"
-              className="mb-2 block text-sm font-medium text-text-primary"
+              className="mb-2 block text-xs font-black uppercase tracking-[0.12em] text-text-secondary"
             >
               Title
             </label>
@@ -197,7 +197,7 @@ function NoteModalForm({
               maxLength={255}
               autoFocus
               disabled={loading}
-              className="h-11 w-full rounded-xl border border-border bg-surface-elevated px-3.5 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-primary/60 focus:ring-2 focus:ring-primary/10 disabled:opacity-50"
+              className="h-12 w-full rounded-sm border-2 border-[var(--ink-outline)] bg-background px-3.5 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:opacity-50"
             />
           </div>
 
@@ -206,7 +206,7 @@ function NoteModalForm({
             <div className="mb-2 flex items-center justify-between">
               <label
                 htmlFor="note-content"
-                className="block text-sm font-medium text-text-primary"
+                className="block text-xs font-black uppercase tracking-[0.12em] text-text-secondary"
               >
                 Content
               </label>
@@ -225,7 +225,7 @@ function NoteModalForm({
               placeholder="Write your note here..."
               rows={9}
               disabled={loading}
-              className="w-full resize-y rounded-xl border border-border bg-surface-elevated px-3.5 py-3 text-sm leading-6 text-text-primary outline-none placeholder:text-text-muted focus:border-primary/60 focus:ring-2 focus:ring-primary/10 disabled:opacity-50"
+              className="w-full resize-y rounded-sm border-2 border-[var(--ink-outline)] bg-background px-3.5 py-3 text-sm leading-6 text-text-primary outline-none placeholder:text-text-muted focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:opacity-50"
             />
           </div>
 
@@ -237,7 +237,7 @@ function NoteModalForm({
                 className="text-text-muted"
               />
 
-              <label className="text-sm font-medium text-text-primary">
+              <label className="text-xs font-black uppercase tracking-[0.12em] text-text-secondary">
                 Note color
               </label>
             </div>
@@ -265,8 +265,8 @@ function NoteModalForm({
                       disabled:opacity-50
                       ${
                         selected
-                          ? "border-primary ring-2 ring-primary/30 ring-offset-2 ring-offset-surface"
-                          : "border-black/10"
+                          ? "border-[var(--comic-ink)] ring-2 ring-primary ring-offset-2 ring-offset-surface shadow-[3px_3px_0_var(--comic-ink)]"
+                          : "border-[var(--comic-ink)]/40"
                       }
                     `}
                   >
@@ -282,12 +282,12 @@ function NoteModalForm({
           </div>
 
           {/* Actions */}
-          <div className="flex flex-col-reverse gap-2 border-t border-border pt-5 sm:flex-row sm:justify-end">
+          <div className="flex shrink-0 flex-col-reverse gap-3 border-t-2 border-[var(--comic-ink)] bg-surface-elevated/60 p-5 sm:flex-row sm:justify-between sm:px-7">
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="h-10 rounded-xl border border-border px-4 text-sm font-medium text-text-secondary transition hover:bg-surface-elevated hover:text-text-primary disabled:opacity-40"
+              className="h-11 border-2 border-[var(--comic-ink)] bg-surface px-5 text-sm font-bold text-text-primary shadow-[3px_3px_0_var(--paper-shadow)] transition hover:-translate-y-0.5 hover:shadow-[4px_4px_0_var(--paper-shadow)] disabled:opacity-40"
             >
               Cancel
             </button>
@@ -295,7 +295,7 @@ function NoteModalForm({
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-medium text-white transition hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
+              className="comic-action inline-flex h-11 items-center justify-center gap-2 border-2 border-[var(--comic-ink)] bg-primary px-5 text-sm font-black uppercase tracking-wide text-white shadow-[3px_3px_0_var(--comic-ink)] transition hover:-translate-y-0.5 hover:shadow-[4px_4px_0_var(--comic-ink)] hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading && (
                 <Loader2
