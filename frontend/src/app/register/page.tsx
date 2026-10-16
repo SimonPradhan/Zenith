@@ -16,8 +16,10 @@ import {
 } from "lucide-react";
 
 import { register, resendVerification } from "@/lib/api/auth";
+import { useToast } from "@/app/components/ui/toast-provider";
 
 export default function RegisterPage() {
+  const toast = useToast();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,12 +41,13 @@ export default function RegisterPage() {
       const data = await resendVerification(email.trim());
 
       setResendMessage(data.message);
+      toast.success(data.message);
     } catch (error) {
-      setResendError(
-        error instanceof Error
-          ? error.message
-          : "Unable to resend the verification email.",
-      );
+      const message = error instanceof Error
+        ? error.message
+        : "Unable to resend the verification email.";
+      setResendError(message);
+      toast.error(message);
     } finally {
       setResending(false);
     }
@@ -70,12 +73,13 @@ export default function RegisterPage() {
       });
 
       setRegistered(true);
+      toast.success("Account created. Check your email to verify it.");
     } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Unable to create your account. Please try again.",
-      );
+      const message = error instanceof Error
+        ? error.message
+        : "Unable to create your account. Please try again.";
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
