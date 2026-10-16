@@ -83,7 +83,7 @@ body {
     background-size:
         7px 7px,
         auto;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
 
 h1,
@@ -1068,4 +1068,27 @@ html {
 .scroll-autohide:hover::-webkit-scrollbar-thumb,
 .notice-board-viewport:hover::-webkit-scrollbar-thumb {
     background-color: #1c1a16;
+}
+
+
+/* Comic-book display typography; keep dense UI content highly readable. */
+.comic-heading {
+    font-family: var(--font-bangers), Impact, sans-serif;
+    letter-spacing: 0.035em;
+    font-weight: 400;
+}
+
+.comic-handwritten {
+    font-family: var(--font-marker), cursive;
+}
+
+/* Dashboard widgets share paper, ink, and halftone details while retaining
+   their own scroll containers inside the resizable grid. */
+.comic-list-panel {
+    box-shadow: 4px 4px 0 rgb(40 37 31 / 18%);
+}
+
+.comic-list-panel :is(button, a):focus-visible {
+    outline: 3px solid var(--primary);
+    outline-offset: -3px;
 }
