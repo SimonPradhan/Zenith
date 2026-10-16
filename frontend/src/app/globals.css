@@ -1868,3 +1868,38 @@ html {
     }
 }
 
+
+
+/* Keep task action menus above the list refresh veil and adjacent rows. */
+.comic-task-row.task-row-menu-layer {
+    isolation: auto;
+}
+
+.comic-task-row:has(.task-actions-menu-open) {
+    z-index: 60;
+}
+
+.task-actions-menu-open > div[role="menu"],
+.task-actions-menu-open > div.absolute {
+    z-index: 100;
+}
+
+.task-actions-menu-open > div.absolute {
+    min-width: 10rem;
+}
+
+:root[data-theme="dark"] .task-actions-menu-open > div.absolute {
+    border-color: #756a54;
+    background-color: #38352c;
+    color: #eee5d4;
+    box-shadow: 4px 4px 0 rgb(0 0 0 / 45%);
+}
+
+:root[data-theme="dark"] .task-actions-menu-open > div.absolute button {
+    color: #eee5d4;
+}
+
+:root[data-theme="dark"] .task-actions-menu-open > div.absolute button:hover {
+    background-color: #66572d;
+    color: #fff4d9;
+}
