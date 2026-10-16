@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Bangers, Geist, Geist_Mono, Permanent_Marker } from "next/font/google";
 import ServiceWorkerRegister from "./service-worker-register";
+import { ToastProvider } from "./components/ui/toast-provider";
 import "./globals.css";
 import { THEME_INIT_SCRIPT } from "@/lib/theme";
 
@@ -56,8 +57,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body className="min-h-full flex flex-col">
-        {children}
-        <ServiceWorkerRegister />
+        <ToastProvider>
+          {children}
+          <ServiceWorkerRegister />
+        </ToastProvider>
       </body>
     </html>
   );
