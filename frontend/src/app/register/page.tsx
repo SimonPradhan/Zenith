@@ -82,7 +82,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="auth-comic-page min-h-screen bg-background">
       <div className="grid min-h-screen lg:grid-cols-[1.05fr_0.95fr]">
         {/* =========================================================
             BRAND PANEL
