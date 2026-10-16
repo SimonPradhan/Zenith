@@ -1213,6 +1213,12 @@ html {
     color: var(--text-primary);
 }
 
+.dashboard-comic-hero h1 {
+    font-family: var(--font-bangers), Impact, Haettenschweiler, sans-serif;
+    letter-spacing: 0.025em;
+    text-shadow: 1px 1px 0 var(--paper-highlight);
+}
+
 .dashboard-comic-hero .dashboard-hero-eyebrow {
     border-color: var(--comic-ink);
     background-color: #d9e8d4;
