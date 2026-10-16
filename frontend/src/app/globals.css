@@ -1903,3 +1903,28 @@ html {
     background-color: #66572d;
     color: #fff4d9;
 }
+
+
+/* Portaled task menus escape scroll containers and stay legible in dark mode. */
+.task-actions-popover {
+    position: fixed;
+    z-index: 9999;
+    isolation: isolate;
+    pointer-events: auto;
+}
+
+:root[data-theme="dark"] .task-actions-popover {
+    border-color: #756a54;
+    background-color: #38352c;
+    color: #eee5d4;
+    box-shadow: 4px 4px 0 rgb(0 0 0 / 45%);
+}
+
+:root[data-theme="dark"] .task-actions-popover button {
+    color: #eee5d4;
+}
+
+:root[data-theme="dark"] .task-actions-popover button:hover {
+    background-color: #66572d;
+    color: #fff4d9;
+}
