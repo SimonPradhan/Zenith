@@ -66,7 +66,7 @@ export default function VerifyEmailForm() {
     : message;
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4 py-10">
+    <main className="auth-comic-page relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4 py-10">
       {/* Background decoration */}
       <div className="pointer-events-none absolute -left-40 -top-40 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
