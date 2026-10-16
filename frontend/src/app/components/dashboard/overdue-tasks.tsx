@@ -19,21 +19,21 @@ export default function OverdueTasks({
   onTaskClick,
 }: OverdueTasksProps) {
   return (
-    <section className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden rounded-2xl border border-error/20 bg-surface">
+    <section className="comic-list-panel flex h-full min-h-0 min-w-0 flex-col overflow-hidden rounded-sm border-2 border-[#28251f] bg-[#fffaf0]">
       {/* Fixed header */}
-      <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-error/10 px-3 py-3 sm:px-5 sm:py-4">
+      <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b-2 border-[#28251f]/80 bg-[#efaaa7]/70 px-3 py-3 sm:px-5 sm:py-4">
         <div className="flex min-w-0 flex-1 items-center gap-2.5">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-error/10 text-error">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center border-2 border-[#28251f]/70 bg-[#fffaf0]/70 text-[#28251f]">
             <AlertTriangle size={16} />
           </div>
 
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-sm font-semibold text-text-primary sm:text-base">
+              <h2 className="comic-heading text-xl text-[#28251f] sm:text-2xl">
                 Overdue tasks
               </h2>
 
-              <span className="rounded-full bg-error/10 px-2 py-0.5 text-[10px] font-semibold text-error">
+              <span className="border border-[#28251f]/50 bg-[#fffaf0] px-2 py-0.5 text-[10px] font-bold text-[#28251f]">
                 {tasks.length}
               </span>
             </div>
@@ -47,7 +47,7 @@ export default function OverdueTasks({
         <button
           type="button"
           onClick={onViewAll}
-          className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-text-muted transition hover:text-text-primary"
+          className="comic-action inline-flex shrink-0 items-center gap-1 border-2 border-[#28251f] bg-[#fffaf0] px-2.5 py-1.5 text-xs font-bold text-[#28251f] shadow-[2px_2px_0_#28251f] transition hover:-translate-y-0.5"
         >
           View all
           <ArrowRight size={13} />
@@ -56,7 +56,7 @@ export default function OverdueTasks({
 
       {/* Scrollable content */}
       {tasks.length === 0 ? (
-        <div className="flex min-h-0 flex-1 flex-col items-center justify-center p-4 text-center">
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center bg-[radial-gradient(#28251f12_1px,transparent_1px)] bg-[length:10px_10px] p-4 text-center">
           <CheckCircle2
             size={22}
             className="text-success"
@@ -69,7 +69,7 @@ export default function OverdueTasks({
           </p>
         </div>
       ) : (
-        <div className="min-h-0 min-w-0 flex-1 divide-y divide-border overflow-x-hidden overflow-y-auto overscroll-contain">
+        <div className="min-h-0 min-w-0 flex-1 divide-y divide-dashed divide-[#28251f]/20 overflow-x-hidden overflow-y-auto overscroll-contain bg-[radial-gradient(#28251f0b_1px,transparent_1px)] bg-[length:10px_10px]">
           {tasks.map((task) => (
             <OverdueTaskItem
               key={task.id}
@@ -94,9 +94,9 @@ function OverdueTaskItem({
     <button
       type="button"
       onClick={onClick}
-      className="group flex w-full min-w-0 items-start gap-2.5 px-3 py-3 text-left transition hover:bg-surface-elevated sm:items-center sm:gap-3 sm:px-5"
+      className="group flex w-full min-w-0 items-start gap-2.5 border-b border-dashed border-[#28251f]/15 bg-[#fffaf0]/85 px-3 py-3 text-left transition hover:bg-[#efaaa7]/20 sm:items-center sm:gap-3 sm:px-5"
     >
-      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-error/10 text-error sm:mt-0">
+      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center border-2 border-[#28251f]/40 bg-[#efaaa7]/45 text-[#28251f] sm:mt-0">
         {task.status === "completed" ? (
           <CheckCircle2 size={16} />
         ) : (
@@ -105,7 +105,7 @@ function OverdueTaskItem({
       </div>
 
       <div className="min-w-0 flex-1">
-        <p className="break-words text-sm font-medium text-text-primary transition group-hover:text-error [overflow-wrap:anywhere]">
+        <p className="break-words text-sm font-semibold text-[#28251f] transition group-hover:underline [overflow-wrap:anywhere]">
           {task.title}
         </p>
 
