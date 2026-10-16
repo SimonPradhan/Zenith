@@ -185,7 +185,7 @@ export function TaskRow({
         <div className="flex items-start justify-between gap-3">
           <h3
             className={`
-              comic-task-title min-w-0 text-sm font-bold
+              comic-heading min-w-0 text-sm font-bold
               ${
                 completed
                   ? "text-text-muted line-through"

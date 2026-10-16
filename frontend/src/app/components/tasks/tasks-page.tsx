@@ -92,7 +92,6 @@ export default function TasksPage() {
 
   const [viewingTaskId, setViewingTaskId] = useState<string | null>(null);
 
-  // A task opened via /tasks?task=<id> may not be on the current page of results.
   const [linkedTask, setLinkedTask] = useState<Task | null>(null);
 
   const [updatingTaskId, setUpdatingTaskId] = useState<string | null>(
@@ -105,9 +104,6 @@ export default function TasksPage() {
 
   const [deleting, setDeleting] = useState(false);
 
-  /*
-   * Search debounce.
-   */
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
@@ -118,9 +114,6 @@ export default function TasksPage() {
     };
   }, [search]);
 
-  /*
-   * Load tasks.
-   */
   useEffect(() => {
     let cancelled = false;
 
@@ -174,15 +167,6 @@ export default function TasksPage() {
     };
   }, [page, router, debouncedSearch, status, view]);
 
-  /*
-   * Open a specific task from the dashboard.
-   *
-   * Dashboard links use:
-   * /tasks?task=<task-id>
-   *
-   * We fetch the task directly instead of searching
-   * the currently visible page.
-   */
   useEffect(() => {
     const taskId = searchParams.get("task");
 
@@ -237,9 +221,6 @@ export default function TasksPage() {
     };
   }, [searchParams, router]);
 
-  /*
-   * Toggle task status.
-   */
   async function handleToggleStatus(task: Task) {
     const token = getToken();
 
@@ -323,9 +304,6 @@ export default function TasksPage() {
     }
   }
 
-  /*
-   * Kanban drag/drop status change.
-   */
   async function handleBoardStatusChange(
     task: Task,
     nextStatus: TaskStatus,
@@ -555,7 +533,7 @@ export default function TasksPage() {
               Workspace
             </p>
 
-            <h1 className="comic-heading text-3xl font-black uppercase tracking-tight sm:text-4xl">
+            <h1 className="comic-heading text-3xl uppercase sm:text-4xl">
               Tasks
             </h1>
 
