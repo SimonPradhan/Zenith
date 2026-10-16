@@ -27,9 +27,9 @@ export default function TodayTasks({
   const groups = groupTasksByDate(tasks);
 
   return (
-    <section className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-border bg-surface">
+    <section className="comic-list-panel flex h-full min-h-0 min-w-0 flex-col overflow-hidden rounded-sm border-2 border-[#28251f] bg-[#fffaf0]">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-border px-5 py-4 sm:px-6">
+      <div className="flex shrink-0 items-center justify-between gap-3 border-b-2 border-[#28251f]/80 bg-[#f4d64f]/70 px-4 py-4 sm:px-6">
         <div>
           <div className="flex items-center gap-2">
             <CalendarClock
@@ -37,7 +37,7 @@ export default function TodayTasks({
               className="text-primary"
             />
 
-            <h2 className="font-semibold text-text-primary">
+            <h2 className="comic-heading text-xl text-[#28251f] sm:text-2xl">
               Today & upcoming
             </h2>
           </div>
@@ -65,8 +65,8 @@ export default function TodayTasks({
 
       {/* Content */}
       {groups.length === 0 ? (
-        <div className="flex flex-1 flex-col items-center justify-center px-5 py-6 text-center sm:px-6">
-          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center bg-[radial-gradient(#28251f12_1px,transparent_1px)] bg-[length:10px_10px] px-5 py-6 text-center sm:px-6">
+          <div className="mx-auto flex h-11 w-11 items-center justify-center border-2 border-[#28251f] bg-[#c4e3e0] text-[#28251f] shadow-[3px_3px_0_#28251f]">
             <CalendarClock size={18} />
           </div>
 
@@ -83,8 +83,8 @@ export default function TodayTasks({
           {groups.map((group) => (
             <div key={group.label}>
               {/* Group label */}
-              <div className="bg-surface-elevated/50 px-5 py-2 sm:px-6">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-text-muted">
+              <div className="sticky top-0 z-10 border-y border-dashed border-[#28251f]/30 bg-[#e9e0cf] px-5 py-2 sm:px-6">
+                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#28251f]/75">
                   {group.label}
                 </p>
               </div>
