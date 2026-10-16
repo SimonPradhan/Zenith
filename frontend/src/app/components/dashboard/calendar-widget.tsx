@@ -618,7 +618,7 @@ export default function CalendarWidget({
         <button
           type="button"
           onClick={goToToday}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-border px-2.5 py-2 text-xs font-medium text-text-secondary transition hover:bg-surface-elevated hover:text-text-primary"
+          className="comic-action inline-flex shrink-0 items-center gap-1.5 border-2 border-[#28251f] bg-[#fffaf0] px-2.5 py-2 text-xs font-bold text-[#28251f] shadow-[2px_2px_0_#28251f] transition hover:-translate-y-0.5"
         >
           <RotateCcw size={13} />
           Today
