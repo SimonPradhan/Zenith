@@ -42,7 +42,7 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="auth-comic-page min-h-screen bg-background">
       <div className="grid min-h-screen lg:grid-cols-[0.9fr_1.1fr]">
         {/* ==================== BRAND PANEL ==================== */}
         <section className="relative hidden overflow-hidden border-r border-border bg-surface lg:flex lg:flex-col">
