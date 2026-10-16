@@ -2,12 +2,13 @@
 
 import {
   CalendarDays,
-  CheckCircle2,
-  Circle,
   Clock3,
-  Hourglass,
   Loader2,
   PlayCircle,
+  SquareCheckBig,
+  SquareDot,
+  SquarePen,
+  SquareX,
 } from "lucide-react";
 
 import type {
@@ -145,17 +146,22 @@ export function TaskRow({
             className="animate-spin text-primary"
           />
         ) : completed ? (
-          <CheckCircle2
+          <SquareCheckBig
             size={21}
             className="text-success"
           />
         ) : task.status === "in_progress" ? (
-          <Hourglass
+          <SquarePen
             size={21}
             className="text-primary"
           />
-        ) : (
-          <Circle
+        ) :task.status === "cancelled" ? (
+          <SquareX
+            size={21}
+            className="text-primary"
+          />
+        ): (
+          <SquareDot
             size={21}
             className="text-text-muted transition group-hover:text-primary"
           />
@@ -255,7 +261,7 @@ export function TaskRow({
           {/* Start date */}
           {task.start_date && (
             <span className="hidden items-center gap-1 text-xs text-text-muted sm:inline-flex">
-              <Hourglass size={13} />
+              <PlayCircle size={13} />
               Starts {formatShortDate(task.start_date)}
             </span>
           )}

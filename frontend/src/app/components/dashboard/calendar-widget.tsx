@@ -337,15 +337,15 @@ export default function CalendarWidget({
   }
 
   return (
-    <section className="flex h-full min-h-[420px] min-w-0 flex-col overflow-hidden rounded-2xl border border-border bg-surface p-3 text-text-primary sm:p-4">
-      <header className="flex flex-wrap items-start justify-between gap-2 sm:gap-3">
+    <section className="flex h-full min-h-[420px] min-w-0 flex-col overflow-hidden rounded-sm border-2 border-[#28251f] bg-[#fffaf0] " >
+      <header className="flex flex-wrap items-start justify-between gap-2 sm:gap-3 border-b-2 border-[#28251f]/80 bg-[#efaaa7]/70 px-4 py-4 sm:px-6">
         <div className="flex min-w-0 items-center gap-2">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border bg-surface-elevated text-primary">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-[#28251f] bg-[#efaaa7] text-[#28251f] shadow-[2px_2px_0_#28251f]">
             <CalendarDays size={18} />
           </span>
 
           <div className="min-w-0">
-            <h3 className="comic-heading truncate text-xl text-[#28251f]">Calendar</h3>
+            <h3 className="comic-heading truncate text-xl text-f">Calendar</h3>
 
             <p className="truncate text-xs text-text-muted">
               {mode === "en"
@@ -391,7 +391,7 @@ export default function CalendarWidget({
         </div>
       </header>
 
-      <div className="mt-3 flex items-center justify-between gap-1 sm:mt-4 sm:gap-2">
+      <div className="mt-3 flex items-center justify-between gap-1 sm:mt-4 sm:gap-2 px-4">
         <button
           type="button"
           onClick={() => moveMonth(-1)}
@@ -418,7 +418,7 @@ export default function CalendarWidget({
         </button>
       </div>
 
-      <div className="mt-3 grid shrink-0 grid-cols-7 gap-0.5 sm:gap-1">
+      <div className="mt-3 grid shrink-0 grid-cols-7 gap-0.5 sm:gap-1 px-4">
         {(mode === "en" ? EN_WEEKDAYS : NP_WEEKDAYS).map((weekday) => (
           <div
             key={weekday}
@@ -507,10 +507,10 @@ export default function CalendarWidget({
       </div>
 
       <section
-        className="mt-3 flex min-h-[100px] min-w-0 flex-1 flex-col overflow-hidden border-t border-border pt-3"
+        className="mt-3 flex min-h-[100px] min-w-0 flex-1 flex-col overflow-hidden border-t border-border pt-3 px-4"
         aria-label="Selected date agenda"
       >
-        <div className="mb-2 flex items-center justify-between gap-2">
+        <div className="mb-2 flex items-center justify-between gap-2 ">
           <div className="min-w-0">
             <p className="text-xs text-text-muted">Agenda</p>
 
@@ -536,7 +536,7 @@ export default function CalendarWidget({
           </button>
         </div>
 
-        <div className="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain pr-1">
+        <div className="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain pr-1 ">
           {loadingTasks ? (
             <p className="flex items-center gap-2 py-2 text-xs text-text-muted">
               <LoaderCircle size={14} className="animate-spin" />
@@ -608,7 +608,7 @@ export default function CalendarWidget({
         </div>
       </section>
 
-      <footer className="mt-3 flex items-center justify-between gap-2 border-t border-border pt-3">
+      <footer className="mt-3 flex items-center justify-between gap-2 border-t border-border p-4 pt-3">
         <p className="min-w-0 truncate text-xs text-text-muted">
           {selectedTasks.length} task
           {selectedTasks.length === 1 ? "" : "s"} · {selectedNotes.length}{" "}

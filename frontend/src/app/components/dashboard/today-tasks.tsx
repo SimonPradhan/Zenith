@@ -30,16 +30,14 @@ export default function TodayTasks({
     <section className="comic-list-panel flex h-full min-h-0 min-w-0 flex-col overflow-hidden rounded-sm border-2 border-[#28251f] bg-[#fffaf0]">
       {/* Header */}
       <div className="flex shrink-0 items-center justify-between gap-3 border-b-2 border-[#28251f]/80 bg-[#f4d64f]/70 px-4 py-4 sm:px-6">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-[#28251f] bg-[#f4d64f] text-[#28251f] shadow-[2px_2px_0_#28251f]">
+          <CalendarClock size={19} />
+        </div>
         <div>
           <div className="flex items-center gap-2">
-            <CalendarClock
-              size={16}
-              className="text-primary"
-            />
-
-            <h2 className="comic-heading text-xl text-[#28251f] sm:text-2xl">
+            <h3 className="comic-heading truncate text-xl text-foreground">
               Today & upcoming
-            </h2>
+            </h3>
           </div>
 
           <p className="mt-1 text-xs text-text-muted">
@@ -50,13 +48,7 @@ export default function TodayTasks({
         <button
           type="button"
           onClick={onViewAll}
-          className="
-            inline-flex items-center gap-1.5
-            text-xs font-medium
-            text-primary
-            transition
-            hover:text-primary-hover
-          "
+          className="comic-action inline-flex shrink-0 items-center gap-1.5 border-2 border-[#28251f] bg-[#fffaf0] px-3 py-2 text-xs font-bold text-[#28251f] shadow-[2px_2px_0_#28251f] transition hover:-translate-y-0.5 hover:shadow-[3px_3px_0_#28251f]"
         >
           View all
           <ArrowRight size={13} />

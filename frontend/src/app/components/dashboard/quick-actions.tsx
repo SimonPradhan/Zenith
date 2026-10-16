@@ -16,9 +16,9 @@ export default function QuickActions({
   return (
     <div className="comic-list-panel h-full min-h-0 rounded-sm border-2 border-[#28251f] bg-[#fffaf0] p-4 sm:p-5">
       <div>
-        <h2 className="comic-heading text-xl text-[#28251f] sm:text-2xl">
+        <h3 className="comic-heading truncate text-xl text-foreground">
           Quick actions
-        </h2>
+        </h3>
 
         <p className="mt-1 text-xs text-text-muted">
           Jump into the things you use most.
