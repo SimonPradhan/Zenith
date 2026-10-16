@@ -1324,3 +1324,102 @@ html {
     outline: 3px solid var(--primary);
     outline-offset: -3px;
 }
+
+/* Task list: keep the same ink, paper, and hard-shadow language as the board. */
+.comic-list-panel {
+    border-color: var(--comic-ink);
+    background-color: #fbf5e9;
+    background-image: radial-gradient(circle at 2px 2px, rgb(40 37 31 / 3%) 0.8px, transparent 1.2px);
+    background-size: 9px 9px;
+    box-shadow: 4px 4px 0 var(--paper-shadow);
+}
+
+.comic-task-row {
+    color: #28251f;
+    background-color: rgb(255 250 240 / 88%);
+    background-image: radial-gradient(circle at 2px 2px, rgb(40 37 31 / 3%) 0.7px, transparent 1px);
+    background-size: 9px 9px;
+}
+
+.comic-task-row:hover {
+    background-color: #fffaf0;
+    box-shadow: inset 4px 0 0 #f4d64f;
+}
+
+.comic-task-row .comic-task-title {
+    color: #28251f;
+    font-family: var(--font-marker), "Trebuchet MS", sans-serif;
+    font-size: 0.98rem;
+    letter-spacing: 0.005em;
+}
+
+.comic-task-row button:focus-visible {
+    outline: 3px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.comic-task-empty {
+    background-color: #fbf5e9;
+    background-image: radial-gradient(circle at 2px 2px, rgb(40 37 31 / 5%) 0.8px, transparent 1.2px);
+    background-size: 9px 9px;
+}
+
+.comic-task-empty p {
+    color: #655e51;
+}
+
+.comic-task-skeleton > div {
+    background-color: #fbf5e9;
+}
+
+:root[data-theme="dark"] .comic-list-panel {
+    border-color: #756a54;
+    background-color: #2b2923;
+    background-image: radial-gradient(circle at 2px 2px, rgb(235 220 190 / 4%) 0.8px, transparent 1.2px);
+    box-shadow: 4px 4px 0 rgb(0 0 0 / 38%);
+}
+
+:root[data-theme="dark"] .comic-task-row {
+    color: #eee5d4;
+    border-color: rgb(196 185 165 / 18%);
+    background-color: #302e27;
+    background-image: radial-gradient(circle at 2px 2px, rgb(235 220 190 / 3%) 0.7px, transparent 1px);
+}
+
+:root[data-theme="dark"] .comic-task-row:hover {
+    background-color: #3b382e;
+    box-shadow: inset 4px 0 0 #a78b3f;
+}
+
+:root[data-theme="dark"] .comic-task-row .comic-task-title {
+    color: #f2eadb;
+}
+
+:root[data-theme="dark"] .comic-task-row :is(p, span) {
+    color: #c4b9a5;
+}
+
+:root[data-theme="dark"] .comic-task-row :is([class~="text-error"], [class~="text-warning"]) {
+    color: #efaaa7;
+}
+
+:root[data-theme="dark"] .comic-task-empty {
+    background-color: #2b2923;
+    background-image: radial-gradient(circle at 2px 2px, rgb(235 220 190 / 5%) 0.8px, transparent 1.2px);
+}
+
+:root[data-theme="dark"] .comic-task-empty p {
+    color: #c4b9a5;
+}
+
+:root[data-theme="dark"] .comic-task-skeleton > div {
+    background-color: #302e27;
+    border-color: #514a3d;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .comic-task-row {
+        transition: none;
+    }
+}
+
