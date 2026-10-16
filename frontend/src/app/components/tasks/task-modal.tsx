@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   Calendar,
   ChevronDown,
@@ -53,9 +54,15 @@ export function TaskModal({
   onClose,
   onSubmit,
 }: TaskModalProps) {
-  if (!open) return null;
+  const [portalReady, setPortalReady] = useState(false);
 
-  return (
+  useEffect(() => {
+    setPortalReady(true);
+  }, []);
+
+  if (!open || !portalReady) return null;
+
+  return createPortal(
     <TaskModalForm
       key={`${task?.id ?? "new"}-${initialStatus}`}
       task={task}
@@ -63,7 +70,8 @@ export function TaskModal({
       loading={loading}
       onClose={onClose}
       onSubmit={onSubmit}
-    />
+    />,
+    document.body,
   );
 }
 
