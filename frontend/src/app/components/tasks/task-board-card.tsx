@@ -69,9 +69,9 @@ export function TaskBoardCard({
       onDragEnd={onDragEnd}
       onDoubleClick={() => onEdit(task)}
       className="
-        group cursor-grab rounded-xl border border-border
+        comic-board-card group cursor-grab rounded-sm border-2 border-text-primary/70
         bg-surface p-4
-        shadow-sm
+        shadow-[2px_3px_0_var(--paper-shadow)]
         transition
         hover:-translate-y-0.5
         hover:border-primary/30
