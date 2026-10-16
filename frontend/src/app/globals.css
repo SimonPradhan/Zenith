@@ -1093,8 +1093,7 @@ html {
     color: var(--widget-ink);
     border-color: var(--widget-ink) !important;
     background-color: var(--widget-paper) !important;
-    background-image:
-        radial-gradient(circle at 2px 2px, rgb(235 220 190 / 5%) 0.8px, transparent 1.2px);
+    background-image: radial-gradient(circle at 2px 2px, rgb(235 220 190 / 5%) 0.8px, transparent 1.2px);
     box-shadow: 4px 4px 0 rgb(0 0 0 / 35%);
 }
 
@@ -1105,46 +1104,67 @@ html {
     background-image: radial-gradient(circle at 2px 2px, rgb(235 220 190 / 6%) 0.8px, transparent 1.2px);
 }
 
-:root[data-theme="dark"] .comic-paper-widget :is(h2, h3, h4, p, span, label, svg) {
-    color: inherit;
-}
-
-:root[data-theme="dark"] .comic-paper-widget :is(.text-\\[\\#28251f\\], .text-foreground, .text-text-primary) {
+:root[data-theme="dark"] .comic-paper-widget [class~="text-[#28251f]"],
+:root[data-theme="dark"] .comic-paper-widget [class~="text-foreground"],
+:root[data-theme="dark"] .comic-paper-widget [class~="text-text-primary"] {
     color: var(--widget-ink) !important;
 }
 
-:root[data-theme="dark"] .comic-paper-widget :is(.text-text-muted, .text-text-secondary) {
+:root[data-theme="dark"] .comic-paper-widget [class~="text-text-muted"],
+:root[data-theme="dark"] .comic-paper-widget [class~="text-text-secondary"] {
     color: var(--widget-muted) !important;
 }
 
-:root[data-theme="dark"] .comic-paper-widget :is(.bg-\\[\\#fffaf0\\], .bg-\\[\\#e9e0cf\\]\\/70, .bg-\\[\\#e9e0cf\\]\\/60, .bg-\\[\\#e9e0cf\\]\\/45, .bg-\\[\\#e9e0cf\\]\\/50) {
+:root[data-theme="dark"] .comic-paper-widget [class~="bg-[#fffaf0]"],
+:root[data-theme="dark"] .comic-paper-widget [class~="bg-[#e9e0cf]/70"],
+:root[data-theme="dark"] .comic-paper-widget [class~="bg-[#e9e0cf]/60"],
+:root[data-theme="dark"] .comic-paper-widget [class~="bg-[#e9e0cf]/50"],
+:root[data-theme="dark"] .comic-paper-widget [class~="bg-[#e9e0cf]/45"] {
     background-color: var(--widget-paper-raised) !important;
 }
 
-:root[data-theme="dark"] .comic-paper-widget :is(.border-\\[\\#28251f\\], .border-\\[\\#28251f\\]\\/60, .border-\\[\\#28251f\\]\\/80, .border-\\[\\#28251f\\]\\/70, .border-\\[\\#28251f\\]\\/45, .border-\\[\\#28251f\\]\\/40, .border-\\[\\#28251f\\]\\/35, .border-\\[\\#28251f\\]\\/30, .border-\\[\\#28251f\\]\\/20, .border-\\[\\#28251f\\]\\/15) {
+:root[data-theme="dark"] .comic-paper-widget [class~="border-[#28251f]"],
+:root[data-theme="dark"] .comic-paper-widget [class~="border-[#28251f]/80"],
+:root[data-theme="dark"] .comic-paper-widget [class~="border-[#28251f]/70"],
+:root[data-theme="dark"] .comic-paper-widget [class~="border-[#28251f]/60"],
+:root[data-theme="dark"] .comic-paper-widget [class~="border-[#28251f]/45"],
+:root[data-theme="dark"] .comic-paper-widget [class~="border-[#28251f]/40"],
+:root[data-theme="dark"] .comic-paper-widget [class~="border-[#28251f]/35"],
+:root[data-theme="dark"] .comic-paper-widget [class~="border-[#28251f]/30"],
+:root[data-theme="dark"] .comic-paper-widget [class~="border-[#28251f]/20"],
+:root[data-theme="dark"] .comic-paper-widget [class~="border-[#28251f]/15"] {
     border-color: var(--widget-border) !important;
 }
 
-:root[data-theme="dark"] .comic-paper-widget :is(.bg-\\[\\#f4d64f\\], .bg-\\[\\#f4d64f\\]\\/70, .bg-\\[\\#f4d64f\\]\\/65, .bg-\\[\\#f4d64f\\]\\/60, .hover\\:bg-\\[\\#f4d64f\\]\\/25:hover) {
+:root[data-theme="dark"] .comic-paper-widget [class~="bg-[#f4d64f]"],
+:root[data-theme="dark"] .comic-paper-widget [class~="bg-[#f4d64f]/70"],
+:root[data-theme="dark"] .comic-paper-widget [class~="bg-[#f4d64f]/65"],
+:root[data-theme="dark"] .comic-paper-widget [class~="bg-[#f4d64f]/60"] {
     background-color: #66572d !important;
 }
 
-:root[data-theme="dark"] .comic-paper-widget :is(.bg-\\[\\#c4e3e0\\], .bg-\\[\\#c4e3e0\\]\\/70) {
+:root[data-theme="dark"] .comic-paper-widget [class~="bg-[#c4e3e0]"],
+:root[data-theme="dark"] .comic-paper-widget [class~="bg-[#c4e3e0]/70"] {
     background-color: #344b48 !important;
 }
 
-:root[data-theme="dark"] .comic-paper-widget :is(.bg-\\[\\#efaaa7\\]\\/70, .bg-\\[\\#efaaa7\\]\\/45, .bg-\\[\\#efaaa7\\]\\/30) {
+:root[data-theme="dark"] .comic-paper-widget [class~="bg-[#efaaa7]/70"],
+:root[data-theme="dark"] .comic-paper-widget [class~="bg-[#efaaa7]/45"],
+:root[data-theme="dark"] .comic-paper-widget [class~="bg-[#efaaa7]/30"] {
     background-color: #593b3a !important;
 }
 
-:root[data-theme="dark"] .comic-paper-widget :is(.bg-\\[radial-gradient\\(\\#28251f12_1px\\,transparent_1px\\)\\], .bg-\\[radial-gradient\\(\\#28251f0b_1px\\,transparent_1px\\)\\]) {
-    background-image: radial-gradient(circle at 2px 2px, rgb(235 220 190 / 5%) 0.8px, transparent 1.2px) !important;
-}
-
-:root[data-theme="dark"] .comic-paper-widget :is(button, a) {
+:root[data-theme="dark"] .comic-paper-widget button {
     color: var(--widget-ink);
 }
 
+:root[data-theme="dark"] .comic-paper-widget button[aria-pressed="true"] {
+    color: #f8edcf !important;
+    background-color: #66572d !important;
+    border-color: #d8c17e !important;
+}
+
+:root[data-theme="dark"] .comic-paper-widget button[aria-pressed="false"]:hover,
 :root[data-theme="dark"] .comic-paper-widget button:hover {
     background-color: #51472b !important;
 }
