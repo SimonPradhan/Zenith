@@ -208,14 +208,14 @@ export default function NotesPage() {
     <>
       <div className="mx-auto max-w-[1400px] space-y-6">
         {/* Header */}
-        <section className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <section className="comic-hero comic-hero-paper flex flex-col gap-4 border-2 p-5 sm:flex-row sm:items-end sm:justify-between sm:p-7">
           <div>
             <p className="mb-1 flex items-center gap-2 text-sm text-text-muted">
               <FileText size={15} />
               Workspace
             </p>
 
-            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+            <h1 className="retro-display text-3xl font-black uppercase tracking-tight sm:text-4xl">
               Notes
             </h1>
 
@@ -227,7 +227,7 @@ export default function NotesPage() {
           <button
             type="button"
             onClick={openCreateModal}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-primary/10 transition hover:bg-primary-hover"
+            className="comic-action inline-flex items-center justify-center gap-2 border-2 border-[var(--comic-ink)] bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-[3px_3px_0_var(--comic-ink)] transition hover:-translate-y-0.5 hover:shadow-[4px_4px_0_var(--comic-ink)] hover:bg-primary-hover"
           >
             <Plus size={17} />
             New note
@@ -235,7 +235,7 @@ export default function NotesPage() {
         </section>
 
         {/* Search */}
-        <section className="rounded-2xl border border-border bg-surface p-3">
+        <section className="comic-list-panel border-2 border-[var(--ink-outline)] bg-surface p-3">
           <div className="relative">
             <Search
               size={17}
@@ -249,7 +249,7 @@ export default function NotesPage() {
                 handleSearch(event.target.value)
               }
               placeholder="Search notes..."
-              className="h-10 w-full rounded-xl border border-border bg-surface-elevated pl-10 pr-4 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-primary/60 focus:ring-2 focus:ring-primary/10"
+              className="h-11 w-full rounded-sm border-2 border-border bg-surface-elevated pl-10 pr-4 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-primary focus:ring-2 focus:ring-primary/10"
             />
           </div>
         </section>
