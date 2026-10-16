@@ -127,8 +127,8 @@ export default function SettingsPage() {
 
   return (
     <div className="settings-comic-page mx-auto max-w-[1000px] space-y-7 sm:space-y-8">
-      <section>
-        <p className="text-sm font-medium text-primary">Workspace</p>
+      <section className="settings-page-heading">
+        <p className="settings-eyebrow mb-3 inline-flex items-center border-2 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] shadow-[2px_2px_0_var(--comic-ink)]">Workspace / Preferences</p>
         <h1 className="comic-heading mt-1 text-4xl uppercase leading-none tracking-wide text-text-primary sm:text-5xl">
           Settings
         </h1>
@@ -156,7 +156,7 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-2xl border border-border bg-surface">
+      <section className="settings-comic-card overflow-hidden rounded-md border-2 border-[var(--comic-ink)] bg-surface">
         <SectionHeader
           title="Android home-screen widget"
           description="Connect your home-screen widget to the account you're already signed in to."
@@ -212,29 +212,20 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-2xl border border-border bg-surface">
-        <SectionHeader title="Appearance" description="Customize how Zenith looks on your device." />
-        <div className="p-5 sm:p-6">
-          <div className="flex items-center justify-between gap-4 rounded-xl border border-border bg-surface-elevated p-4">
-            <div className="flex min-w-0 items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <Moon size={18} />
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-text-primary">Dark theme</p>
-                <p className="mt-1 text-xs text-text-muted">Zenith currently uses the dark workspace theme.</p>
-              </div>
-            </div>
-            <div className="flex h-6 w-11 shrink-0 items-center justify-end rounded-full bg-primary px-1">
-              <div className="flex h-4 w-4 items-center justify-center rounded-full bg-white">
-                <Check size={10} className="text-primary" />
-              </div>
-            </div>
+      <section className="settings-comic-card overflow-hidden rounded-md border-2 border-[var(--comic-ink)] bg-surface">
+        <SectionHeader title="Appearance" description="Choose the paper tone that suits your workspace." />
+        <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+          <div className="min-w-0">
+            <p className="text-sm font-bold text-text-primary">Workspace theme</p>
+            <p className="mt-1 text-sm text-text-secondary">Switch between warm light paper, dark ink, or your system preference.</p>
+          </div>
+          <div className="settings-theme-control shrink-0 border-2 border-[var(--comic-ink)] bg-surface-elevated p-1 shadow-[3px_3px_0_var(--comic-ink)]">
+            <ThemeToggle />
           </div>
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-2xl border border-border bg-surface">
+      <section className="settings-comic-card overflow-hidden rounded-md border-2 border-[var(--comic-ink)] bg-surface">
         <SectionHeader title="Account" description="Manage your Zenith account." />
         <div className="p-5 sm:p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -311,7 +302,7 @@ function SettingsSkeleton() {
       </section>
       <div className="h-64 animate-pulse border-2 border-[var(--comic-ink)] bg-surface" />
       <div className="h-32 animate-pulse border-2 border-[var(--comic-ink)] bg-surface" />
-      <div className="h-32 animate-pulse rounded-2xl border border-border bg-surface" />
+      <div className="h-32 animate-pulse border-2 border-[var(--comic-ink)] bg-surface" />
     </div>
   );
 }
