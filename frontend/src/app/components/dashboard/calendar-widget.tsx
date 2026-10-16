@@ -345,7 +345,7 @@ export default function CalendarWidget({
           </span>
 
           <div className="min-w-0">
-            <h3 className="truncate text-sm font-semibold">Calendar</h3>
+            <h3 className="comic-heading truncate text-xl text-[#28251f]">Calendar</h3>
 
             <p className="truncate text-xs text-text-muted">
               {mode === "en"
