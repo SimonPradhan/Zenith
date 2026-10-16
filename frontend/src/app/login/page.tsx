@@ -165,7 +165,7 @@ export default function LoginPage() {
             </div>
 
             {/* Error */}
-            {error && (
+            {/*{error && (
               <div
                 role="alert"
                 className="mb-5 flex items-start gap-3 rounded-xl border border-error/20 bg-error/10 px-4 py-3 text-sm leading-5 text-error"
@@ -177,7 +177,7 @@ export default function LoginPage() {
 
                 <span>{error}</span>
               </div>
-            )}
+            )}*/}
 
             {/* Form */}
             <form
