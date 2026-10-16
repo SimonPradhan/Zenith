@@ -457,3 +457,74 @@ select:focus-visible {
     transform: rotate(-8deg);
     pointer-events: none;
 }
+
+
+/* ==========================================================================
+   Comic-paper workspace finish
+   A halftone paper texture behind the app, with inked edges on key surfaces.
+   Keep the texture decorative so text and interactive controls remain clear.
+   ========================================================================== */
+
+:root,
+:root[data-theme="light"] {
+    --paper-grain: rgb(40 37 31 / 13%);
+    --paper-highlight: rgb(255 255 255 / 35%);
+    --ink-outline: rgb(40 37 31 / 78%);
+    --paper-shadow: rgb(49 38 23 / 12%);
+}
+
+:root[data-theme="dark"] {
+    --paper-grain: rgb(235 220 190 / 8%);
+    --paper-highlight: rgb(255 255 255 / 4%);
+    --ink-outline: rgb(235 220 190 / 40%);
+    --paper-shadow: rgb(0 0 0 / 24%);
+}
+
+body {
+    background-image:
+        radial-gradient(
+            circle at 1px 1px,
+            var(--paper-grain) 1.05px,
+            transparent 1.25px
+        ),
+        linear-gradient(115deg, var(--paper-highlight), transparent 48%);
+    background-size: 6px 6px, auto;
+    background-attachment: fixed;
+}
+
+/* The main canvas reads like cream stock; keep panels opaque enough for legibility. */
+.dashboard-widget-shell {
+    border: 1px solid var(--ink-outline, rgb(40 37 31 / 42%));
+    border-radius: 5px !important;
+    background-color: var(--surface);
+    box-shadow:
+        2px 3px 0 var(--paper-shadow, rgb(49 38 23 / 10%)),
+        0 5px 14px rgb(49 38 23 / 5%);
+}
+
+.dashboard-widget-shell:hover {
+    box-shadow:
+        3px 4px 0 var(--paper-shadow, rgb(49 38 23 / 10%)),
+        0 8px 18px rgb(49 38 23 / 8%);
+}
+
+:root[data-theme="dark"] .dashboard-widget-shell {
+    box-shadow:
+        2px 3px 0 var(--paper-shadow),
+        0 5px 14px rgb(0 0 0 / 12%);
+}
+
+/* Ink-like outlines on the app frame and top bar without changing layout behavior. */
+@media (min-width: 1024px) {
+    .dashboard-customizable .dashboard-widget-shell {
+        outline: 1px solid rgb(40 37 31 / 10%);
+        outline-offset: 1px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dashboard-widget-shell,
+    .dashboard-widget-shell:hover {
+        transition: none !important;
+    }
+}
