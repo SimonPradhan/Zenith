@@ -13,6 +13,7 @@ interface TaskListProps {
   loading: boolean;
   search: string;
   status: TaskStatus | "all";
+  onOpen: (task: Task) => void;
   onEdit: (task: Task) => void;
   onDelete: (task: Task) => void;
   onToggleStatus: (task: Task) => void;
@@ -25,6 +26,7 @@ export function TaskList({
   search,
   status,
   updatingTaskId,
+  onOpen,
   onEdit,
   onDelete,
   onToggleStatus,
@@ -71,6 +73,7 @@ export function TaskList({
             task={task}
             last={index === tasks.length - 1}
             updating={updatingTaskId === task.id}
+            onOpen={onOpen}
             onEdit={onEdit}
             onDelete={onDelete}
             onToggleStatus={onToggleStatus}

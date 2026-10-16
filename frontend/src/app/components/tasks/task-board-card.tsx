@@ -9,6 +9,7 @@ import { formatTaskDueDate } from "@/lib/task-date";
 
 interface TaskBoardCardProps {
   task: Task;
+  onOpen: (task: Task) => void;
   onEdit: (task: Task) => void;
   onDelete: (task: Task) => void;
   onDragStart: (task: Task) => void;
@@ -48,6 +49,7 @@ const priorityConfig: Record<
 
 export function TaskBoardCard({
   task,
+  onOpen,
   onEdit,
   onDelete,
   onDragStart,
@@ -67,7 +69,7 @@ export function TaskBoardCard({
         onDragStart(task);
       }}
       onDragEnd={onDragEnd}
-      onDoubleClick={() => onEdit(task)}
+      onClick={() => onOpen(task)}
       className="
         comic-board-card group cursor-grab rounded-sm border-2 border-text-primary/70
         bg-surface p-4

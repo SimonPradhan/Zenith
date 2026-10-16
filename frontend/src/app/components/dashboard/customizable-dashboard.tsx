@@ -369,6 +369,7 @@ type CustomizableDashboardProps = {
   onViewTasks: () => void;
   onViewNotes: () => void;
   onTaskClick: (task: Task) => void;
+  onNoteClick: (note: Note) => void;
 };
 
 export default function CustomizableDashboard({
@@ -386,6 +387,7 @@ export default function CustomizableDashboard({
   onViewTasks,
   onViewNotes,
   onTaskClick,
+  onNoteClick,
 }: CustomizableDashboardProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -766,6 +768,7 @@ export default function CustomizableDashboard({
               notes={notes}
               onViewAll={onViewNotes}
               onCreateNote={onCreateNote}
+              onNoteClick={onNoteClick}
             />
           );
 
@@ -825,6 +828,7 @@ export default function CustomizableDashboard({
     onViewTasks,
     onViewNotes,
     onTaskClick,
+    onNoteClick,
   ]);
 
   const gridChildren = useMemo(

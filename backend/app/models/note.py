@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, ForeignKey, String, Text, func
+from sqlalchemy import DateTime, Float, ForeignKey, Integer, String, Text, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -41,6 +41,32 @@ class Note(Base):
         String(50),
         nullable=False,
         default="yellow",
+    )
+
+    # Position on the notice board. NULL means "not placed yet": the
+    # frontend lays unplaced notes out automatically.
+    pos_x: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+    )
+
+    pos_y: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+    )
+
+    rotation: Mapped[float] = mapped_column(
+        Float,
+        nullable=False,
+        default=0.0,
+        server_default="0",
+    )
+
+    z_index: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=0,
+        server_default="0",
     )
 
     created_at: Mapped[datetime] = mapped_column(

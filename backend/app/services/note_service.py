@@ -45,6 +45,10 @@ def create_note(
         title=data.title,
         content=data.content,
         color=data.color,
+        pos_x=data.pos_x,
+        pos_y=data.pos_y,
+        rotation=data.rotation,
+        z_index=data.z_index,
     )
     return note_repository.create_note(
         db,
@@ -65,6 +69,18 @@ def update_note(
 
     if data.color is not None:
         note.color = data.color
+
+    if data.pos_x is not None:
+        note.pos_x = data.pos_x
+
+    if data.pos_y is not None:
+        note.pos_y = data.pos_y
+
+    if data.rotation is not None:
+        note.rotation = data.rotation
+
+    if data.z_index is not None:
+        note.z_index = data.z_index
 
     return note_repository.update_note(
         db,

@@ -12,6 +12,7 @@ interface TaskBoardColumnProps {
   title: string;
   tasks: Task[];
   updatingTaskId: string | null;
+  onOpen: (task: Task) => void;
   onEdit: (task: Task) => void;
   onDelete: (task: Task) => void;
   onCreateTask: (status: TaskStatus) => void;
@@ -51,6 +52,7 @@ export function TaskBoardColumn({
   title,
   tasks,
   updatingTaskId,
+  onOpen,
   onEdit,
   onDelete,
   onCreateTask,
@@ -68,6 +70,7 @@ export function TaskBoardColumn({
       tasks={tasks}
       config={config}
       updatingTaskId={updatingTaskId}
+      onOpen={onOpen}
       onEdit={onEdit}
       onDelete={onDelete}
       onCreateTask={onCreateTask}
@@ -85,6 +88,7 @@ function ColumnDropZone({
   tasks,
   config,
   updatingTaskId,
+  onOpen,
   onEdit,
   onDelete,
   onCreateTask,
@@ -101,6 +105,7 @@ function ColumnDropZone({
     countClassName: string;
   };
   updatingTaskId: string | null;
+  onOpen: (task: Task) => void;
   onEdit: (task: Task) => void;
   onDelete: (task: Task) => void;
   onCreateTask: (status: TaskStatus) => void;
@@ -206,6 +211,7 @@ function ColumnDropZone({
           >
             <TaskBoardCard
               task={task}
+              onOpen={onOpen}
               onEdit={onEdit}
               onDelete={onDelete}
               onDragStart={onDragStart}

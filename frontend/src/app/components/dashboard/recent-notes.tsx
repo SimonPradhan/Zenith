@@ -10,12 +10,14 @@ type RecentNotesProps = {
   notes: Note[];
   onViewAll: () => void;
   onCreateNote: () => void;
+  onNoteClick: (note: Note) => void;
 };
 
 export default function RecentNotes({
   notes,
   onViewAll,
   onCreateNote,
+  onNoteClick,
 }: RecentNotesProps) {
   return (
     <section className="comic-list-panel flex h-full min-h-0 flex-col overflow-hidden rounded-sm border-2 border-text-primary bg-surface">
@@ -45,7 +47,11 @@ export default function RecentNotes({
       ) : (
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain divide-y divide-border">
           {notes.map((note) => (
-            <NoteItem key={note.id} note={note} />
+            <NoteItem
+              key={note.id}
+              note={note}
+              onClick={() => onNoteClick(note)}
+            />
           ))}
         </div>
       )}
@@ -53,9 +59,18 @@ export default function RecentNotes({
   );
 }
 
-function NoteItem({ note }: { note: Note }) {
+function NoteItem({
+  note,
+  onClick,
+}: {
+  note: Note;
+  onClick: () => void;
+}) {
   return (
-    <div className="comic-note-row flex items-start gap-3 border-b border-dashed border-text-primary/20 px-5 py-4 transition hover:bg-surface-elevated sm:px-6">
+    <button
+      type="button"
+      onClick={onClick}
+      className="comic-note-row flex w-full cursor-pointer text-left items-start gap-3 border-b border-dashed border-text-primary/20 px-5 py-4 transition hover:bg-surface-elevated sm:px-6">
       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-text-primary/25 bg-[#f4d64f]/60 text-text-primary">
         <FileText size={16} />
       </div>
@@ -71,7 +86,7 @@ function NoteItem({ note }: { note: Note }) {
           </p>
         )}
       </div>
-    </div>
+    </button>
   );
 }
 

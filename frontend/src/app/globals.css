@@ -783,3 +783,160 @@ body header.sticky button {
         transition: none;
     }
 }
+
+
+/* ------------------------------------------------------------------ */
+/* Comic notice-board redesign                                         */
+/* Heavy ink outlines, hard offset shadows, halftone and sticky paper. */
+/* ------------------------------------------------------------------ */
+
+.comic-title {
+    font-family:
+        var(--font-marker), Impact, Haettenschweiler,
+        "Arial Narrow Bold", sans-serif;
+    letter-spacing: -0.01em;
+}
+
+/* Chunky comic button: ink border + hard shadow that "presses" on click. */
+.comic-btn {
+    border: 2px solid var(--comic-ink);
+    border-radius: 3px;
+    box-shadow: 3px 3px 0 var(--comic-ink);
+    transition:
+        transform 120ms ease,
+        box-shadow 120ms ease;
+}
+
+.comic-btn:hover:not(:disabled) {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 var(--comic-ink);
+}
+
+.comic-btn:active:not(:disabled) {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 var(--comic-ink);
+}
+
+/* Cork notice board inside a wooden frame. */
+.notice-board-frame {
+    border: 3px solid var(--comic-ink);
+    border-radius: 4px;
+    background: #7a4b24;
+    padding: 12px;
+    box-shadow: 6px 6px 0 var(--paper-shadow);
+}
+
+.notice-board-viewport {
+    height: clamp(520px, calc(100vh - 21rem), 860px);
+    overflow: auto;
+    border: 3px solid var(--comic-ink);
+    background: #c9a26b;
+    overscroll-behavior: contain;
+}
+
+.notice-board-cork {
+    background-color: #c9a26b;
+    background-image:
+        radial-gradient(circle at 2px 2px, rgb(60 36 14 / 28%) 1px, transparent 1.4px),
+        radial-gradient(circle at 9px 7px, rgb(255 240 210 / 22%) 1px, transparent 1.6px),
+        linear-gradient(135deg, rgb(255 255 255 / 12%), transparent 55%);
+    background-size: 9px 9px, 13px 13px, auto;
+}
+
+:root[data-theme="dark"] .notice-board-cork,
+:root[data-theme="dark"] .notice-board-viewport {
+    background-color: #8a6a43;
+}
+
+/* A sticky note pinned to the board. */
+.sticky-note {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 22px 16px 12px;
+    color: #1c1a16;
+    border: 2px solid #1c1a16;
+    box-shadow: 4px 5px 0 rgb(28 26 22 / 55%);
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    transition:
+        box-shadow 150ms ease,
+        transform 150ms ease;
+    background-image:
+        radial-gradient(circle at 2px 2px, rgb(28 26 22 / 9%) 0.8px, transparent 1px);
+    background-size: 8px 8px;
+}
+
+.sticky-note:hover {
+    box-shadow: 6px 8px 0 rgb(28 26 22 / 60%);
+}
+
+.sticky-note.is-dragging {
+    cursor: grabbing;
+    transition: none;
+    box-shadow: 10px 14px 0 rgb(28 26 22 / 45%);
+}
+
+.sticky-pin {
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    width: 15px;
+    height: 15px;
+    transform: translateX(-50%);
+    border: 2px solid #1c1a16;
+    border-radius: 9999px;
+    box-shadow: 1px 2px 0 rgb(28 26 22 / 55%);
+}
+
+.sticky-date {
+    margin-top: auto;
+    padding-top: 6px;
+    border-top: 1.5px dashed rgb(28 26 22 / 45%);
+    font-size: 11px;
+    font-weight: 700;
+    color: rgb(28 26 22 / 65%);
+}
+
+/* Detail modals. */
+.detail-modal {
+    background: #fbf5e9;
+    box-shadow: 8px 8px 0 rgb(0 0 0 / 55%);
+}
+
+.detail-modal-paper {
+    position: relative;
+    background-image:
+        radial-gradient(circle at 2px 2px, rgb(28 26 22 / 8%) 0.9px, transparent 1.2px);
+    background-size: 8px 8px;
+}
+
+.note-tape {
+    position: absolute;
+    top: -2px;
+    left: 50%;
+    width: 110px;
+    height: 24px;
+    transform: translateX(-50%) rotate(-2deg);
+    border: 1.5px solid rgb(28 26 22 / 35%);
+    background: rgb(244 214 79 / 80%);
+}
+
+/* Sidebar: black ink panel with a yellow highlight on the active page. */
+.comic-sidebar {
+    background-color: #1c1a16;
+    background-image:
+        radial-gradient(circle at 2px 2px, rgb(255 255 255 / 7%) 1px, transparent 1.3px);
+    background-size: 8px 8px;
+    border-right: 3px solid #1c1a16;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .comic-btn,
+    .sticky-note {
+        transition: none;
+    }
+}

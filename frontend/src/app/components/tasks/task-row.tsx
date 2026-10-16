@@ -22,6 +22,7 @@ interface TaskRowProps {
   task: Task;
   last: boolean;
   updating?: boolean;
+  onOpen: (task: Task) => void;
   onEdit: (task: Task) => void;
   onDelete: (task: Task) => void;
   onToggleStatus: (task: Task) => void;
@@ -95,6 +96,7 @@ export function TaskRow({
   task,
   last,
   updating = false,
+  onOpen,
   onEdit,
   onDelete,
   onToggleStatus,
@@ -159,8 +161,20 @@ export function TaskRow({
         )}
       </button>
 
-      {/* Main content */}
-      <div className="min-w-0 flex-1">
+      {/* Main content: click or press Enter to open the detail view */}
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => onOpen(task)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            onOpen(task);
+          }
+        }}
+        aria-label={`Open task: ${task.title}`}
+        className="min-w-0 flex-1 cursor-pointer"
+      >
         <div className="flex items-start justify-between gap-3">
           <h3
             className={`

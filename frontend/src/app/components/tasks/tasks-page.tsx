@@ -20,6 +20,7 @@ import {
 import { getToken } from "@/lib/auth";
 
 import { TaskModal } from "@/app/components/tasks/task-modal";
+import { TaskDetailModal } from "@/app/components/tasks/task-detail-modal";
 import { TaskList } from "@/app/components/tasks/task-list";
 import { DeleteTaskDialog } from "@/app/components/tasks/delete-task-dialog";
 import { TaskBoard } from "@/app/components/tasks/task-board";
@@ -88,6 +89,11 @@ export default function TasksPage() {
     useState<TaskStatus>("pending");
 
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+
+  const [viewingTaskId, setViewingTaskId] = useState<string | null>(null);
+
+  // A task opened via /tasks?task=<id> may not be on the current page of results.
+  const [linkedTask, setLinkedTask] = useState<Task | null>(null);
 
   const [updatingTaskId, setUpdatingTaskId] = useState<string | null>(
     null,
@@ -202,8 +208,8 @@ export default function TasksPage() {
         const task = await getTask(token, taskId);
 
         if (!cancelled) {
-          setEditingTask(task);
-          setModalOpen(true);
+          setLinkedTask(task);
+          setViewingTaskId(task.id);
 
           router.replace("/tasks", {
             scroll: false,
@@ -409,6 +415,7 @@ export default function TasksPage() {
   }
 
   function openEditModal(task: Task) {
+    setViewingTaskId(null);
     setEditingTask(task);
     setModalOpen(true);
   }
@@ -528,6 +535,10 @@ export default function TasksPage() {
       setDeleting(false);
     }
   }
+
+  const viewingTask =
+    data?.items.find((task) => task.id === viewingTaskId) ??
+    (linkedTask?.id === viewingTaskId ? linkedTask : null);
 
   const totalPages =
     data && view === "list"
@@ -765,6 +776,7 @@ export default function TasksPage() {
               search={search}
               status={status}
               updatingTaskId={updatingTaskId}
+              onOpen={(task) => setViewingTaskId(task.id)}
               onEdit={openEditModal}
               onDelete={setDeleteTarget}
               onToggleStatus={handleToggleStatus}
@@ -802,6 +814,7 @@ export default function TasksPage() {
             <TaskBoard
               tasks={data?.items ?? []}
               updatingTaskId={updatingTaskId}
+              onOpen={(task) => setViewingTaskId(task.id)}
               onEdit={openEditModal}
               onDelete={setDeleteTarget}
               onCreateTask={(status) => {
@@ -871,6 +884,21 @@ export default function TasksPage() {
           </div>
         )}
       </div>
+
+      {/* Task detail */}
+      {viewingTask && (
+        <TaskDetailModal
+          task={viewingTask}
+          updating={updatingTaskId === viewingTask.id}
+          onClose={() => setViewingTaskId(null)}
+          onEdit={openEditModal}
+          onDelete={(task) => {
+            setViewingTaskId(null);
+            setDeleteTarget(task);
+          }}
+          onToggleStatus={handleToggleStatus}
+        />
+      )}
 
       {/* Task modal */}
       <TaskModal

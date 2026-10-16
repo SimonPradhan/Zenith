@@ -139,6 +139,10 @@ export default function DashboardPage() {
     router.push(`/tasks?task=${encodeURIComponent(task.id)}`);
   }
 
+  function handleNoteClick(note: Note) {
+    router.push(`/notes?note=${encodeURIComponent(note.id)}`);
+  }
+
   return (
     <div className="space-y-6">
       <DashboardHeader user={user} onCreateTask={handleCreateTask} />
@@ -157,6 +161,7 @@ export default function DashboardPage() {
         onViewTasks={handleViewTasks}
         onViewNotes={handleViewNotes}
         onTaskClick={handleTaskClick}
+        onNoteClick={handleNoteClick}
       />
     </div>
   );

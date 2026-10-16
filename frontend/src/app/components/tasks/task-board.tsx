@@ -12,6 +12,7 @@ import { TaskBoardColumn } from "./task-board-column";
 interface TaskBoardProps {
   tasks: Task[];
   updatingTaskId: string | null;
+  onOpen: (task: Task) => void;
   onEdit: (task: Task) => void;
   onDelete: (task: Task) => void;
   onCreateTask: (status: TaskStatus) => void;
@@ -34,6 +35,7 @@ const columns: {
 export function TaskBoard({
   tasks,
   updatingTaskId,
+  onOpen,
   onEdit,
   onDelete,
   onCreateTask,
@@ -74,6 +76,7 @@ export function TaskBoard({
             title={column.title}
             tasks={groupedTasks[column.status]}
             updatingTaskId={updatingTaskId}
+            onOpen={onOpen}
             onEdit={onEdit}
             onDelete={onDelete}
             onCreateTask={onCreateTask}
