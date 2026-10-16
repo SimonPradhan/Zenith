@@ -1395,7 +1395,7 @@ html {
     color: #f2eadb;
 }
 
-:root[data-theme="dark"] .comic-task-row :is(p, span) {
+:root[data-theme="dark"] .comic-task-row p {
     color: #c4b9a5;
 }
 
