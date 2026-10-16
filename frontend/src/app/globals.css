@@ -693,3 +693,93 @@ body header.sticky button {
         transition: none;
     }
 }
+
+
+/* Kanban becomes a set of distinct comic panels rather than neutral columns. */
+.comic-board-column {
+    box-shadow: 3px 3px 0 var(--paper-shadow);
+    background-image:
+        radial-gradient(circle at 2px 2px, rgb(40 37 31 / 8%) 0.85px, transparent 1px);
+    background-size: 8px 8px;
+}
+
+.comic-column-pending { background-color: #dce8f4; }
+.comic-column-in_progress { background-color: #f5e5a2; }
+.comic-column-completed { background-color: #d4e7d0; }
+.comic-column-cancelled { background-color: #f0d0cc; }
+
+.comic-column-header {
+    background: rgb(255 255 255 / 22%);
+}
+
+.comic-column-header h2 {
+    font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+    font-size: 1rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+}
+
+.comic-board-card {
+    position: relative;
+    border-color: rgb(40 37 31 / 75%);
+    background-color: #fbf5e9;
+    color: #28251f;
+    background-image: radial-gradient(circle at 2px 2px, rgb(40 37 31 / 5%) 0.8px, transparent 1px);
+    background-size: 8px 8px;
+}
+
+.comic-board-card:nth-child(odd) {
+    transform: rotate(-0.25deg);
+}
+
+.comic-board-card:hover {
+    border-color: #28251f;
+    background-color: #fffaf0;
+    box-shadow: 4px 5px 0 rgb(40 37 31 / 22%);
+}
+
+.comic-empty-column {
+    border-color: rgb(40 37 31 / 35%);
+    color: #28251f;
+}
+
+.comic-add-task {
+    color: #28251f;
+    border-color: rgb(40 37 31 / 32%);
+}
+
+.comic-add-task:hover {
+    background: rgb(255 255 255 / 35%);
+    border-color: rgb(40 37 31 / 65%);
+}
+
+:root[data-theme="dark"] .comic-board-column {
+    border-color: var(--border);
+    background-image: radial-gradient(circle at 2px 2px, rgb(235 220 190 / 5%) 0.8px, transparent 1px);
+}
+
+:root[data-theme="dark"] .comic-column-pending { background-color: #34404b; }
+:root[data-theme="dark"] .comic-column-in_progress { background-color: #51472b; }
+:root[data-theme="dark"] .comic-column-completed { background-color: #334536; }
+:root[data-theme="dark"] .comic-column-cancelled { background-color: #4e3431; }
+
+:root[data-theme="dark"] .comic-board-card {
+    border-color: var(--border);
+    background-color: var(--surface);
+    color: var(--text-primary);
+    background-image: radial-gradient(circle at 2px 2px, rgb(235 220 190 / 5%) 0.8px, transparent 1px);
+}
+
+:root[data-theme="dark"] .comic-empty-column,
+:root[data-theme="dark"] .comic-add-task {
+    color: var(--text-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .comic-board-card,
+    .comic-board-card:hover {
+        transform: none;
+        transition: none;
+    }
+}
