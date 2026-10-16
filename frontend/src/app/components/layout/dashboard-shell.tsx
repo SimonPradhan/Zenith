@@ -18,6 +18,7 @@ import {
 import { useUser } from "@/app/context/user-context";
 import GlobalSearch from "./global-search";
 import ThemeToggle from "./theme-toggle";
+import { useToast } from "@/app/components/ui/toast-provider";
 
 
 const navigation = [
@@ -52,6 +53,7 @@ export function DashboardShell({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const toast = useToast();
 
   const {
     user,
@@ -62,7 +64,7 @@ export function DashboardShell({
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
-  const sidebarWidth = collapsed
+  function handleLogout() {\n    toast.success("You have been signed out.");\n    logout();\n  }\n\n  const sidebarWidth = collapsed
     ? "w-[76px]"
     : "w-[250px]";
 
@@ -259,7 +261,7 @@ export function DashboardShell({
 
             <button
               type="button"
-              onClick={logout}
+              onClick={handleLogout}
               title="Sign out"
               aria-label="Sign out"
               className="comic-sidebar-logout shrink-0 border-2 border-transparent p-2 text-[#bfb59c] transition hover:-translate-y-px hover:border-[#ef8f7e] hover:bg-[#ef8f7e]/10 hover:text-[#ef8f7e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f4d64f]"
