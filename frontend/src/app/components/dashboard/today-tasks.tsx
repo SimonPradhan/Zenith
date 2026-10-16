@@ -27,9 +27,9 @@ export default function TodayTasks({
   const groups = groupTasksByDate(tasks);
 
   return (
-    <section className="comic-list-panel flex h-full min-h-0 min-w-0 flex-col overflow-hidden rounded-sm border-2 border-[#28251f] bg-[#fffaf0]">
+    <section className="comic-paper-widget comic-list-panel flex h-full min-h-0 min-w-0 flex-col overflow-hidden rounded-sm border-2 border-[#28251f] bg-[#fffaf0]">
       {/* Header */}
-      <div className="flex shrink-0 items-center justify-between gap-3 border-b-2 border-[#28251f]/80 bg-[#f4d64f]/70 px-4 py-4 sm:px-6">
+      <div className="comic-widget-header flex shrink-0 items-center justify-between gap-3 border-b-2 border-[#28251f]/80 bg-[#f4d64f]/70 px-4 py-4 sm:px-6">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-[#28251f] bg-[#f4d64f] text-[#28251f] shadow-[2px_2px_0_#28251f]">
           <CalendarClock size={19} />
         </div>
@@ -71,18 +71,18 @@ export default function TodayTasks({
           </p>
         </div>
       ) : (
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain divide-y divide-border">
+        <div className="min-h-0 flex-1 divide-y divide-dashed divide-[#28251f]/20 overflow-y-auto overscroll-contain bg-[radial-gradient(#28251f0b_1px,transparent_1px)] bg-[length:10px_10px]">
           {groups.map((group) => (
             <div key={group.label}>
               {/* Group label */}
-              <div className="sticky top-0 z-10 border-y border-dashed border-[#28251f]/30 bg-[#e9e0cf] px-5 py-2 sm:px-6">
+              <div className="sticky top-0 z-10 border-y border-dashed border-[#28251f]/35 bg-[#e9e0cf] px-5 py-2 sm:px-6">
                 <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#28251f]/75">
                   {group.label}
                 </p>
               </div>
 
               {/* Tasks */}
-              <div className="divide-y divide-border">
+              <div className="divide-y divide-dashed divide-[#28251f]/20">
                 {group.tasks.map((task) => (
                   <TaskItem
                     key={task.id}
@@ -129,8 +129,8 @@ function TaskItem({
           transition
           ${
             completed
-              ? "bg-success/10 text-success"
-              : "bg-primary/10 text-primary"
+              ? "bg-[#c4e3e0] text-[#28251f]"
+              : "bg-[#efaaa7]/45 text-[#28251f]"
           }
         `}
       >
@@ -147,7 +147,7 @@ function TaskItem({
           className={`
             truncate text-sm font-medium
             transition
-            group-hover:text-primary
+            group-hover:text-[#28251f]
             ${
               completed
                 ? "text-text-muted line-through"
@@ -208,7 +208,7 @@ function PriorityLabel({
 
   return (
     <span
-      className={`text-[11px] font-medium ${styles[priority]}`}
+      className={`border border-[#28251f]/20 bg-[#e9e0cf]/70 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#28251f] ${styles[priority]}`}
     >
       {priority.charAt(0).toUpperCase() + priority.slice(1)}
     </span>
