@@ -124,7 +124,26 @@ export default function DashboardPage() {
     totalTasks === 0 ? 0 : Math.round((completedCount / totalTasks) * 100);
 
   function handleCreateTask() {
-    router.push("/tasks?create=true");
+    setTaskModalOpen(true);
+  }
+
+  async function handleSubmitNewTask(taskData: TaskCreate) {
+    const token = getToken();
+
+    if (!token) {
+      router.replace("/login");
+      throw new Error("Your session has expired. Please sign in again.");
+    }
+
+    setCreatingTask(true);
+
+    try {
+      await createTask(token, taskData);
+      setTaskModalOpen(false);
+      setDashboardRefreshKey((current) => current + 1);
+    } finally {
+      setCreatingTask(false);
+    }
   }
 
   function handleCreateNote() {
@@ -149,7 +168,8 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <DashboardHeader user={user} onCreateTask={handleCreateTask} />\n      <TaskModal\n        open={taskModalOpen}\n        loading={creatingTask}\n        onClose={() => {\n          if (!creatingTask) setTaskModalOpen(false);\n        }}\n        onSubmit={handleSubmitNewTask}\n      />
+      <DashboardHeader user={user} onCreateTask={handleCreateTask} />
+      <TaskModal\n        open={taskModalOpen}\n        loading={creatingTask}\n        onClose={() => {\n          if (!creatingTask) setTaskModalOpen(false);\n        }}\n        onSubmit={handleSubmitNewTask}\n      />
       <CustomizableDashboard
         token={accessToken}
         todayTasks={todayTasks}
