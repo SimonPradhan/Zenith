@@ -18,6 +18,7 @@ import {
   updateTask,
 } from "@/lib/api/tasks";
 import { getToken } from "@/lib/auth";
+import { useToast } from "@/app/components/ui/toast-provider";
 
 import { TaskModal } from "@/app/components/tasks/task-modal";
 import { TaskDetailModal } from "@/app/components/tasks/task-detail-modal";
@@ -64,6 +65,7 @@ const statusOptions: {
 export default function TasksPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const toast = useToast();
 
   const [data, setData] = useState<TaskListResponse | null>(null);
 
@@ -275,6 +277,8 @@ export default function TasksPage() {
       await updateTask(token, task.id, {
         status: nextStatus,
       });
+      toast.success("Task status updated.");
+      toast.success("Task status updated.");
     } catch (error) {
       setData((current) => {
         if (!current) {
@@ -294,11 +298,9 @@ export default function TasksPage() {
         };
       });
 
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Unable to update task",
-      );
+      const message = error instanceof Error ? error.message : "Unable to update task";
+      setError(message);
+      toast.error(message);
     } finally {
       setUpdatingTaskId(null);
     }
@@ -366,11 +368,9 @@ export default function TasksPage() {
         };
       });
 
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Unable to update task status",
-      );
+      const message = error instanceof Error ? error.message : "Unable to update task status";
+      setError(message);
+      toast.error(message);
     } finally {
       setUpdatingTaskId(null);
     }
@@ -428,6 +428,8 @@ export default function TasksPage() {
         await createTask(token, taskData);
       }
 
+      toast.success(editingTask ? "Task updated successfully." : "Task created successfully.");
+
       setModalOpen(false);
       setEditingTask(null);
 
@@ -446,11 +448,9 @@ export default function TasksPage() {
 
       setData(result);
     } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Unable to save task",
-      );
+      const message = error instanceof Error ? error.message : "Unable to save task";
+      setError(message);
+      toast.error(message);
     } finally {
       setSaving(false);
     }
@@ -476,6 +476,7 @@ export default function TasksPage() {
 
     try {
       await deleteTask(token, deleteTarget.id);
+      toast.success("Task deleted successfully.");
 
       setDeleteTarget(null);
 
@@ -504,11 +505,9 @@ export default function TasksPage() {
 
       setData(result);
     } catch (error) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Unable to delete task",
-      );
+      const message = error instanceof Error ? error.message : "Unable to delete task";
+      setError(message);
+      toast.error(message);
     } finally {
       setDeleting(false);
     }
