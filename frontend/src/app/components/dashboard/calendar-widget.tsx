@@ -633,5 +633,5 @@ export default function CalendarWidget({
 
 function toNepaliDigits(value: string | number): string {
   const digits = ["०", "१", "२", "३", "४", "५", "६", "७", "८", "९"];
-  return String(value).replace(/\\d/g, (digit) => digits[Number(digit)]);
+  return String(value).replace(/\d/g, (digit) => digits[Number(digit)]);
 }
