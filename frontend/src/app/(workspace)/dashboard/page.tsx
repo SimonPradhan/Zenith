@@ -6,14 +6,15 @@ import { useRouter } from "next/navigation";
 import DashboardHeader from "@/app/components/dashboard/dashboard-header";
 import DashboardSkeleton from "@/app/components/dashboard/dashboard-skeleton";
 
-import { getTasks } from "@/lib/api/tasks";
+import { createTask, getTasks } from "@/lib/api/tasks";
 import { getNotes } from "@/lib/api/notes";
 
-import type { Task } from "@/types/task";
+import type { Task, TaskCreate } from "@/types/task";
 import type { Note } from "@/types/note";
 import { getToken } from "@/lib/auth";
 import { useUser } from "@/app/context/user-context";
 import CustomizableDashboard from "@/app/components/dashboard/customizable-dashboard";
+import { TaskModal } from "@/app/components/tasks/task-modal";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -29,6 +30,9 @@ export default function DashboardPage() {
   const [totalNotes, setTotalNotes] = useState(0);
 
   const [loading, setLoading] = useState(true);
+  const [taskModalOpen, setTaskModalOpen] = useState(false);
+  const [creatingTask, setCreatingTask] = useState(false);
+  const [dashboardRefreshKey, setDashboardRefreshKey] = useState(0);
 
   useEffect(() => {
     if (userLoading || !user) {
@@ -110,7 +114,7 @@ export default function DashboardPage() {
     }
 
     loadDashboard();
-  }, [user, userLoading]);
+  }, [user, userLoading, dashboardRefreshKey]);
 
   if (userLoading || loading) {
     return <DashboardSkeleton />;
@@ -145,7 +149,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <DashboardHeader user={user} onCreateTask={handleCreateTask} />
+      <DashboardHeader user={user} onCreateTask={handleCreateTask} />\n      <TaskModal\n        open={taskModalOpen}\n        loading={creatingTask}\n        onClose={() => {\n          if (!creatingTask) setTaskModalOpen(false);\n        }}\n        onSubmit={handleSubmitNewTask}\n      />
       <CustomizableDashboard
         token={accessToken}
         todayTasks={todayTasks}
