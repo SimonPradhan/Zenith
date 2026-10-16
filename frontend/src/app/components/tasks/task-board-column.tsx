@@ -174,7 +174,7 @@ function ColumnDropZone({
         <div className="flex items-center gap-2.5">
           <span className={`h-2 w-2 rounded-full ${config.dotClassName}`} />
 
-          <h2 className="comic-title text-base uppercase text-[#1c1a16]">{title}</h2>
+          <h3 className="comic-heading truncate text-xl text-[#28251f]">{title}</h3>
 
           <span
             className={`

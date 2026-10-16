@@ -98,7 +98,7 @@ export function TaskDetailModal({
 
           <h2
             id="task-detail-title"
-            className={`comic-title min-w-0 break-words pr-10 text-3xl font-black uppercase leading-tight sm:text-4xl ${
+            className={`comic-heading min-w-0 break-words pr-10 text-3xl font-black uppercase leading-tight sm:text-4xl ${
               completed ? "line-through decoration-2 opacity-60" : ""
             }`}
           >

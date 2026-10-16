@@ -349,10 +349,10 @@ export default function CalendarWidget({
           <div className="min-w-0">
             <h3 className="comic-heading truncate text-xl text-[#28251f]">Calendar</h3>
 
-            <p className="truncate text-xs text-text-muted">
-              {mode === "en"
-                ? `Today · BS ${toNepaliDigits(todayNepali.format("DD MMM YYYY", "np"))}`
-                : `आज · AD ${today.toLocaleDateString("ne-NP", {
+            <p className="truncate text-sm font-semibold text-text-muted">
+              {mode === "np"
+                ? `आज · BS ${toNepaliDigits(todayNepali.format("DD MMM YYYY", "np"))}`
+                : ` Today · AD ${today.toLocaleDateString("ne-NP", {
                     day: "2-digit",
                     month: "short",
                     year: "numeric",

@@ -22,7 +22,7 @@ export default function DashboardHeader({
           <Sparkles size={14} />
           Your personal workspace · 01
         </p>
-        <h1 className="max-w-3xl text-4xl font-black uppercase leading-[0.94] tracking-[-0.055em] text-text-primary sm:text-5xl lg:text-7xl">
+        <h1 className="max-w-3xl text-4xl font-black comic-heading uppercase leading-[0.94] tracking-[-0.055em] text-text-primary sm:text-5xl lg:text-7xl">
           {getGreeting()},<br />
           <span className="relative inline-block">
             {user?.name?.split(" ")[0] ?? "there"}!

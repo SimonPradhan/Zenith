@@ -95,7 +95,7 @@ export function TaskBoardCard({
 
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="comic-title line-clamp-2 text-[15px] uppercase leading-5 text-text-primary">
+            <h3 className="comic-heading line-clamp-2 text-lg uppercase leading-5 text-text-primary">
               {task.title}
             </h3>
 
