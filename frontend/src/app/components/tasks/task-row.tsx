@@ -119,10 +119,10 @@ export function TaskRow({
   return (
     <div
       className={`
-        group flex gap-3 p-4 transition
-        hover:bg-surface-elevated/70
+        comic-task-row group relative flex gap-3 border-b-2 border-dashed border-[var(--comic-ink)]/20 p-4 transition
+        hover:-translate-y-px hover:bg-[#fffaf0]
         sm:gap-4 sm:p-5
-        ${last ? "" : "border-b border-border"}
+        ${last ? "border-b-0" : ""}
         ${completed ? "opacity-75" : ""}
       `}
     >
@@ -180,12 +180,12 @@ export function TaskRow({
           }
         }}
         aria-label={`Open task: ${task.title}`}
-        className="min-w-0 flex-1 cursor-pointer"
+        className="min-w-0 flex-1 cursor-pointer rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       >
         <div className="flex items-start justify-between gap-3">
           <h3
             className={`
-              min-w-0 text-sm font-medium
+              comic-task-title min-w-0 text-sm font-bold
               ${
                 completed
                   ? "text-text-muted line-through"
