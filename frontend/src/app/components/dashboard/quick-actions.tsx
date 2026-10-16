@@ -15,8 +15,8 @@ export default function QuickActions({
 }: QuickActionsProps) {
   return (
     <div className="comic-paper-widget comic-list-panel h-full min-h-0 rounded-sm border-2 border-[#28251f] bg-[#fffaf0] p-4 sm:p-5">
-      <div>
-        <h3 className="comic-heading truncate text-xl text-foreground">
+      <div className="comic-widget-header -mx-4 -mt-4 mb-4 border-b-2 border-[#28251f]/80 bg-[#f4d64f]/70 px-4 py-4 sm:-mx-5 sm:-mt-5 sm:px-5">
+        <h3 className="comic-heading truncate text-xl text-[#28251f]">
           Quick actions
         </h3>
 
