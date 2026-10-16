@@ -1617,3 +1617,87 @@ html {
     color: #c4b9a5;
 }
 
+
+/* Note modal: match task modal's inked frame and paper texture. */
+.comic-note-modal {
+    background-color: var(--surface);
+    background-image: radial-gradient(circle at 2px 2px, var(--paper-grain) 0.7px, transparent 1px);
+    background-size: 9px 9px;
+}
+
+.comic-note-modal > div:first-child {
+    background-color: var(--surface-elevated);
+}
+
+.comic-note-modal-form {
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+}
+
+.comic-note-modal-form input,
+.comic-note-modal-form textarea {
+    border-color: var(--ink-outline);
+}
+
+.comic-note-modal-form input:focus-visible,
+.comic-note-modal-form textarea:focus-visible,
+.comic-note-modal button:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.comic-note-modal-form [aria-pressed="true"] {
+    outline: 2px solid var(--comic-ink);
+    outline-offset: 2px;
+}
+
+:root[data-theme="dark"] .comic-note-modal {
+    border-color: #756a54;
+    background-color: #2b2923;
+    background-image: radial-gradient(circle at 2px 2px, rgb(235 220 190 / 4%) 0.7px, transparent 1px);
+    box-shadow: 7px 7px 0 rgb(0 0 0 / 45%);
+}
+
+:root[data-theme="dark"] .comic-note-modal > div:first-child {
+    border-color: #756a54;
+    background-color: #38352c;
+}
+
+:root[data-theme="dark"] .comic-note-modal-form {
+    background-color: #2b2923;
+}
+
+:root[data-theme="dark"] .comic-note-modal-form input,
+:root[data-theme="dark"] .comic-note-modal-form textarea {
+    border-color: #756a54;
+    background-color: #211f1a;
+    color: #eee5d4;
+}
+
+:root[data-theme="dark"] .comic-note-modal-form input::placeholder,
+:root[data-theme="dark"] .comic-note-modal-form textarea::placeholder {
+    color: #a89d89;
+}
+
+:root[data-theme="dark"] .comic-note-modal-form [aria-pressed="true"] {
+    outline-color: #eee5d4;
+}
+
+:root[data-theme="dark"] .comic-note-modal-form > div:last-child {
+    border-color: #756a54;
+    background-color: #38352c;
+}
+
+:root[data-theme="dark"] .comic-note-modal-form button[type="button"]:not([aria-pressed]) {
+    border-color: #756a54;
+    background-color: #38352c;
+    color: #eee5d4;
+    box-shadow: 3px 3px 0 rgb(0 0 0 / 45%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .comic-note-modal button {
+        transition: none;
+    }
+}
+
