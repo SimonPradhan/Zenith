@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Circle,
   FileText,
   LoaderCircle,
@@ -18,7 +19,7 @@ import NepaliDate from "nepali-date-converter";
 import { getTasks } from "@/lib/api/tasks";
 import type { Task } from "@/types/task";
 import type { Note } from "@/types/note";
-import { NEPAL_HOLIDAYS } from "@/app/components/dashboard/nepal-holidays";
+import { CALENDAR_EVENTS } from "@/app/components/dashboard/nepal-holidays";
 
 type CalendarMode = "en" | "np";
 
@@ -90,6 +91,10 @@ export default function CalendarWidget({
   onTaskClick,
 }: CalendarWidgetProps) {
   const [mode, setMode] = useState<CalendarMode>("en");
+  const [agendaVisible, setAgendaVisible] = useState(true);
+  const [showNepalPublicHolidays, setShowNepalPublicHolidays] = useState(true);
+  const [showNepalFestivals, setShowNepalFestivals] = useState(true);
+  const [showInternationalObservances, setShowInternationalObservances] = useState(true);
 
   const [today] = useState(() => localDate(new Date()));
 
@@ -249,17 +254,27 @@ export default function CalendarWidget({
     [notes],
   );
 
-  const holidaysByDate = useMemo(() => {
-    const map = new Map<string, (typeof NEPAL_HOLIDAYS)[number][]>();
-    for (const holiday of NEPAL_HOLIDAYS) {
-      const [year, month, day] = holiday.date.split("-").map(Number);
+  const visibleEvents = useMemo(
+    () =>
+      CALENDAR_EVENTS.filter((event) => {
+        if (event.category === "nepal-public") return showNepalPublicHolidays;
+        if (event.category === "nepal-festival") return showNepalFestivals;
+        return showInternationalObservances;
+      }),
+    [showNepalPublicHolidays, showNepalFestivals, showInternationalObservances],
+  );
+
+  const eventsByDate = useMemo(() => {
+    const map = new Map<string, (typeof CALENDAR_EVENTS)[number][]>();
+    for (const event of visibleEvents) {
+      const [year, month, day] = event.date.split("-").map(Number);
       const key = dateKey(new Date(year, month - 1, day));
       const current = map.get(key) ?? [];
-      current.push(holiday);
+      current.push(event);
       map.set(key, current);
     }
     return map;
-  }, []);
+  }, [visibleEvents]);
 
   const days = useMemo(() => {
     if (mode === "en") {
@@ -353,8 +368,8 @@ export default function CalendarWidget({
   }
 
   return (
-    <section className="comic-paper-widget flex h-full min-h-[360px] min-w-0 flex-col overflow-hidden rounded-sm border-2 border-[#28251f] bg-[#fffaf0] [container-type:inline-size]">
-      <header className="comic-widget-header flex shrink-0 flex-wrap items-center justify-between gap-2 border-b-2 border-[#28251f]/80 bg-[#b8d9b7]/70 px-3 py-3 sm:gap-3 sm:px-5">
+    <section className="comic-paper-widget flex h-full min-h-0 min-w-0 flex-col overflow-hidden rounded-sm border-2 border-[#28251f] bg-[#fffaf0] [container-type:size]">
+      <header className="comic-widget-header flex shrink-0 flex-wrap items-center justify-between gap-2 border-b-2 border-[#28251f]/80 bg-[#b8d9b7]/70 px-3 py-2 sm:gap-3 sm:px-5">
         <div className="flex min-w-0 items-center gap-2">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-[#28251f] bg-[#b8d9b7] text-[#28251f] shadow-[2px_2px_0_#28251f]">
             <CalendarDays size={18} />
@@ -407,7 +422,7 @@ export default function CalendarWidget({
         </div>
       </header>
 
-      <div className="mt-3 flex items-center justify-between gap-1 sm:mt-4 sm:gap-2 px-4">
+      <div className="calendar-month-nav mt-2 flex shrink-0 items-center justify-between gap-1 px-3 sm:gap-2">
         <button
           type="button"
           onClick={() => moveMonth(-1)}
@@ -434,7 +449,7 @@ export default function CalendarWidget({
         </button>
       </div>
 
-      <div className="mt-3 grid shrink-0 grid-cols-7 gap-0.5 px-2 @[360px]:gap-1 @[360px]:px-4">
+      <div className="calendar-day-grid mt-2 grid shrink-0 grid-cols-7 gap-0.5 px-2 @[360px]:gap-1 @[360px]:px-4">
         {(mode === "en" ? EN_WEEKDAYS : NP_WEEKDAYS).map((weekday) => (
           <div
             key={weekday}
@@ -463,16 +478,16 @@ export default function CalendarWidget({
 
           const hasTasks = taskDates.has(itemKey);
           const hasNotes = noteDates.has(itemKey);
-          const holidays = holidaysByDate.get(itemKey) ?? [];
+          const events = eventsByDate.get(itemKey) ?? [];
 
           return (
             <button
               key={itemKey}
               type="button"
               onClick={() => setSelectedDate(localDate(item.date))}
-              aria-label={`${item.date.toLocaleDateString()}${holidays.length ? `, holiday: ${holidays.map((holiday) => mode === "np" ? holiday.nameNp ?? holiday.name : holiday.name).join(", ")}` : ""}`}
+              aria-label={`${item.date.toLocaleDateString()}${events.length ? `, events: ${events.map((event) => mode === "np" ? event.nameNp ?? event.name : event.name).join(", ")}` : ""}`}
               aria-pressed={isSelected}
-              className={`relative flex min-h-7 min-w-0 flex-col items-center justify-center border border-transparent text-[10px] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#28251f] @[360px]:min-h-9 @[360px]:text-xs ${
+              className={`calendar-day-cell relative flex min-h-6 min-w-0 flex-col items-center justify-center border border-transparent text-[10px] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#28251f] @[360px]:min-h-9 @[360px]:text-xs ${
                 isSelected
                   ? "border-[#28251f] bg-[#f4d64f] font-bold text-[#28251f] shadow-[2px_2px_0_#28251f]"
                   : isToday
@@ -494,7 +509,7 @@ export default function CalendarWidget({
                 {toNepaliDigits(secondaryDay)}
               </span>
 
-              {holidays.length > 0 && (
+              {events.length > 0 && (
                 <span
                   className={`absolute right-0.5 top-0.5 h-1.5 w-1.5 rounded-full border border-[#28251f] ${isSelected ? "bg-[#28251f]" : "bg-[#efaaa7]"}`}
                   aria-hidden="true"
@@ -536,14 +551,14 @@ export default function CalendarWidget({
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
             <p className="text-xs text-text-muted">Agenda</p>
-            {holidaysByDate.get(dateKey(selectedDate))?.map((holiday) => (
+            {eventsByDate.get(dateKey(selectedDate))?.map((event) => (
               <span
-                key={holiday.date + holiday.name}
-                title={holiday.region === "kathmandu-valley" ? "Kathmandu Valley holiday" : "Nepal holiday"}
+                key={event.date + event.name}
+                title={event.category === "nepal-public" ? "Nepal public holiday" : event.category === "nepal-festival" ? (event.region === "kathmandu-valley" ? "Kathmandu Valley festival" : "Nepal festival") : "International observance"}
                 className="inline-flex max-w-full items-center gap-1 border border-[#28251f]/30 bg-[#efaaa7]/35 px-1.5 py-0.5 text-[10px] font-bold text-[#28251f]"
               >
                 <PartyPopper size={11} className="shrink-0" />
-                <span className="truncate">{mode === "np" ? holiday.nameNp ?? holiday.name : holiday.name}</span>
+                <span className="truncate">{mode === "np" ? event.nameNp ?? event.name : event.name}</span>
               </span>
             ))}
           </div>
@@ -642,7 +657,18 @@ export default function CalendarWidget({
         </div>
       </section>
 
-      <footer className="mt-3 flex shrink-0 items-center justify-between gap-2 border-t-2 border-[#28251f]/70 bg-[#e9e0cf]/70 p-4 pt-3">
+      <div className="calendar-compact-controls mt-2 flex shrink-0 flex-wrap items-center justify-between gap-2 border-t-2 border-dashed border-[#28251f]/30 px-3 pt-2">
+        <div className="flex min-w-0 flex-wrap items-center gap-1.5" aria-label="Calendar event filters">
+          <button type="button" aria-pressed={showNepalPublicHolidays} onClick={() => setShowNepalPublicHolidays((value) => !value)} className={`border px-2 py-1 text-[10px] font-bold ${showNepalPublicHolidays ? "border-[#28251f] bg-[#c4e3e0] text-[#28251f]" : "border-[#28251f]/30 bg-transparent text-[#28251f]/60"}`}>Public holidays</button>
+          <button type="button" aria-pressed={showNepalFestivals} onClick={() => setShowNepalFestivals((value) => !value)} className={`border px-2 py-1 text-[10px] font-bold ${showNepalFestivals ? "border-[#28251f] bg-[#efaaa7]/60 text-[#28251f]" : "border-[#28251f]/30 bg-transparent text-[#28251f]/60"}`}>Festivals</button>
+          <button type="button" aria-pressed={showInternationalObservances} onClick={() => setShowInternationalObservances((value) => !value)} className={`border px-2 py-1 text-[10px] font-bold ${showInternationalObservances ? "border-[#28251f] bg-[#f4d64f] text-[#28251f]" : "border-[#28251f]/30 bg-transparent text-[#28251f]/60"}`}>International</button>
+        </div>
+        <button type="button" onClick={() => setAgendaVisible((value) => !value)} aria-expanded={agendaVisible} aria-controls="calendar-selected-agenda" className="inline-flex shrink-0 items-center gap-1 border border-[#28251f]/50 bg-[#fffaf0] px-2 py-1 text-[10px] font-bold text-[#28251f]">
+          {agendaVisible ? "Hide agenda" : "Show agenda"} <ChevronDown size={12} className={agendaVisible ? "rotate-180" : ""} />
+        </button>
+      </div>
+
+      <footer className="calendar-widget-footer mt-2 flex shrink-0 items-center justify-between gap-2 border-t-2 border-[#28251f]/70 bg-[#e9e0cf]/70 px-3 py-2">
         <p className="min-w-0 truncate text-xs text-text-muted">
           {selectedTasks.length} task
           {selectedTasks.length === 1 ? "" : "s"} · {selectedNotes.length}{" "}
