@@ -291,6 +291,28 @@ select:focus-visible {
     transition: none;
     will-change: transform, width, height;
 }
+
+/* While dragging/resizing, do not animate every neighboring grid item toward
+   its new position. These transitions make the layout appear to trail the
+   pointer. Also suspend shell entrance/hover effects during direct manipulation. */
+.dashboard-customizable[data-interacting="true"] .react-grid-layout,
+.dashboard-customizable[data-interacting="true"] .react-grid-item,
+.dashboard-customizable[data-interacting="true"] .dashboard-widget-shell {
+    transition: none !important;
+    animation: none !important;
+}
+
+.dashboard-customizable[data-interacting="true"] .dashboard-widget-shell,
+.dashboard-customizable[data-interacting="true"] .dashboard-widget-shell:hover,
+.dashboard-customizable[data-interacting="true"]
+    .react-grid-item.react-draggable-dragging
+    > .dashboard-widget-shell,
+.dashboard-customizable[data-interacting="true"]
+    .react-grid-item.resizing
+    > .dashboard-widget-shell {
+    transform: none !important;
+    box-shadow: none !important;
+}
 .dashboard-customizable .dashboard-widget-handle {
     touch-action: none;
     -webkit-user-select: none;
