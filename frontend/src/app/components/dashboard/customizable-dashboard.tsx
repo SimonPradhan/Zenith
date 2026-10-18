@@ -1126,18 +1126,18 @@ export default function CustomizableDashboard({
             >
               <Responsive
                 width={width}
-            layouts={layouts}
-            breakpoints={BREAKPOINTS}
-            cols={COLUMNS}
-            compactor={verticalCompactor}
-            rowHeight={64}
-            margin={GRID_MARGIN}
-            containerPadding={GRID_CONTAINER_PADDING}
-            dragConfig={dragConfig}
-            resizeConfig={resizeConfig}
-            onLayoutChange={handleLayoutChange}
-            onResizeStart={beginGridInteraction}
-            onResizeStop={finishGridInteraction}
+                layouts={layouts}
+                breakpoints={BREAKPOINTS}
+                cols={COLUMNS}
+                compactor={verticalCompactor}
+                rowHeight={64}
+                margin={GRID_MARGIN}
+                containerPadding={GRID_CONTAINER_PADDING}
+                dragConfig={dragConfig}
+                resizeConfig={resizeConfig}
+                onLayoutChange={handleLayoutChange}
+                onResizeStart={beginGridInteraction}
+                onResizeStop={finishGridInteraction}
               >
                 {gridChildren}
               </Responsive>
