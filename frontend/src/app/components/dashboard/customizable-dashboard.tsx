@@ -1136,8 +1136,10 @@ export default function CustomizableDashboard({
             dragConfig={dragConfig}
             resizeConfig={resizeConfig}
             onLayoutChange={handleLayoutChange}
-          >
-            {gridChildren}
+            onResizeStart={beginGridInteraction}
+            onResizeStop={finishGridInteraction}
+              >
+                {gridChildren}
               </Responsive>
             </SortableContext>
           </DndContext>
