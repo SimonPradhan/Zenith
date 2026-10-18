@@ -1950,3 +1950,107 @@ html {
     background-color: #66572d;
     color: #fff4d9;
 }
+
+
+/* Calendar widget: keep the footer and controls visible while the grid is resized. */
+.comic-paper-widget {
+    container-type: size;
+    min-height: 0;
+    min-width: 0;
+}
+
+.comic-paper-widget .calendar-day-grid {
+    min-height: 0;
+}
+
+.comic-paper-widget .calendar-day-cell {
+    min-height: 1.5rem;
+}
+
+.comic-paper-widget .calendar-agenda[hidden] {
+    display: none !important;
+}
+
+.comic-paper-widget .calendar-widget-footer {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+}
+
+@container (max-height: 560px) {
+    .comic-paper-widget .comic-widget-header {
+        padding-top: 0.35rem;
+        padding-bottom: 0.35rem;
+    }
+
+    .comic-paper-widget .comic-widget-header > div:first-child > span {
+        width: 2rem;
+        height: 2rem;
+    }
+
+    .comic-paper-widget .calendar-month-nav {
+        margin-top: 0.25rem;
+    }
+
+    .comic-paper-widget .calendar-day-grid {
+        margin-top: 0.25rem;
+    }
+
+    .comic-paper-widget .calendar-day-cell {
+        min-height: 1.25rem;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+
+    .comic-paper-widget .calendar-day-cell > span:nth-child(2) {
+        display: none;
+    }
+
+    .comic-paper-widget .calendar-agenda {
+        margin-top: 0.25rem;
+        padding-top: 0.25rem;
+    }
+
+    .comic-paper-widget .calendar-agenda > div:first-child {
+        margin-bottom: 0.25rem;
+    }
+
+    .comic-paper-widget .calendar-agenda > div:last-child {
+        scrollbar-width: thin;
+    }
+
+    .comic-paper-widget .calendar-compact-controls {
+        margin-top: 0.25rem;
+        padding-top: 0.25rem;
+    }
+
+    .comic-paper-widget .calendar-compact-controls button {
+        padding-top: 0.15rem;
+        padding-bottom: 0.15rem;
+    }
+
+    .comic-paper-widget .calendar-widget-footer {
+        margin-top: 0.25rem;
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+    }
+}
+
+@container (max-height: 430px) {
+    .comic-paper-widget .calendar-day-cell {
+        min-height: 1rem;
+        font-size: 0.625rem;
+    }
+
+    .comic-paper-widget .calendar-compact-controls > div {
+        gap: 0.15rem;
+    }
+
+    .comic-paper-widget .calendar-compact-controls button {
+        font-size: 9px;
+    }
+
+    .comic-paper-widget .calendar-agenda > div:last-child {
+        max-height: 3.5rem;
+        overflow-y: auto;
+    }
+}
+
