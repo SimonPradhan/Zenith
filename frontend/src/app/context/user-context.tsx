@@ -8,10 +8,15 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 
-import { getMe } from "@/lib/api/auth";
+import {
+  getMe,
+  logoutSession,
+  refreshSession,
+} from "@/lib/api/auth";
 import {
   getToken,
   removeToken,
+  setToken,
 } from "@/lib/auth";
 import type { User } from "@/types/auth";
 
@@ -39,14 +44,17 @@ export function UserProvider({
     let cancelled = false;
 
     async function loadUser() {
-      const token = getToken();
-
-      if (!token) {
-        router.replace("/login");
-        return;
-      }
-
       try {
+        let token = getToken();
+
+        // The access token may be absent after a browser restart. The
+        // HttpOnly refresh cookie can restore the session without login.
+        if (!token) {
+          const refreshed = await refreshSession();
+          token = refreshed.access_token;
+          setToken(token);
+        }
+
         const currentUser = await getMe(token);
 
         if (!cancelled) {
@@ -55,6 +63,7 @@ export function UserProvider({
       } catch {
         if (!cancelled) {
           removeToken();
+          setUser(null);
           router.replace("/login");
         }
       } finally {
@@ -64,7 +73,7 @@ export function UserProvider({
       }
     }
 
-    loadUser();
+    void loadUser();
 
     return () => {
       cancelled = true;
@@ -72,8 +81,14 @@ export function UserProvider({
   }, [router]);
 
   function logout() {
+    // Clear the local UI immediately, while asking the server to revoke the
+    // refresh session. The server cookie is HttpOnly and cannot be cleared
+    // from JavaScript directly.
     removeToken();
     setUser(null);
+    void logoutSession().catch(() => {
+      // Local logout remains effective if the network is unavailable.
+    });
     router.replace("/login");
   }
 

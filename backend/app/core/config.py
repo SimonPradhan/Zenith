@@ -15,6 +15,11 @@ class Settings(BaseSettings):
     resend_api_key: str
     frontend_url: str
     environment: str = "development"
+    refresh_token_days: int = 30
+    refresh_token_absolute_days: int = 90
+    refresh_cookie_secure: bool = False
+    refresh_cookie_samesite: str = "lax"
+    refresh_cookie_domain: str | None = None
 
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / ENV_FILE,

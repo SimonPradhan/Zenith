@@ -2,7 +2,7 @@ import hashlib
 import secrets
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from pydantic import BaseModel, Field
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
@@ -14,6 +14,7 @@ from app.core.security import (
     create_access_token,
     get_current_user,
 )
+from app.core.sessions import create_refresh_session
 from app.models.user import User
 from app.models.widget_link_code import WidgetLinkCode
 from app.schemas.user import ForgotPasswordRequest, LoginRequest, ResetPasswordRequest, UserCreate, UserResponse, ResendVerificationRequest
@@ -94,6 +95,7 @@ def verify_email(
 @limiter.limit("10/minute")
 def login(
     request: Request,
+    response: Response,
     data: LoginRequest,
     db: Session = Depends(get_db),
 ):
@@ -110,6 +112,7 @@ def login(
         )
 
     access_token = create_access_token(str(user.id))
+    create_refresh_session(db, user.id, response)
 
     return {
         "access_token": access_token,

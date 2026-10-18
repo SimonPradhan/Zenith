@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.core.security import hash_password, verify_password
 from app.models.user import User
+from app.models.refresh_session import RefreshSession
 from app.schemas.user import UserCreate
 import hashlib
 import secrets
@@ -168,6 +169,17 @@ def reset_password(
         return False
 
     user.password_hash = hash_password(new_password)
+
+    # Revoke persistent sessions after a password change.
+    now = datetime.now(timezone.utc)
+    sessions = db.scalars(
+        select(RefreshSession).where(
+            RefreshSession.user_id == user.id,
+            RefreshSession.revoked_at.is_(None),
+        )
+    ).all()
+    for session in sessions:
+        session.revoked_at = now
 
     # Invalidate the reset token immediately after successful use.
     user.password_reset_token_hash = None

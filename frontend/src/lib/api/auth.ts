@@ -8,6 +8,7 @@ import type {
 export function login(data: LoginRequest) {
   return apiClient<LoginResponse>("/auth/login", {
     method: "POST",
+    credentials: "include",
     body: JSON.stringify(data),
   });
 }
@@ -23,10 +24,22 @@ export function register(data: {
   });
 }
 
-export function getMe(token: string) {
-  return apiClient<User>("/auth/me", {
-    token,
+export function refreshSession() {
+  return apiClient<LoginResponse>("/auth/refresh", {
+    method: "POST",
+    credentials: "include",
   });
+}
+
+export function logoutSession() {
+  return apiClient<void>("/auth/logout", {
+    method: "POST",
+    credentials: "include",
+  });
+}
+
+export function getMe(token?: string) {
+  return apiClient<User>("/auth/me", { token });
 }
 
 export function createWidgetLinkCode(token: string) {

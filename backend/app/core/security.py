@@ -16,7 +16,7 @@ from app.models.user import User
 password_hasher = PasswordHasher()
 
 JWT_ALGORITHM = "HS256"
-JWT_EXPIRE_MINUTES = 60
+JWT_EXPIRE_MINUTES = 15
 
 
 def hash_password(password: str) -> str:
