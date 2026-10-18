@@ -544,8 +544,10 @@ export default function CalendarWidget({
       </div>
 
       <section
-        className="mt-3 flex min-h-[90px] min-w-0 flex-1 flex-col overflow-hidden border-t-2 border-dashed border-[#28251f]/35 px-3 pt-3 @[360px]:px-4"
+        id="calendar-selected-agenda"
+        className={`calendar-agenda mt-2 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden border-t-2 border-dashed border-[#28251f]/35 px-3 pt-2 @[360px]:px-4`}
         aria-label="Selected date agenda"
+        hidden={!agendaVisible}
       >
         <div className="mb-2 flex items-center justify-between gap-2 ">
           <div className="min-w-0">
