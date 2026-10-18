@@ -445,6 +445,7 @@ export default function CustomizableDashboard({
   const layoutsRef = useRef<GridLayouts>(layouts);
   const hasUserChangedLayout = useRef(false);
   const saveTimer = useRef<number | null>(null);
+  const pendingInteractionLayoutRef = useRef(false);
 
   const dragConfig = useMemo(
     () => ({
@@ -649,6 +650,15 @@ export default function CustomizableDashboard({
       });
 
       if (hasChanged) {
+        // Keep the latest layout in a ref while the pointer is moving. Updating
+        // React state and localStorage for every grid step makes drag/resize lag.
+        layoutsRef.current = next;
+
+        if (sectionRef.current?.dataset.interacting === "true") {
+          pendingInteractionLayoutRef.current = true;
+          return;
+        }
+
         commitLayouts(next);
       }
     },
@@ -663,6 +673,26 @@ export default function CustomizableDashboard({
     },
     [editing, updateLayouts],
   );
+
+  const beginGridInteraction = useCallback(() => {
+    if (sectionRef.current) {
+      sectionRef.current.dataset.interacting = "true";
+    }
+  }, []);
+
+  const finishGridInteraction = useCallback(() => {
+    // Let the grid publish its final layout before committing the buffered ref.
+    window.requestAnimationFrame(() => {
+      if (sectionRef.current) {
+        delete sectionRef.current.dataset.interacting;
+      }
+
+      if (pendingInteractionLayoutRef.current) {
+        pendingInteractionLayoutRef.current = false;
+        commitLayouts(layoutsRef.current);
+      }
+    });
+  }, [commitLayouts]);
 
   const removeWidget = useCallback(
     (id: DashboardWidgetId) => {
@@ -1001,6 +1031,10 @@ export default function CustomizableDashboard({
             dragConfig={dragConfig}
             resizeConfig={resizeConfig}
             onLayoutChange={handleLayoutChange}
+            onDragStart={beginGridInteraction}
+            onDragStop={finishGridInteraction}
+            onResizeStart={beginGridInteraction}
+            onResizeStop={finishGridInteraction}
           >
             {gridChildren}
           </Responsive>
