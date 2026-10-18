@@ -1,7 +1,8 @@
 export type CalendarEventCategory =
   | "nepal-public"
   | "nepal-festival"
-  | "international-observance";
+  | "international-observance"
+  | "personal";
 
 export type CalendarEvent = {
   /** Gregorian date in YYYY-MM-DD format. */
