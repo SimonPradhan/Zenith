@@ -259,6 +259,7 @@ export default function CalendarWidget({
       CALENDAR_EVENTS.filter((event) => {
         if (event.category === "nepal-public") return showNepalPublicHolidays;
         if (event.category === "nepal-festival") return showNepalFestivals;
+        if (event.category === "personal") return true;
         return showInternationalObservances;
       }),
     [showNepalPublicHolidays, showNepalFestivals, showInternationalObservances],
