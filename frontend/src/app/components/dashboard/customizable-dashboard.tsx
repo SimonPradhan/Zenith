@@ -986,36 +986,59 @@ export default function CustomizableDashboard({
   );
 
   const handleWidgetDragEnd = useCallback(
-    ({ active, over }: DragEndEvent) => {
-      if (!over || active.id === over.id) return;
+    ({ active }: DragEndEvent) => {
+      const translated = active.rect.current.translated;
+      const container = containerRef.current;
+      if (!translated || !container) return;
 
       const activeId = String(active.id);
-      const overId = String(over.id);
       const current = layoutsRef.current;
-      const next = {} as GridLayouts;
+      const breakpoint: Breakpoint =
+        width >= BREAKPOINTS.lg
+          ? "lg"
+          : width >= BREAKPOINTS.md
+            ? "md"
+            : width >= BREAKPOINTS.sm
+              ? "sm"
+              : width >= BREAKPOINTS.xs
+                ? "xs"
+                : "xxs";
+      const columns = COLUMNS[breakpoint];
+      const currentLayout = current[breakpoint];
+      const activeItem = currentLayout.find((item) => item.i === activeId);
+      if (!activeItem) return;
 
-      for (const breakpoint of BREAKPOINT_KEYS) {
-        const items = current[breakpoint].map((item) => ({ ...item }));
-        const activeIndex = items.findIndex((item) => item.i === activeId);
-        const overIndex = items.findIndex((item) => item.i === overId);
-        if (activeIndex < 0 || overIndex < 0) {
-          next[breakpoint] = items;
-          continue;
-        }
+      const containerRect = container.getBoundingClientRect();
+      const columnWidth =
+        (containerRect.width - GRID_MARGIN[0] * (columns - 1)) / columns;
+      const x = Math.max(
+        0,
+        Math.min(
+          columns - activeItem.w,
+          Math.round(
+            (translated.left - containerRect.left) /
+              (columnWidth + GRID_MARGIN[0]),
+          ),
+        ),
+      );
+      const y = Math.max(
+        0,
+        Math.round(
+          (translated.top - containerRect.top) /
+            (64 + GRID_MARGIN[1]),
+        ),
+      );
 
-        const activeItem = items[activeIndex];
-        const overItem = items[overIndex];
-        const activePosition = { x: activeItem.x, y: activeItem.y };
-        activeItem.x = overItem.x;
-        activeItem.y = overItem.y;
-        overItem.x = activePosition.x;
-        overItem.y = activePosition.y;
-        next[breakpoint] = items;
-      }
+      const next = {
+        ...current,
+        [breakpoint]: currentLayout.map((item) =>
+          item.i === activeId ? { ...item, x, y } : item,
+        ),
+      } as GridLayouts;
 
       commitLayouts(next);
     },
-    [commitLayouts],
+    [commitLayouts, width],
   );
 
   return (
