@@ -11,12 +11,14 @@ import {
   LoaderCircle,
   Plus,
   RotateCcw,
+  PartyPopper,
 } from "lucide-react";
 import NepaliDate from "nepali-date-converter";
 
 import { getTasks } from "@/lib/api/tasks";
 import type { Task } from "@/types/task";
 import type { Note } from "@/types/note";
+import { NEPAL_HOLIDAYS } from "@/app/components/dashboard/nepal-holidays";
 
 type CalendarMode = "en" | "np";
 
@@ -247,6 +249,18 @@ export default function CalendarWidget({
     [notes],
   );
 
+  const holidaysByDate = useMemo(() => {
+    const map = new Map<string, (typeof NEPAL_HOLIDAYS)[number][]>();
+    for (const holiday of NEPAL_HOLIDAYS) {
+      const [year, month, day] = holiday.date.split("-").map(Number);
+      const key = dateKey(new Date(year, month - 1, day));
+      const current = map.get(key) ?? [];
+      current.push(holiday);
+      map.set(key, current);
+    }
+    return map;
+  }, []);
+
   const days = useMemo(() => {
     if (mode === "en") {
       const year = englishView.getFullYear();
@@ -339,15 +353,15 @@ export default function CalendarWidget({
   }
 
   return (
-    <section className="comic-paper-widget flex h-full min-h-[420px] min-w-0 flex-col overflow-hidden rounded-sm border-2 border-[#28251f] bg-[#fffaf0]">
-      <header className="comic-widget-header flex shrink-0 flex-wrap items-start justify-between gap-2 border-b-2 border-[#28251f]/80 bg-[#b8d9b7]/70 px-4 py-4 sm:gap-3 sm:px-6">
+    <section className="comic-paper-widget flex h-full min-h-[360px] min-w-0 flex-col overflow-hidden rounded-sm border-2 border-[#28251f] bg-[#fffaf0] [container-type:inline-size]">
+      <header className="comic-widget-header flex shrink-0 flex-wrap items-center justify-between gap-2 border-b-2 border-[#28251f]/80 bg-[#b8d9b7]/70 px-3 py-3 sm:gap-3 sm:px-5">
         <div className="flex min-w-0 items-center gap-2">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center border-2 border-[#28251f] bg-[#b8d9b7] text-[#28251f] shadow-[2px_2px_0_#28251f]">
             <CalendarDays size={18} />
           </span>
 
           <div className="min-w-0">
-            <h3 className="comic-heading truncate text-xl text-[#28251f]">Calendar</h3>
+            <h3 className="comic-heading truncate text-lg text-[#28251f] @[360px]:text-xl">Calendar</h3>
 
             <p className="truncate text-sm font-semibold text-text-muted">
               {mode === "np"
@@ -420,7 +434,7 @@ export default function CalendarWidget({
         </button>
       </div>
 
-      <div className="mt-3 grid shrink-0 grid-cols-7 gap-0.5 sm:gap-1 px-4">
+      <div className="mt-3 grid shrink-0 grid-cols-7 gap-0.5 px-2 @[360px]:gap-1 @[360px]:px-4">
         {(mode === "en" ? EN_WEEKDAYS : NP_WEEKDAYS).map((weekday) => (
           <div
             key={weekday}
@@ -449,15 +463,16 @@ export default function CalendarWidget({
 
           const hasTasks = taskDates.has(itemKey);
           const hasNotes = noteDates.has(itemKey);
+          const holidays = holidaysByDate.get(itemKey) ?? [];
 
           return (
             <button
               key={itemKey}
               type="button"
               onClick={() => setSelectedDate(localDate(item.date))}
-              aria-label={item.date.toLocaleDateString()}
+              aria-label={`${item.date.toLocaleDateString()}${holidays.length ? `, holiday: ${holidays.map((holiday) => mode === "np" ? holiday.nameNp ?? holiday.name : holiday.name).join(", ")}` : ""}`}
               aria-pressed={isSelected}
-              className={`relative flex min-h-8 min-w-0 flex-col items-center justify-center border border-transparent text-[11px] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#28251f] sm:min-h-9 sm:text-xs ${
+              className={`relative flex min-h-7 min-w-0 flex-col items-center justify-center border border-transparent text-[10px] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#28251f] @[360px]:min-h-9 @[360px]:text-xs ${
                 isSelected
                   ? "border-[#28251f] bg-[#f4d64f] font-bold text-[#28251f] shadow-[2px_2px_0_#28251f]"
                   : isToday
@@ -478,6 +493,13 @@ export default function CalendarWidget({
               >
                 {toNepaliDigits(secondaryDay)}
               </span>
+
+              {holidays.length > 0 && (
+                <span
+                  className={`absolute right-0.5 top-0.5 h-1.5 w-1.5 rounded-full border border-[#28251f] ${isSelected ? "bg-[#28251f]" : "bg-[#efaaa7]"}`}
+                  aria-hidden="true"
+                />
+              )}
 
               {(hasTasks || hasNotes) && (
                 <span
@@ -507,12 +529,24 @@ export default function CalendarWidget({
       </div>
 
       <section
-        className="mt-3 flex min-h-[100px] min-w-0 flex-1 flex-col overflow-hidden border-t-2 border-dashed border-[#28251f]/35 px-4 pt-3"
+        className="mt-3 flex min-h-[90px] min-w-0 flex-1 flex-col overflow-hidden border-t-2 border-dashed border-[#28251f]/35 px-3 pt-3 @[360px]:px-4"
         aria-label="Selected date agenda"
       >
         <div className="mb-2 flex items-center justify-between gap-2 ">
           <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
             <p className="text-xs text-text-muted">Agenda</p>
+            {holidaysByDate.get(dateKey(selectedDate))?.map((holiday) => (
+              <span
+                key={holiday.date + holiday.name}
+                title={holiday.region === "kathmandu-valley" ? "Kathmandu Valley holiday" : "Nepal holiday"}
+                className="inline-flex max-w-full items-center gap-1 border border-[#28251f]/30 bg-[#efaaa7]/35 px-1.5 py-0.5 text-[10px] font-bold text-[#28251f]"
+              >
+                <PartyPopper size={11} className="shrink-0" />
+                <span className="truncate">{mode === "np" ? holiday.nameNp ?? holiday.name : holiday.name}</span>
+              </span>
+            ))}
+          </div>
 
             <p className="truncate text-sm font-semibold">
               {mode === "en"
