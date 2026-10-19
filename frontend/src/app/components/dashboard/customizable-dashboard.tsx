@@ -7,7 +7,6 @@ import {
   useMemo,
   useRef,
   useState,
-  type CSSProperties,
   type ReactNode,
 } from "react";
 import { Responsive, verticalCompactor } from "react-grid-layout";
@@ -545,7 +544,7 @@ export default function CustomizableDashboard({
       cancel:
         "button, a, input, textarea, select, [contenteditable='true'], .dashboard-widget-content",
     }),
-    [editing],
+    [],
   );
 
   const resizeConfig = useMemo(
