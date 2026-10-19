@@ -251,3 +251,6 @@ pip-selfcheck.json
 keystore.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/python,nextjs,react,venv
+
+# Ignore nested Next.js build output
+/frontend/frontend/.next/
