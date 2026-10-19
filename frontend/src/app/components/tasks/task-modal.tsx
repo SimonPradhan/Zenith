@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import {
   Calendar,
@@ -46,6 +46,10 @@ const statusOptions: {
   { value: "cancelled", label: "Cancelled" },
 ];
 
+const subscribe = () => () => {};
+const getSnapshot = () => true;
+const getServerSnapshot = () => false;
+
 export function TaskModal({
   open,
   task,
@@ -54,11 +58,11 @@ export function TaskModal({
   onClose,
   onSubmit,
 }: TaskModalProps) {
-  const [portalReady, setPortalReady] = useState(false);
-
-  useEffect(() => {
-    setPortalReady(true);
-  }, []);
+  const portalReady = useSyncExternalStore(
+    subscribe,
+    getSnapshot,
+    getServerSnapshot,
+  );
 
   if (!open || !portalReady) return null;
 

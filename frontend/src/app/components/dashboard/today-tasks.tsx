@@ -1,8 +1,8 @@
 import {
   ArrowRight,
   CalendarClock,
-  CheckCircle2,
-  Circle,
+  SquareCheckBig,
+  SquareDot,
   Clock3,
 } from "lucide-react";
 
@@ -125,19 +125,19 @@ function TaskItem({
         className={`
           flex h-8 w-8 shrink-0
           items-center justify-center
-          rounded-full
+          border-2 border-[#28251f]
           transition
           ${
             completed
-              ? "bg-[#c4e3e0] text-[#28251f]"
-              : "bg-[#efaaa7]/45 text-[#28251f]"
+              ? "bg-[#b8d9b7] text-[#28251f] shadow-[2px_2px_0_#28251f]"
+              : "bg-[#efaaa7]/45 text-[#28251f] shadow-[2px_2px_0_#28251f]"
           }
         `}
       >
         {completed ? (
-          <CheckCircle2 size={16} />
+          <SquareCheckBig size={16} />
         ) : (
-          <Circle size={16} />
+          <SquareDot size={16} />
         )}
       </div>
 

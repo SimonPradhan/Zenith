@@ -7,10 +7,25 @@ import {
   useMemo,
   useRef,
   useState,
-  type CSSProperties,
   type ReactNode,
 } from "react";
 import { Responsive, verticalCompactor } from "react-grid-layout";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  rectSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Plus, RotateCcw, X } from "lucide-react";
 
 import DashboardStats from "@/app/components/dashboard/dashboard-stats";
@@ -41,6 +56,81 @@ import {
   getDashboardPreferences,
   saveDashboardPreferences,
 } from "@/lib/api/dashboard-preferences";
+
+
+type SortableDashboardWidgetProps = {
+  id: string;
+  title: string;
+  enabled: boolean;
+  removable: boolean;
+  onRemove: () => void;
+  children: ReactNode;
+};
+
+function SortableDashboardWidget({
+  id,
+  title,
+  enabled,
+  removable,
+  onRemove,
+  children,
+}: SortableDashboardWidgetProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id, disabled: !enabled });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className="dashboard-widget-shell flex h-full min-h-0 flex-col"
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.72 : 1,
+        zIndex: isDragging ? 5 : undefined,
+      }}
+    >
+      {enabled && (
+        <div className="mb-2 flex shrink-0 items-center justify-between border-2 border-dashed border-[#28251f]/60 bg-[#f4d64f]/35 px-3 py-2">
+          <div
+            {...attributes}
+            {...listeners}
+            className="dashboard-widget-handle flex min-h-8 touch-none select-none cursor-grab items-center gap-2 px-1 text-xs font-bold text-[#28251f] transition-colors hover:text-primary active:cursor-grabbing"
+          >
+            <GripVertical size={15} />
+            {title}
+          </div>
+          {removable && (
+            <button
+              type="button"
+              aria-label={`Remove ${title}`}
+              onClick={onRemove}
+              className="border border-[#28251f]/30 bg-[#fffaf0] p-1 text-[#28251f] transition hover:bg-[#efaaa7]/70 hover:text-[#28251f]"
+            >
+              <X size={15} />
+            </button>
+          )}
+        </div>
+      )}
+      <div
+        className="dashboard-widget-content min-h-0 min-w-0 flex-1 overflow-hidden"
+        inert={enabled}
+        aria-label={
+          enabled
+            ? `${title} preview; interactions disabled while customizing`
+            : undefined
+        }
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
 
 type Breakpoint = "lg" | "md" | "sm" | "xs" | "xxs";
 
@@ -445,15 +535,16 @@ export default function CustomizableDashboard({
   const layoutsRef = useRef<GridLayouts>(layouts);
   const hasUserChangedLayout = useRef(false);
   const saveTimer = useRef<number | null>(null);
+  const pendingInteractionLayoutRef = useRef(false);
 
   const dragConfig = useMemo(
     () => ({
-      enabled: editing,
+      enabled: false,
       handle: ".dashboard-widget-handle",
       cancel:
         "button, a, input, textarea, select, [contenteditable='true'], .dashboard-widget-content",
     }),
-    [editing],
+    [],
   );
 
   const resizeConfig = useMemo(
@@ -649,6 +740,15 @@ export default function CustomizableDashboard({
       });
 
       if (hasChanged) {
+        // Keep the latest layout in a ref while the pointer is moving. Updating
+        // React state and localStorage for every grid step makes drag/resize lag.
+        layoutsRef.current = next;
+
+        if (sectionRef.current?.dataset.interacting === "true") {
+          pendingInteractionLayoutRef.current = true;
+          return;
+        }
+
         commitLayouts(next);
       }
     },
@@ -663,6 +763,26 @@ export default function CustomizableDashboard({
     },
     [editing, updateLayouts],
   );
+
+  const beginGridInteraction = useCallback(() => {
+    if (sectionRef.current) {
+      sectionRef.current.dataset.interacting = "true";
+    }
+  }, []);
+
+  const finishGridInteraction = useCallback(() => {
+    // Let the grid publish its final layout before committing the buffered ref.
+    window.requestAnimationFrame(() => {
+      if (sectionRef.current) {
+        delete sectionRef.current.dataset.interacting;
+      }
+
+      if (pendingInteractionLayoutRef.current) {
+        pendingInteractionLayoutRef.current = false;
+        commitLayouts(layoutsRef.current);
+      }
+    });
+  }, [commitLayouts]);
 
   const removeWidget = useCallback(
     (id: DashboardWidgetId) => {
@@ -833,63 +953,91 @@ export default function CustomizableDashboard({
 
   const gridChildren = useMemo(
     () =>
-      layouts.lg.map((item, index) => {
+      layouts.lg.map((item) => {
         const id = item.i as DashboardWidgetId;
-
-        const definition = DASHBOARD_WIDGETS.find(
-          (widget) => widget.id === id,
-        );
-
-        if (!definition) {
-          return null;
-        }
+        const definition = DASHBOARD_WIDGETS.find((widget) => widget.id === id);
+        if (!definition) return null;
 
         return (
           <div key={id} className="min-w-0">
-            <div
-              className="dashboard-widget-shell flex h-full min-h-0 flex-col"
-              style={
-                {
-                  "--enter-delay": `${Math.min(index, 8) * 55}ms`,
-                } as CSSProperties
-              }
+            <SortableDashboardWidget
+              id={id}
+              title={definition.title}
+              enabled={editing}
+              removable={definition.removable}
+              onRemove={() => removeWidget(id)}
             >
-              {editing && (
-                <div className="mb-2 flex shrink-0 items-center justify-between border-2 border-dashed border-[#28251f]/60 bg-[#f4d64f]/35 px-3 py-2">
-                  <div className="dashboard-widget-handle flex min-h-8 touch-none select-none cursor-grab items-center gap-2 px-1 text-xs font-bold text-[#28251f] transition-colors hover:text-primary active:cursor-grabbing">
-                    <GripVertical size={15} />
-                    {definition.title}
-                  </div>
-
-                  {definition.removable && (
-                    <button
-                      type="button"
-                      aria-label={`Remove ${definition.title}`}
-                      onClick={() => removeWidget(id)}
-                      className="border border-[#28251f]/30 bg-[#fffaf0] p-1 text-[#28251f] transition hover:bg-[#efaaa7]/70 hover:text-[#28251f]"
-                    >
-                      <X size={15} />
-                    </button>
-                  )}
-                </div>
-              )}
-
-              <div
-                className="dashboard-widget-content min-h-0 min-w-0 flex-1 overflow-hidden"
-                inert={editing}
-                aria-label={
-                  editing
-                    ? `${definition.title} preview; interactions disabled while customizing`
-                    : undefined
-                }
-              >
-                {widgetNodes[id]}
-              </div>
-            </div>
+              {widgetNodes[id]}
+            </SortableDashboardWidget>
           </div>
         );
       }),
     [layouts.lg, editing, widgetNodes, removeWidget],
+  );
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 6 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  const handleWidgetDragEnd = useCallback(
+    ({ active }: DragEndEvent) => {
+      const translated = active.rect.current.translated;
+      const container = containerRef.current;
+      if (!translated || !container) return;
+
+      const activeId = String(active.id);
+      const current = layoutsRef.current;
+      const breakpoint: Breakpoint =
+        width >= BREAKPOINTS.lg
+          ? "lg"
+          : width >= BREAKPOINTS.md
+            ? "md"
+            : width >= BREAKPOINTS.sm
+              ? "sm"
+              : width >= BREAKPOINTS.xs
+                ? "xs"
+                : "xxs";
+      const columns = COLUMNS[breakpoint];
+      const currentLayout = current[breakpoint];
+      const activeItem = currentLayout.find((item) => item.i === activeId);
+      if (!activeItem) return;
+
+      const containerRect = container.getBoundingClientRect();
+      const columnWidth =
+        (containerRect.width - GRID_MARGIN[0] * (columns - 1)) / columns;
+      const x = Math.max(
+        0,
+        Math.min(
+          columns - activeItem.w,
+          Math.round(
+            (translated.left - containerRect.left) /
+              (columnWidth + GRID_MARGIN[0]),
+          ),
+        ),
+      );
+      const y = Math.max(
+        0,
+        Math.round(
+          (translated.top - containerRect.top) /
+            (64 + GRID_MARGIN[1]),
+        ),
+      );
+
+      const next = {
+        ...current,
+        [breakpoint]: currentLayout.map((item) =>
+          item.i === activeId ? { ...item, x, y } : item,
+        ),
+      } as GridLayouts;
+
+      commitLayouts(next);
+    },
+    [commitLayouts, width],
   );
 
   return (
@@ -989,21 +1137,34 @@ export default function CustomizableDashboard({
 
       <div ref={containerRef} className="w-full min-w-0 overflow-x-clip">
         {preferencesLoaded && width > 0 ? (
-          <Responsive
-            width={width}
-            layouts={layouts}
-            breakpoints={BREAKPOINTS}
-            cols={COLUMNS}
-            compactor={verticalCompactor}
-            rowHeight={64}
-            margin={GRID_MARGIN}
-            containerPadding={GRID_CONTAINER_PADDING}
-            dragConfig={dragConfig}
-            resizeConfig={resizeConfig}
-            onLayoutChange={handleLayoutChange}
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleWidgetDragEnd}
           >
-            {gridChildren}
-          </Responsive>
+            <SortableContext
+              items={layouts.lg.map((item) => item.i)}
+              strategy={rectSortingStrategy}
+            >
+              <Responsive
+                width={width}
+                layouts={layouts}
+                breakpoints={BREAKPOINTS}
+                cols={COLUMNS}
+                compactor={verticalCompactor}
+                rowHeight={64}
+                margin={GRID_MARGIN}
+                containerPadding={GRID_CONTAINER_PADDING}
+                dragConfig={dragConfig}
+                resizeConfig={resizeConfig}
+                onLayoutChange={handleLayoutChange}
+                onResizeStart={beginGridInteraction}
+                onResizeStop={finishGridInteraction}
+              >
+                {gridChildren}
+              </Responsive>
+            </SortableContext>
+          </DndContext>
         ) : (
           <div
             className="min-h-96 animate-pulse rounded-2xl border border-border bg-surface"
