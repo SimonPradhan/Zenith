@@ -44,7 +44,7 @@ export default function RecentNotes({
       {notes.length === 0 ? (
         <EmptyNotes onCreateNote={onCreateNote} />
       ) : (
-        <div className="min-h-0 flex-1 divide-y divide-dashed divide-[#28251f]/20 overflow-y-auto overscroll-contain bg-[radial-gradient(#28251f0b_1px,transparent_1px)] bg-[length:10px_10px]">
+        <div className="min-h-0 flex-1 divide-y divide-dashed divide-[#28251f]/20 overflow-y-auto overscroll-auto bg-[radial-gradient(#28251f0b_1px,transparent_1px)] bg-[length:10px_10px]">
           {notes.map((note) => (
             <NoteItem
               key={note.id}
