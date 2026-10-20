@@ -536,7 +536,7 @@ export default function CalendarWidget({
           </button>
         </div>
 
-        <div className="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain bg-[radial-gradient(#28251f0b_1px,transparent_1px)] bg-[length:10px_10px] pr-1">
+        <div className="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-auto bg-[radial-gradient(#28251f0b_1px,transparent_1px)] bg-[length:10px_10px] pr-1">
           {loadingTasks ? (
             <p className="flex items-center gap-2 py-2 text-xs text-text-muted">
               <LoaderCircle size={14} className="animate-spin" />
