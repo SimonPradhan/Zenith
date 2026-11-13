@@ -90,12 +90,25 @@ async function errorFromResponse(response: Response): Promise<Error> {
   return new Error(message);
 }
 
+function shouldAttachToken(endpoint: string): boolean {
+  return ![
+    "/auth/login",
+    "/auth/register",
+    "/auth/forgot-password",
+    "/auth/reset-password",
+    "/auth/verify-email",
+  ].some((path) => endpoint.startsWith(path));
+}
+
 export async function apiClient<T>(
   endpoint: string,
   options: RequestOptions = {},
 ): Promise<T> {
   const { token: suppliedToken, ...fetchOptions } = options;
-  const initialToken = suppliedToken ?? getToken() ?? undefined;
+
+  const initialToken = shouldAttachToken(endpoint)
+    ? suppliedToken ?? getToken() ?? undefined
+    : undefined;
 
   let response = await sendRequest(endpoint, fetchOptions, initialToken);
 
