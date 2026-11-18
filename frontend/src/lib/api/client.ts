@@ -15,6 +15,16 @@ type TokenResponse = {
   token_type: string;
 };
 
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public readonly status: number,
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
 let refreshInFlight: Promise<string | null> | null = null;
 
 async function refreshAccessToken(): Promise<string | null> {
@@ -27,17 +37,18 @@ async function refreshAccessToken(): Promise<string | null> {
           headers: { "Content-Type": "application/json" },
         });
 
-        if (!response.ok) {
+        if (response.status === 401) {
           removeToken();
           return null;
+        }
+
+        if (!response.ok) {
+          throw await errorFromResponse(response);
         }
 
         const result = (await response.json()) as TokenResponse;
         setToken(result.access_token);
         return result.access_token;
-      } catch {
-        // Keep network failures distinct from a confirmed invalid session.
-        return null;
       } finally {
         refreshInFlight = null;
       }
@@ -77,7 +88,7 @@ async function sendRequest(
   });
 }
 
-async function errorFromResponse(response: Response): Promise<Error> {
+async function errorFromResponse(response: Response): Promise<ApiError> {
   let message = "Something went wrong";
 
   try {
@@ -87,7 +98,7 @@ async function errorFromResponse(response: Response): Promise<Error> {
     // Ignore JSON parsing errors.
   }
 
-  return new Error(message);
+  return new ApiError(message, response.status);
 }
 
 export async function apiClient<T>(
