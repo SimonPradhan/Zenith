@@ -27,7 +27,15 @@ export class ApiError extends Error {
 
 let refreshInFlight: Promise<string | null> | null = null;
 
-async function refreshAccessToken(): Promise<string | null> {
+/**
+ * Refresh the access token through one shared request.
+ *
+ * Keeping this promise shared is important because session restoration and
+ * automatic 401 recovery can happen at nearly the same time. Refresh tokens
+ * rotate on the backend, so concurrent requests using the same cookie would
+ * otherwise invalidate one another.
+ */
+export async function refreshAccessToken(): Promise<string | null> {
   if (!refreshInFlight) {
     refreshInFlight = (async () => {
       try {
