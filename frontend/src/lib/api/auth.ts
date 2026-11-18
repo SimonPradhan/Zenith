@@ -1,4 +1,4 @@
-import { apiClient } from "./client";
+import { ApiError, apiClient, refreshAccessToken } from "./client";
 import type {
   LoginRequest,
   LoginResponse,
@@ -24,11 +24,21 @@ export function register(data: {
   });
 }
 
-export function refreshSession() {
-  return apiClient<LoginResponse>("/auth/refresh", {
-    method: "POST",
-    credentials: "include",
-  });
+/**
+ * Restore a session using the same shared refresh request used by API retries.
+ * This prevents concurrent refreshes from rotating the same cookie twice.
+ */
+export async function refreshSession(): Promise<LoginResponse> {
+  const access_token = await refreshAccessToken();
+
+  if (!access_token) {
+    throw new ApiError("Session expired. Please sign in again.", 401);
+  }
+
+  return {
+    access_token,
+    token_type: "bearer",
+  };
 }
 
 export function logoutSession() {
