@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
 export default function Home() {
-  redirect("/login");
+  // Let the workspace provider restore the session from the HttpOnly cookie.
+  redirect("/dashboard");
 }
