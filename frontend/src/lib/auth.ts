@@ -1,19 +1,23 @@
-const TOKEN_KEY = "zenith_access_token";
+let accessToken: string | null = null;
 
 export function getToken(): string | null {
   if (typeof window === "undefined") {
     return null;
   }
 
-  return localStorage.getItem(TOKEN_KEY);
+  return accessToken;
 }
 
 export function setToken(token: string): void {
-  localStorage.setItem(TOKEN_KEY, token);
+  if (typeof window !== "undefined") {
+    accessToken = token;
+  }
 }
 
 export function removeToken(): void {
-  localStorage.removeItem(TOKEN_KEY);
+  if (typeof window !== "undefined") {
+    accessToken = null;
+  }
 }
 
 export function isAuthenticated(): boolean {
