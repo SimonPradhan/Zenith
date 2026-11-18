@@ -13,6 +13,7 @@ import {
   logoutSession,
   refreshSession,
 } from "@/lib/api/auth";
+import { ApiError } from "@/lib/api/client";
 import {
   getToken,
   removeToken,
@@ -47,8 +48,8 @@ export function UserProvider({
       try {
         let token = getToken();
 
-        // The access token may be absent after a browser restart. The
-        // HttpOnly refresh cookie can restore the session without login.
+        // After a reload, the in-memory access token is intentionally empty.
+        // Restore it using the persistent HttpOnly refresh cookie.
         if (!token) {
           const refreshed = await refreshSession();
           token = refreshed.access_token;
@@ -60,10 +61,15 @@ export function UserProvider({
         if (!cancelled) {
           setUser(currentUser);
         }
-      } catch {
-        if (!cancelled) {
+      } catch (error) {
+        if (cancelled) return;
+
+        setUser(null);
+
+        // Only a confirmed expired/invalid session should send the user
+        // to login. Network errors and server errors should not log them out.
+        if (error instanceof ApiError && error.status === 401) {
           removeToken();
-          setUser(null);
           router.replace("/login");
         }
       } finally {
@@ -81,14 +87,13 @@ export function UserProvider({
   }, [router]);
 
   function logout() {
-    // Clear the local UI immediately, while asking the server to revoke the
-    // refresh session. The server cookie is HttpOnly and cannot be cleared
-    // from JavaScript directly.
     removeToken();
     setUser(null);
+
     void logoutSession().catch(() => {
       // Local logout remains effective if the network is unavailable.
     });
+
     router.replace("/login");
   }
 
