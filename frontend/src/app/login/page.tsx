@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -13,8 +13,9 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-import { login } from "@/lib/api/auth";
-import { setToken } from "@/lib/auth";
+import { getMe, login, refreshSession } from "@/lib/api/auth";
+import { ApiError } from "@/lib/api/client";
+import { getToken, removeToken, setToken } from "@/lib/auth";
 import { useToast } from "@/app/components/ui/toast-provider";
 
 export default function LoginPage() {
@@ -27,6 +28,56 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function redirectIfAuthenticated() {
+      try {
+        let token = getToken();
+
+        // The access token is memory-only, so restore it from the
+        // HttpOnly refresh cookie when opening /login directly.
+        if (!token) {
+          const session = await refreshSession();
+          token = session.access_token;
+          setToken(token);
+        }
+
+        await getMe(token);
+
+        if (!cancelled) {
+          router.replace("/dashboard");
+        }
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 401) {
+          removeToken();
+        }
+
+        if (!cancelled) {
+          setCheckingSession(false);
+        }
+      }
+    }
+
+    void redirectIfAuthenticated();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [router]);
+
+  if (checkingSession) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-3 text-text-secondary">
+          <span className="h-6 w-6 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />
+          <p className="text-sm">Checking your session...</p>
+        </div>
+      </main>
+    );
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
